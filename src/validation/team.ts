@@ -23,10 +23,7 @@ export const notPlayingThatWeek = (
   teamIdx: number,
   team: string,
 ): boolean => {
-  // console.log(matchStructure[divIdx][weekIdx]);
   const teams = matchStructure[divIdx][weekIdx].flat(2);
-  // console.log(teams);
-  //console.log(team);
   if (teams.includes(team)) {
     return false;
   }

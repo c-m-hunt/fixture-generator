@@ -16,27 +16,6 @@ export const displayOutput = (matchStructure: MatchStructure) => {
   console.log("-------------------------------------------------");
 };
 
-const applyConflict = (
-  matchStructure: MatchStructure,
-  conflict: ConflictResponse,
-) => {
-  if (!conflict) {
-    return;
-  }
-  const [team, divIdx, weekIdx, matchIdx, teamIdx] = conflict;
-  matchStructure[divIdx][weekIdx][matchIdx][teamIdx] = team;
-};
-
-const undoConflict = (
-  matchStructure: MatchStructure,
-  conflict: ConflictResponse,
-) => {
-  if (!conflict) {
-    return;
-  }
-  const [team, divIdx, weekIdx, matchIdx, teamIdx] = conflict;
-  matchStructure[divIdx][weekIdx][matchIdx][teamIdx] = null;
-};
 let c = 0;
 const generate = () => {
   // Iterate divs
@@ -57,18 +36,17 @@ const generate = () => {
         ) {
           if (matchStructure[divIdx][weekIdx][matchIdx][teamIdx] === null) {
             for (let team of divTeams[divIdx]) {
-              const [valid, conflict] = isValid(
-                matchStructure,
-                divIdx,
-                weekIdx,
-                matchIdx,
-                teamIdx,
-                team,
-                false,
-              );
-              if (valid) {
+              if (
+                isValid(
+                  matchStructure,
+                  divIdx,
+                  weekIdx,
+                  matchIdx,
+                  teamIdx,
+                  team,
+                )
+              ) {
                 matchStructure[divIdx][weekIdx][matchIdx][teamIdx] = team;
-                applyConflict(matchStructure, conflict);
                 c += 1;
                 if (c % 100000 === 0) {
                   console.log(c);
@@ -77,7 +55,6 @@ const generate = () => {
 
                 generate();
                 matchStructure[divIdx][weekIdx][matchIdx][teamIdx] = null;
-                undoConflict(matchStructure, conflict);
               }
             }
             return false;
