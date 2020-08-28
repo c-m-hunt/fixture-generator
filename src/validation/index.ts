@@ -24,7 +24,7 @@ export const isValid = (
     fixtureDoesNotExists,
     notSameVenueXWeeks,
     notUnevenVenues,
-    notVenueClash,
+    // notVenueClash,
   ];
 
   for (const v of validationFunctions) {

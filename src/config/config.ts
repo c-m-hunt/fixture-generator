@@ -1,3 +1,9 @@
+import {
+  ConflictsArray,
+  ConflictsObject,
+  teamConflictsToObject,
+} from "../utils";
+
 export const divTeams = [
   [
     "BRE1",
@@ -8,8 +14,8 @@ export const divTeams = [
     "BIL1",
     "CHI1",
     "BEL1",
-    // "COL1",
-    // "HAW1",
+    "COL1",
+    "HAW1",
   ], // Prem
   // [
   //   "BUC1",
@@ -59,18 +65,18 @@ export const divTeams = [
     "ILF2",
     "SHE2",
     "WWE2",
-    // "OPA2",
-    // "UPM2",
-    // "WIC2",
+    "OPA2",
+    "UPM2",
+    "WIC2",
   ], // 2nd XI Prem
 ];
 
 export const divWeeks = [
-  7, // Prem
+  9, // Prem
   // 9, // Div 1
   // 9, // Div 2
   //13, // Div 3,
-  6,
+  9,
 ];
 
 // export const divTeams = [
@@ -82,3 +88,20 @@ export const divWeeks = [
 //   1, // Prem
 //   1, // Div 1
 // ];
+
+export const venConflicts: ConflictsArray = [
+  ["BRE1", "BRE2"],
+  ["WAN1", "WAN2"],
+  ["CHE1", "CHE2"],
+  ["HAD1", "HAD2"],
+  ["HOR1", "HOR2"],
+  ["BIL1", "BIL2"],
+  ["CHI1", "CHI2"],
+  ["BEL1", "BEL2"],
+  ["COL1", "COL2"],
+  ["HAW1", "HAW2"],
+];
+
+export const venConflictsLookup: ConflictsObject = teamConflictsToObject(
+  venConflicts,
+);

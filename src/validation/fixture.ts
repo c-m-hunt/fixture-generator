@@ -116,9 +116,9 @@ export const notVenueClash = (
     return true;
   }
 
-  const homeTeams = matchStructure.map((d) => d[weekIdx]).flat().map((f) =>
-    f[0]
-  );
+  const homeTeams = matchStructure.map((d) => d[weekIdx]).flat()
+    .filter((w) => w !== undefined)
+    .map((f) => f[0]);
 
   const clashTeam = `${club}${clashTeamNo}`;
 

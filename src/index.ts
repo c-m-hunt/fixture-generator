@@ -16,7 +16,6 @@ const displayOutput = (matchStructure: MatchStructure) => {
 };
 
 const generate = () => {
-  const maxDivs = Math.max(...matchStructure.map((d) => d.length));
   // Iterate divs
   for (let divIdx = 0; divIdx < matchStructure.length; divIdx++) {
     // Iterate weeks in division
