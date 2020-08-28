@@ -10,6 +10,8 @@ import {
   notVenueClash,
 } from "./fixture";
 
+export type ConflictResponse = [string, number, number, number, number] | null;
+
 export const isValid = (
   matchStructure: MatchStructure,
   divIdx: number,
@@ -24,7 +26,7 @@ export const isValid = (
     fixtureDoesNotExists,
     notSameVenueXWeeks,
     notUnevenVenues,
-    // notVenueClash,
+    notVenueClash,
   ];
 
   for (const v of validationFunctions) {

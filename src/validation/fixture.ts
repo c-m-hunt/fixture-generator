@@ -1,4 +1,5 @@
 import { MatchStructure, Fixture } from "../config";
+import { venConflictsLookup } from "../config/config";
 
 export const fixtureDoesNotExists = (
   matchStructure: MatchStructure,
@@ -15,8 +16,11 @@ export const fixtureDoesNotExists = (
   const match: Fixture = [...matchStructure[divIdx][weekIdx][matchIdx]];
   match[teamIdx] = team;
   const divMatches = matchStructure[divIdx].flat();
+  const filteredDivMatches = divMatches.filter((m) =>
+    m[0] !== null && m[1] !== null
+  );
 
-  if (fixtureExists(divMatches, match)) {
+  if (fixtureExists(filteredDivMatches, match)) {
     return false;
   }
   return true;
@@ -95,32 +99,12 @@ export const notVenueClash = (
   if (teamIdx === 1) {
     return true;
   }
-  const club = team.slice(0, 3);
-  const teamNo = parseInt(team[3]);
-  let clashTeamNo: null | number = null;
-  if (teamNo === 1) {
-    clashTeamNo = 2;
-  } else if (teamNo === 2) {
-    clashTeamNo = 1;
-  } else if (teamNo === 3) {
-    clashTeamNo = 4;
-  } else if (teamNo === 4) {
-    clashTeamNo = 3;
-  } else if (teamNo === 5) {
-    clashTeamNo = 6;
-  } else if (teamNo === 6) {
-    clashTeamNo = 5;
-  }
-
-  if (clashTeamNo === null) {
-    return true;
-  }
 
   const homeTeams = matchStructure.map((d) => d[weekIdx]).flat()
     .filter((w) => w !== undefined)
     .map((f) => f[0]);
 
-  const clashTeam = `${club}${clashTeamNo}`;
+  const clashTeam = venConflictsLookup[team];
 
   if (homeTeams.includes(clashTeam)) {
     return false;
@@ -134,7 +118,7 @@ const fixtureExists = (
   checkReverse: boolean = true,
 ): boolean => {
   for (const f of fixList) {
-    if (f[0] === fix[0] && f[1] === fix[1]) {
+    if (f[0] !== null && f[1] !== null && f[0] === fix[0] && f[1] === fix[1]) {
       return true;
     }
     if (checkReverse && f[1] === fix[0] && f[0] === fix[1]) {
