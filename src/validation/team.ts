@@ -9,7 +9,6 @@ export const validateOppoTeam = (
   team: string,
 ): boolean => {
   const otherTeam = teamIdx === 1 ? 0 : 1;
-
   if (matchStructure[divIdx][weekIdx][matchIdx][otherTeam] === team) {
     return false;
   }
