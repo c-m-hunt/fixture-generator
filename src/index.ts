@@ -6,6 +6,18 @@ import { isValid, ConflictResponse } from "./validation";
 let matchStructure: MatchStructure = setup(divTeams, divWeeks);
 let i = 0;
 
+let start = process.hrtime();
+
+const elapsedTime = (note: string) => {
+  var precision = 3; // 3 decimal places
+  var elapsed = process.hrtime(start)[1] / 1000000; // divide by a million to get nano to milli
+  console.log(
+    process.hrtime(start)[0] + " s, " + elapsed.toFixed(precision) + " ms - " +
+      note,
+  ); // print message + time
+  //start = process.hrtime(); // reset the timer
+};
+
 export const displayOutput = (matchStructure: MatchStructure) => {
   for (let d of matchStructure) {
     for (let m = 0; m < d[0].length; m++) {
@@ -14,6 +26,28 @@ export const displayOutput = (matchStructure: MatchStructure) => {
     console.log("-------------------------------------------------");
   }
   console.log("-------------------------------------------------");
+};
+
+const applyConflict = (
+  matchStructure: MatchStructure,
+  conflict: ConflictResponse,
+) => {
+  if (!conflict) {
+    return;
+  }
+  const [team, divIdx, weekIdx, matchIdx, teamIdx] = conflict;
+  matchStructure[divIdx][weekIdx][matchIdx][teamIdx] = team;
+};
+
+const undoConflict = (
+  matchStructure: MatchStructure,
+  conflict: ConflictResponse,
+) => {
+  if (!conflict) {
+    return;
+  }
+  const [team, divIdx, weekIdx, matchIdx, teamIdx] = conflict;
+  matchStructure[divIdx][weekIdx][matchIdx][teamIdx] = null;
 };
 
 let c = 0;
@@ -36,25 +70,27 @@ const generate = () => {
         ) {
           if (matchStructure[divIdx][weekIdx][matchIdx][teamIdx] === null) {
             for (let team of divTeams[divIdx]) {
-              if (
-                isValid(
-                  matchStructure,
-                  divIdx,
-                  weekIdx,
-                  matchIdx,
-                  teamIdx,
-                  team,
-                )
-              ) {
+              const [valid, conflict] = isValid(
+                matchStructure,
+                divIdx,
+                weekIdx,
+                matchIdx,
+                teamIdx,
+                team,
+                true,
+              );
+              if (valid) {
                 matchStructure[divIdx][weekIdx][matchIdx][teamIdx] = team;
+                applyConflict(matchStructure, conflict);
                 c += 1;
                 if (c % 100000 === 0) {
-                  console.log(c);
+                  elapsedTime(c.toString());
                   displayOutput(matchStructure);
                 }
 
                 generate();
                 matchStructure[divIdx][weekIdx][matchIdx][teamIdx] = null;
+                undoConflict(matchStructure, conflict);
               }
             }
             return false;

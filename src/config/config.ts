@@ -41,22 +41,22 @@ export const divTeams = [
     "LOS1",
     "WOS1",
   ], // Div 2
-  [
-    "OLB1",
-    "SWD1",
-    "HAR1",
-    "WAL1",
-    "ARD1",
-    "EPP1",
-    "GOR1",
-    "SLH1",
-    "WFG1",
-    "WES1",
-    "RAI1",
-    "BAR1",
-    "NEW1",
-    "SPR1",
-  ], // Div 3
+  // [
+  //   "OLB1",
+  //   "SWD1",
+  //   "HAR1",
+  //   "WAL1",
+  //   "ARD1",
+  //   "EPP1",
+  //   "GOR1",
+  //   "SLH1",
+  //   "WFG1",
+  //   "WES1",
+  //   "RAI1",
+  //   "BAR1",
+  //   "NEW1",
+  //   "SPR1",
+  // ], // Div 3
   [
     "HOR2",
     "CHE2",
@@ -69,53 +69,53 @@ export const divTeams = [
     "CHI2",
     "BUH2",
   ], // 2nd XI Prem
-  [
-    "UPM2",
-    "WIC2",
-    "HAW2",
-    "LOU2",
-    "HUT2",
-    "COL2",
-    "BIL2",
-    "FRE2",
-    "SWF2",
-    "GPR2",
-  ], // 2nd XI Div 1
-  [
-    "BEL2",
-    "SOS2",
-    "HAR2",
-    "WOS2",
-    "OPA2",
-    "OSS2",
-    "ARD2",
-    "HAT2",
-    "LOS2",
-    "EPP2",
-  ], // 2nd XI Div 2
-  [
-    "WES2",
-    "ORS2",
-    "BEN2",
-    "FIV2",
-    "SLH2",
-    "WFG2",
-    "GOR2",
-    "WAL2",
-    "HOH2",
-    "HAT2",
-  ], // 2nd XI Div 3
+  // [
+  //   "UPM2",
+  //   "WIC2",
+  //   "HAW2",
+  //   "LOU2",
+  //   "HUT2",
+  //   "COL2",
+  //   "BIL2",
+  //   "FRE2",
+  //   "SWF2",
+  //   "GPR2",
+  // ], // 2nd XI Div 1
+  // [
+  //   "BEL2",
+  //   "SOS2",
+  //   "HAR2",
+  //   "WOS2",
+  //   "OPA2",
+  //   "OSS2",
+  //   "ARD2",
+  //   "HAT2",
+  //   "LOS2",
+  //   "EPP2",
+  // ], // 2nd XI Div 2
+  // [
+  //   "WES2",
+  //   "ORS2",
+  //   "BEN2",
+  //   "FIV2",
+  //   "SLH2",
+  //   "WFG2",
+  //   "GOR2",
+  //   "WAL2",
+  //   "HOH2",
+  //   "HAT2",
+  // ], // 2nd XI Div 3
 ];
 
 export const divWeeks = [
   9, // Prem
   9, // Div 1
   9, // Div 2
-  13, // Div 3,
+  // 13, // Div 3,
   9, // 2nd XI Prem
-  9, // 2nd XI Div 1
-  9, // 2nd XI Div 2
-  9, // 2nd XI Div 3
+  // 9, // 2nd XI Div 1
+  // 9, // 2nd XI Div 2
+  // 9, // 2nd XI Div 3
 ];
 
 export const venConflicts: ConflictsArray = [
