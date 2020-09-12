@@ -89,7 +89,7 @@ export const divTeams = [
     "OLB2",
     "OSS2",
     "ARD2",
-    "HAT2",
+    "HAD2",
     "LOS2",
     "EPP2",
   ], // 2nd XI Div 2
@@ -111,7 +111,7 @@ export const divWeeks = [
   9, // Prem
   9, // Div 1
   9, // Div 2
-  // 13, // Div 3,
+  //13, // Div 3,
   9, // 2nd XI Prem
   9, // 2nd XI Div 1
   9, // 2nd XI Div 2
