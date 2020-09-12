@@ -67,44 +67,44 @@ export const divTeams = [
     "WWE2",
     "OPA2",
     "CHI2",
-    "BUH2",
+    "BUC2",
   ], // 2nd XI Prem
-  // [
-  //   "UPM2",
-  //   "WIC2",
-  //   "HAW2",
-  //   "LOU2",
-  //   "HUT2",
-  //   "COL2",
-  //   "BIL2",
-  //   "FRE2",
-  //   "SWF2",
-  //   "GPR2",
-  // ], // 2nd XI Div 1
-  // [
-  //   "BEL2",
-  //   "SOS2",
-  //   "HAR2",
-  //   "WOS2",
-  //   "OPA2",
-  //   "OSS2",
-  //   "ARD2",
-  //   "HAT2",
-  //   "LOS2",
-  //   "EPP2",
-  // ], // 2nd XI Div 2
-  // [
-  //   "WES2",
-  //   "ORS2",
-  //   "BEN2",
-  //   "FIV2",
-  //   "SLH2",
-  //   "WFG2",
-  //   "GOR2",
-  //   "WAL2",
-  //   "HOH2",
-  //   "HAT2",
-  // ], // 2nd XI Div 3
+  [
+    "UPM2",
+    "WIC2",
+    "HAW2",
+    "LOU2",
+    "HUT2",
+    "COL2",
+    "BIL2",
+    "FRE2",
+    "SWF2",
+    "GPR2",
+  ], // 2nd XI Div 1
+  [
+    "BEL2",
+    "SOS2",
+    "HAR2",
+    "WOS2",
+    "OLB2",
+    "OSS2",
+    "ARD2",
+    "HAT2",
+    "LOS2",
+    "EPP2",
+  ], // 2nd XI Div 2
+  [
+    "WES2",
+    "ORS2",
+    "BEN2",
+    "FIV2",
+    "SLH2",
+    "WFG2",
+    "GOR2",
+    "WAL2",
+    "HOH2",
+    "HAT2",
+  ], // 2nd XI Div 3
 ];
 
 export const divWeeks = [
@@ -113,9 +113,9 @@ export const divWeeks = [
   9, // Div 2
   // 13, // Div 3,
   9, // 2nd XI Prem
-  // 9, // 2nd XI Div 1
-  // 9, // 2nd XI Div 2
-  // 9, // 2nd XI Div 3
+  9, // 2nd XI Div 1
+  9, // 2nd XI Div 2
+  9, // 2nd XI Div 3
 ];
 
 export const venConflicts: ConflictsArray = [
@@ -143,7 +143,7 @@ export const venConflicts: ConflictsArray = [
   ["ILF1", "ILF2"],
   ["LOS1", "LOS2"],
   ["LOU1", "LOU2"],
-  ["OLB1", "OLB2"],
+  ["OLB1", "OLB2"], // Check
   ["OPA1", "OPA2"],
   ["ORS1", "ORS2"],
   ["OSS1", "OSS2"],
