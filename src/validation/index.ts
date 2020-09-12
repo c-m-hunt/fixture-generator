@@ -10,7 +10,6 @@ import {
   notVenueClash,
 } from "./fixture";
 import { venConflictsLookup, divTeams } from "../config/config";
-import { displayOutput } from "..";
 
 export type ConflictResponse = [string, number, number, number, number] | null;
 
@@ -60,78 +59,100 @@ export const isValid = (
   }
 
   if (checkDependents) {
-    const teamDiv = findVenueConflictAndDiv(team);
+    const dependentsValid = checkDependentsValid(
+      matchStructure,
+      divIdx,
+      weekIdx,
+      matchIdx,
+      teamIdx,
+      team,
+    );
+    if (dependentsValid) {
+      return dependentsValid;
+    }
+  }
+  return [true, null];
+};
 
-    if (teamDiv) {
-      const [conflictTeam, conflictTeamDivIdx] = teamDiv;
-      if (conflictTeamDivIdx === -1) {
+const checkDependentsValid = (
+  matchStructure: MatchStructure,
+  divIdx: number,
+  weekIdx: number,
+  matchIdx: number,
+  teamIdx: number,
+  team: string,
+): [boolean, ConflictResponse | null] | null => {
+  const teamDiv = findVenueConflictAndDiv(team);
+
+  if (teamDiv) {
+    const [conflictTeam, conflictTeamDivIdx] = teamDiv;
+    if (conflictTeamDivIdx === -1) {
+      return [true, null];
+    }
+    const conflictTeamIdx = teamIdx === 1 ? 0 : 1;
+    // Fill in home teams
+    if (teamIdx === 0) {
+      for (
+        let mIdx = 0;
+        mIdx < matchStructure[divIdx][weekIdx].length;
+        mIdx++
+      ) {
+        if (
+          matchStructure[conflictTeamDivIdx][weekIdx][mIdx][
+            conflictTeamIdx
+          ] ===
+            null
+        ) {
+          return [
+            true,
+            [
+              conflictTeam,
+              conflictTeamDivIdx,
+              weekIdx,
+              mIdx,
+              conflictTeamIdx,
+            ],
+          ];
+        }
+      }
+      // console.log(conflictTeam, conflictTeamDivIdx, weekIdx, conflictTeamIdx);
+      // displayOutput(matchStructure);
+      return [false, null];
+    }
+    // Away team - only match up of full reverse fixture
+    if (teamIdx === 1) {
+      let oppoConflict = findVenueConflictAndDiv(
+        //@ts-ignore
+        matchStructure[divIdx][weekIdx][matchIdx][0],
+      );
+      // Only interested if there's a match up
+      if (!oppoConflict) {
         return [true, null];
       }
-      const conflictTeamIdx = teamIdx === 1 ? 0 : 1;
-      // Fill in home teams
-      if (teamIdx === 0) {
-        for (
-          let mIdx = 0;
-          mIdx < matchStructure[divIdx][weekIdx].length;
-          mIdx++
-        ) {
-          if (
-            matchStructure[conflictTeamDivIdx][weekIdx][mIdx][
-              conflictTeamIdx
-            ] ===
-              null
-          ) {
-            return [
-              true,
-              [
-                conflictTeam,
-                conflictTeamDivIdx,
-                weekIdx,
-                mIdx,
-                conflictTeamIdx,
-              ],
-            ];
-          }
-        }
-        // console.log(conflictTeam, conflictTeamDivIdx, weekIdx, conflictTeamIdx);
-        // displayOutput(matchStructure);
-        return [false, null];
-      }
-      // Away team - only match up of full reverse fixture
-      if (teamIdx === 1) {
-        let oppoConflict = findVenueConflictAndDiv(
-          //@ts-ignore
-          matchStructure[divIdx][weekIdx][matchIdx][0],
-        );
-        // Only interested if there's a match up
-        if (!oppoConflict) {
-          return [true, null];
-        }
 
-        for (
-          let mIdx = 0;
-          mIdx < matchStructure[divIdx][weekIdx].length;
-          mIdx++
+      for (
+        let mIdx = 0;
+        mIdx < matchStructure[divIdx][weekIdx].length;
+        mIdx++
+      ) {
+        if (
+          oppoConflict[1] == conflictTeamDivIdx &&
+          matchStructure[conflictTeamDivIdx][weekIdx][mIdx][teamIdx] ===
+            oppoConflict[0]
         ) {
-          if (
-            oppoConflict[1] == conflictTeamDivIdx &&
-            matchStructure[conflictTeamDivIdx][weekIdx][mIdx][teamIdx] ===
-              oppoConflict[0]
-          ) {
-            return [
-              true,
-              [
-                conflictTeam,
-                conflictTeamDivIdx,
-                weekIdx,
-                mIdx,
-                conflictTeamIdx,
-              ],
-            ];
-          }
+          return [
+            true,
+            [
+              conflictTeam,
+              conflictTeamDivIdx,
+              weekIdx,
+              mIdx,
+              conflictTeamIdx,
+            ],
+          ];
         }
       }
     }
   }
-  return [true, null];
+  return null;
 };

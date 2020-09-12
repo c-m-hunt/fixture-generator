@@ -143,7 +143,7 @@ export const venConflicts: ConflictsArray = [
   ["ILF1", "ILF2"],
   ["LOS1", "LOS2"],
   ["LOU1", "LOU2"],
-  ["OLB1", "OLB2"], // Check
+  ["OLB1", "OLB2"],
   ["OPA1", "OPA2"],
   ["ORS1", "ORS2"],
   ["OSS1", "OSS2"],
