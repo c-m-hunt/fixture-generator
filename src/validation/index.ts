@@ -52,6 +52,14 @@ export const isValid = (
 
   if (checkDependents) {
     const teamDiv = findVenueConflictAndDiv(team);
+    let oppoConflict: null | [string, number] = null;
+    if (teamIdx === 1) {
+      oppoConflict = findVenueConflictAndDiv(
+        //@ts-ignore
+        matchStructure[divIdx][weekIdx][matchIdx][0],
+      );
+    }
+
     if (teamDiv) {
       const [conflictTeam, conflictTeamDivIdx] = teamDiv;
       if (conflictTeamDivIdx === -1) {
@@ -64,6 +72,34 @@ export const isValid = (
         mIdx++
       ) {
         if (
+          oppoConflict && oppoConflict[1] == conflictTeamDivIdx &&
+          matchStructure[conflictTeamDivIdx][weekIdx][mIdx][teamIdx] ===
+            oppoConflict[0]
+        ) {
+          const [conflictValid, _] = isValid(
+            matchStructure,
+            conflictTeamDivIdx,
+            weekIdx,
+            mIdx,
+            conflictTeamIdx,
+            conflictTeam,
+            false,
+          );
+          if (
+            conflictValid
+          ) {
+            return [
+              true,
+              [
+                conflictTeam,
+                conflictTeamDivIdx,
+                weekIdx,
+                mIdx,
+                conflictTeamIdx,
+              ],
+            ];
+          }
+        } else if (
           matchStructure[conflictTeamDivIdx][weekIdx][mIdx][conflictTeamIdx] ===
             null
         ) {

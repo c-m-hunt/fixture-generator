@@ -4,7 +4,7 @@ import {
   teamConflictsToObject,
 } from "../utils";
 
-export const divTeams = [
+export const tmpDivTeams = [
   [
     "BRE1",
     "WAN1",
@@ -17,30 +17,30 @@ export const divTeams = [
     "COL1",
     "HAW1",
   ], // Prem
-  [
-    "BUC1",
-    "ILF1",
-    "SHE1",
-    "WWE1",
-    "FIV1",
-    "HUT1",
-    "LOU1",
-    "UPM1",
-    "OSS1",
-    "HOH1",
-  ], // Div 1
-  [
-    "GPR1",
-    "SOS1",
-    "OPA1",
-    "ORS1",
-    "HAT1",
-    "BEN1",
-    "WIC1",
-    "FRE1",
-    "LOS1",
-    "WOS1",
-  ], // Div 2
+  // [
+  //   "BUC1",
+  //   "ILF1",
+  //   "SHE1",
+  //   "WWE1",
+  //   "FIV1",
+  //   "HUT1",
+  //   "LOU1",
+  //   "UPM1",
+  //   "OSS1",
+  //   "HOH1",
+  // ], // Div 1
+  // [
+  //   "GPR1",
+  //   "SOS1",
+  //   "OPA1",
+  //   "ORS1",
+  //   "HAT1",
+  //   "BEN1",
+  //   "WIC1",
+  //   "FRE1",
+  //   "LOS1",
+  //   "WOS1",
+  // ], // Div 2
   // [
   //   "OLB1",
   //   "SWD1",
@@ -107,10 +107,16 @@ export const divTeams = [
   // ], // 2nd XI Div 3
 ];
 
+const shuffle = (a: Array<string>) => {
+  return a.sort(() => Math.random() - 0.5);
+};
+
+export const divTeams = [...tmpDivTeams]; //.map((d) => shuffle(d))];
+
 export const divWeeks = [
   9, // Prem
-  9, // Div 1
-  9, // Div 2
+  // 9, // Div 1
+  // 9, // Div 2
   // 13, // Div 3,
   9, // 2nd XI Prem
   // 9, // 2nd XI Div 1
