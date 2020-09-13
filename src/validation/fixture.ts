@@ -1,5 +1,6 @@
 import { MatchStructure, Fixture } from "../config";
-import { venConflictsLookup } from "../config/config";
+import { venConflictsLookup } from "../config";
+import { logger } from "../logger";
 
 export const fixtureDoesNotExists = (
   matchStructure: MatchStructure,
@@ -105,8 +106,8 @@ export const notVenueClash = (
     .map((f) => f[0]);
 
   const clashTeam = venConflictsLookup[team];
-
   if (homeTeams.includes(clashTeam)) {
+    //logger.debug("Fails notVenueClash");
     return false;
   }
   return true;
@@ -125,5 +126,6 @@ const fixtureExists = (
       return true;
     }
   }
+  //logger.debug("Fails fixtureExists");
   return false;
 };
