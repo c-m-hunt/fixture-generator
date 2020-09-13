@@ -1,7 +1,8 @@
 import fs from "fs";
 import { setup, MatchStructure } from "./config";
-import { divWeeks, divTeams } from "./config/config";
+import { divWeeks, divTeams, divNames } from "./config";
 import { isValid, ConflictResponse } from "./validation";
+import { displayOutput } from "./utils";
 
 let matchStructure: MatchStructure = setup(divTeams, divWeeks);
 let i = 0;
@@ -16,16 +17,6 @@ const elapsedTime = (note: string) => {
       note,
   ); // print message + time
   //start = process.hrtime(); // reset the timer
-};
-
-export const displayOutput = (matchStructure: MatchStructure) => {
-  for (let d of matchStructure) {
-    for (let m = 0; m < d[0].length; m++) {
-      console.log(d.map((w) => `${w[m][0]} v ${w[m][1]}`).join("    "));
-    }
-    console.log("-------------------------------------------------");
-  }
-  console.log("-------------------------------------------------");
 };
 
 const applyConflict = (
@@ -85,7 +76,7 @@ const generate = () => {
                 c += 1;
                 if (c % 100000 === 0) {
                   elapsedTime(c.toString());
-                  displayOutput(matchStructure);
+                  displayOutput(matchStructure, divNames);
                 }
 
                 generate();
@@ -108,5 +99,5 @@ try {
 } catch (ex) {
   console.log(ex);
   fs.writeFileSync("./output.json", JSON.stringify(matchStructure, null, 2));
-  displayOutput(matchStructure);
+  displayOutput(matchStructure, divNames);
 }

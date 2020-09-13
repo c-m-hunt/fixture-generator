@@ -1,5 +1,5 @@
 import { MatchStructure, Fixture } from "../config";
-import { venConflictsLookup } from "../config/config";
+import { venConflictsLookup } from "../config";
 import { logger } from "../logger";
 
 export const fixtureDoesNotExists = (

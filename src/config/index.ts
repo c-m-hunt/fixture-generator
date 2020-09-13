@@ -1,3 +1,10 @@
+import { divConfig, venConflicts } from "./config";
+import {
+  ConflictsObject,
+  teamConflictsToObject,
+  shuffle,
+} from "../utils";
+
 export type Fixture = [string | null, string | null];
 
 export type MatchStructure = Array<
@@ -24,5 +31,16 @@ export const setup = (
       }
     }
   }
+
   return matches;
 };
+
+export const divTeams = divConfig.map((d) => shuffle(d.teams));
+
+export const divNames = divConfig.map((d) => d.name);
+
+export const divWeeks = divConfig.map((d) => d.teams.length - 1);
+
+export const venConflictsLookup: ConflictsObject = teamConflictsToObject(
+  venConflicts,
+);

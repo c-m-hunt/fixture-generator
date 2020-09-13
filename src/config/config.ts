@@ -1,11 +1,10 @@
 import {
   ConflictsArray,
-  ConflictsObject,
-  teamConflictsToObject,
 } from "../utils";
 
-export const divTeams = [
-  [
+export const divConfig = [{
+  name: "1st XI Premier",
+  teams: [
     "BRE1",
     "WAN1",
     "CHE1",
@@ -16,8 +15,10 @@ export const divTeams = [
     "BEL1",
     "COL1",
     "HAW1",
-  ], // Prem
-  [
+  ],
+}, {
+  name: "1st XI Div 1",
+  teams: [
     "BUC1",
     "ILF1",
     "SHE1",
@@ -28,8 +29,10 @@ export const divTeams = [
     "UPM1",
     "OSS1",
     "HOH1",
-  ], // Div 1
-  [
+  ],
+}, {
+  name: "1st XI Div 2",
+  teams: [
     "GPR1",
     "SOS1",
     "OPA1",
@@ -40,24 +43,28 @@ export const divTeams = [
     "FRE1",
     "LOS1",
     "WOS1",
-  ], // Div 2
-  // [
-  //   "OLB1",
-  //   "SWD1",
-  //   "HAR1",
-  //   "WAL1",
-  //   "ARD1",
-  //   "EPP1",
-  //   "GOR1",
-  //   "SLH1",
-  //   "WFG1",
-  //   "WES1",
-  //   "RAI1",
-  //   "BAR1",
-  //   "NEW1",
-  //   "SPR1",
-  // ], // Div 3
-  [
+  ],
+}, {
+  name: "1st XI Div 3",
+  teams: [
+    "OLB1",
+    "SWD1",
+    "HAR1",
+    "WAL1",
+    "ARD1",
+    "EPP1",
+    "GOR1",
+    "SLH1",
+    "WFG1",
+    "WES1",
+    // "RAI1",
+    // "BAR1",
+    // "NEW1",
+    // "SPR1",
+  ],
+}, {
+  name: "2nd XI Premier",
+  teams: [
     "HOR2",
     "CHE2",
     "BRE2",
@@ -68,8 +75,10 @@ export const divTeams = [
     "OPA2",
     "CHI2",
     "BUC2",
-  ], // 2nd XI Prem
-  [
+  ],
+}, {
+  name: "2nd XI Div 1",
+  teams: [
     "UPM2",
     "WIC2",
     "HAW2",
@@ -80,8 +89,10 @@ export const divTeams = [
     "FRE2",
     "SWF2",
     "GPR2",
-  ], // 2nd XI Div 1
-  [
+  ],
+}, {
+  name: "2nd XI Div 2",
+  teams: [
     "BEL2",
     "SOS2",
     "HAR2",
@@ -92,8 +103,10 @@ export const divTeams = [
     "HAD2",
     "LOS2",
     "EPP2",
-  ], // 2nd XI Div 2
-  [
+  ],
+}, {
+  name: "2nd XI Div 3",
+  teams: [
     "WES2",
     "ORS2",
     "BEN2",
@@ -104,19 +117,8 @@ export const divTeams = [
     "WAL2",
     "HOH2",
     "HAT2",
-  ], // 2nd XI Div 3
-];
-
-export const divWeeks = [
-  9, // Prem
-  9, // Div 1
-  9, // Div 2
-  //13, // Div 3,
-  9, // 2nd XI Prem
-  9, // 2nd XI Div 1
-  9, // 2nd XI Div 2
-  9, // 2nd XI Div 3
-];
+  ],
+}];
 
 export const venConflicts: ConflictsArray = [
   ["ARD1", "ARD2"],
@@ -160,7 +162,3 @@ export const venConflicts: ConflictsArray = [
   ["WOS1", "WOS2"],
   ["WWE1", "WWE2"],
 ];
-
-export const venConflictsLookup: ConflictsObject = teamConflictsToObject(
-  venConflicts,
-);

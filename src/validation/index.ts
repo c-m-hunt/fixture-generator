@@ -1,4 +1,4 @@
-import { MatchStructure } from "../config";
+import { MatchStructure, divNames } from "../config";
 import {
   validateOppoTeam,
   notPlayingThatWeek,
@@ -9,7 +9,8 @@ import {
   notUnevenVenues,
   notVenueClash,
 } from "./fixture";
-import { venConflictsLookup, divTeams } from "../config/config";
+import { venConflictsLookup, divTeams } from "../config";
+import { displayOutput } from "../utils";
 
 export type ConflictResponse = [string, number, number, number, number] | null;
 
@@ -56,6 +57,11 @@ export const isValid = (
     ) {
       return [false, null];
     }
+  }
+
+  if (team === "WAN2" && weekIdx === 0) {
+    console.log(divIdx, weekIdx, matchIdx, teamIdx);
+    displayOutput(matchStructure, divNames);
   }
 
   if (checkDependents) {
