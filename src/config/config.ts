@@ -57,10 +57,10 @@ export const divConfig = [{
     "SLH1",
     "WFG1",
     "WES1",
-    // "RAI1",
-    // "BAR1",
-    // "NEW1",
-    // "SPR1",
+    "RAI1",
+    "BAR1",
+    "NEW1",
+    "SPR1",
   ],
 }, {
   name: "2nd XI Premier",
@@ -87,7 +87,7 @@ export const divConfig = [{
     "COL2",
     "BIL2",
     "FRE2",
-    "SWF2",
+    "SWD2",
     "GPR2",
   ],
 }, {
