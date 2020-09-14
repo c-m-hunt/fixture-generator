@@ -155,7 +155,7 @@ export const divConfig = [{
     "CHI3",
     "FIV3",
     "LOU4",
-    "SWF3",
+    "SWD3",
     "HOR4",
     "BRE4",
     "HAR4",
@@ -222,7 +222,7 @@ export const divConfig = [{
   name: "4th XI Div 1 West",
   teams: [
     "GPR4",
-    "SWF4",
+    "SWD4",
     "GOR3",
     "HOR5",
     "OAP5",
