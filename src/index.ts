@@ -2,22 +2,12 @@ import fs from "fs";
 import { setup, MatchStructure } from "./config";
 import { divWeeks, divTeams, divNames } from "./config";
 import { isValid, ConflictResponse } from "./validation";
-import { displayOutput } from "./utils";
+import { displayOutput, elapsedTime, seed } from "./utils";
 
 let matchStructure: MatchStructure = setup(divTeams, divWeeks);
 let i = 0;
 
 let start = process.hrtime();
-
-const elapsedTime = (note: string) => {
-  var precision = 3; // 3 decimal places
-  var elapsed = process.hrtime(start)[1] / 1000000; // divide by a million to get nano to milli
-  console.log(
-    process.hrtime(start)[0] + " s, " + elapsed.toFixed(precision) + " ms - " +
-      note,
-  ); // print message + time
-  //start = process.hrtime(); // reset the timer
-};
 
 const applyConflict = (
   matchStructure: MatchStructure,
@@ -75,7 +65,7 @@ const generate = () => {
                 applyConflict(matchStructure, conflict);
                 c += 1;
                 if (c % 100000 === 0) {
-                  elapsedTime(c.toString());
+                  elapsedTime(c.toString(), start);
                   displayOutput(matchStructure, divNames);
                 }
 
@@ -100,4 +90,5 @@ try {
   console.log(ex);
   fs.writeFileSync("./output.json", JSON.stringify(matchStructure, null, 2));
   displayOutput(matchStructure, divNames);
+  console.log(`Used seed ${seed.toString()}`);
 }
