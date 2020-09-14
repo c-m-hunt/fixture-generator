@@ -59,11 +59,6 @@ export const isValid = (
     }
   }
 
-  if (team === "WAN2" && weekIdx === 0) {
-    console.log(divIdx, weekIdx, matchIdx, teamIdx);
-    displayOutput(matchStructure, divNames);
-  }
-
   if (checkDependents) {
     const dependentsValid = checkDependentsValid(
       matchStructure,
@@ -121,8 +116,6 @@ const checkDependentsValid = (
           ];
         }
       }
-      // console.log(conflictTeam, conflictTeamDivIdx, weekIdx, conflictTeamIdx);
-      // displayOutput(matchStructure);
       return [false, null];
     }
     // Away team - only match up of full reverse fixture
