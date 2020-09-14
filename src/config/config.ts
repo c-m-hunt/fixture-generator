@@ -252,7 +252,6 @@ export const venConflicts: ConflictsArray = [
   ["BUC3", "BUC4"],
   ["CHE1", "CHE2"],
   ["CHE3", "CHE4"],
-  ["CHE5", "CHE6"],
   ["CHI1", "CHI2"],
   ["CHI3", "CHI4"],
   ["COL1", "COL2"],
