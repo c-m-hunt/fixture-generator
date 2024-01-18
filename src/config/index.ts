@@ -42,5 +42,5 @@ export const divNames = divConfig.map((d) => d.name);
 export const divWeeks = divConfig.map((d) => d.teams.length - 1);
 
 export const venConflictsLookup: ConflictsObject = teamConflictsToObject(
-  venConflicts,
+  venConflicts, true,
 );

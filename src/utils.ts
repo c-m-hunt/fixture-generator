@@ -3,7 +3,8 @@ import chalk from "chalk";
 import { MatchStructure } from "./config";
 import seedrandom from "seedrandom";
 
-export const seed = Math.random(); // 0.142026522958016;
+export const seed = Math.random();
+// export const seed = 0.28617905420599443
 console.log(`Using seed ${seed.toString()}`);
 seedrandom(seed.toString(), { global: true });
 
@@ -15,9 +16,9 @@ export interface ConflictsObject {
 
 export const teamConflictsToObject = (
   teamConflicts: ConflictsArray,
-  includeReverse: boolean = false,
+  includeReverse = false,
 ): ConflictsObject => {
-  let teamConflictsObj: ConflictsObject = Object.fromEntries(
+  const teamConflictsObj = Object.fromEntries(
     new Map(teamConflicts),
   );
   if (includeReverse) {
@@ -29,7 +30,7 @@ export const teamConflictsToObject = (
   return teamConflictsObj;
 };
 
-export const shuffle = (a: Array<any>) => {
+export const shuffle = (a: Array<any>): Array<any> => {
   a.sort(() => Math.random() - 0.5);
   return a;
 };
@@ -37,7 +38,7 @@ export const shuffle = (a: Array<any>) => {
 export const displayOutput = (
   matchStructure: MatchStructure,
   divNames: Array<string>,
-) => {
+): void => {
   for (let d = 0; d < matchStructure.length; d++) {
     const div = matchStructure[d];
     console.log(chalk.bold.underline(`${divNames[d]}`));
@@ -49,9 +50,9 @@ export const displayOutput = (
   console.log("-------------------------------------------------");
 };
 
-export const elapsedTime = (note: string, start: [number, number]) => {
-  var precision = 3; // 3 decimal places
-  var elapsed = process.hrtime(start)[1] / 1000000; // divide by a million to get nano to milli
+export const elapsedTime = (note: string, start: [number, number]): void => {
+  const precision = 3; // 3 decimal places
+  const elapsed = process.hrtime(start)[1] / 1000000; // divide by a million to get nano to milli
   console.log(
     process.hrtime(start)[0] + " s, " + elapsed.toFixed(precision) + " ms - " +
       note,

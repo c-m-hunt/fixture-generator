@@ -116,7 +116,7 @@ export const notVenueClash = (
 const fixtureExists = (
   fixList: Fixture[],
   fix: Fixture,
-  checkReverse: boolean = true,
+  checkReverse = true,
 ): boolean => {
   for (const f of fixList) {
     if (f[0] !== null && f[1] !== null && f[0] === fix[0] && f[1] === fix[1]) {

@@ -41,7 +41,7 @@ export const isValid = (
   matchIdx: number,
   teamIdx: number,
   team: string,
-  checkDependents: boolean = false,
+  checkDependents = false,
   validationFunctions: ValidationFunction[] = [
     validateOppoTeam,
     notPlayingThatWeek,
@@ -120,7 +120,7 @@ const checkDependentsValid = (
     }
     // Away team - only match up of full reverse fixture
     if (teamIdx === 1) {
-      let oppoConflict = findVenueConflictAndDiv(
+      const oppoConflict = findVenueConflictAndDiv(
         //@ts-ignore
         matchStructure[divIdx][weekIdx][matchIdx][0],
       );

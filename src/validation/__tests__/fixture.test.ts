@@ -19,7 +19,7 @@ describe("Fixture validation", () => {
         ],
       ],
     ];
-    let valid = fixtureDoesNotExists(matchStructure, 0, 1, 1, 1, "CHI");
+    const valid = fixtureDoesNotExists(matchStructure, 0, 1, 1, 1, "CHI");
     expect(valid).toBe(false);
   });
 
