@@ -1,9 +1,10 @@
 import fs from "fs";
 import { setup, MatchStructure } from "./config";
 import { divWeeks, divTeams, divNames } from "./config";
-import { isValid, ConflictResponse } from "./validation";
-import { displayOutput, elapsedTime, seed } from "./utils";
+import { displayOutput, seed } from "./utils";
 import { runProcess } from "./process";
+
+
 
 const matchStructure: MatchStructure = setup(divTeams, divWeeks);
 
