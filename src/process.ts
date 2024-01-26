@@ -1,11 +1,39 @@
 import fs from "fs";
 import { isValid, ConflictResponse } from "./validation";
-import { displayOutput, elapsedTime, seed } from "./utils";
+import { displayOutput, elapsedTime, setSeed } from "./utils";
 import { Config, MatchStructure } from "./config/types";
 
-export const runProcess = (config: Config): void => {
-  const { matches, divTeams, divNames } = config;
+export class MaxIterationsExceededError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "MaxIterationsExceededError";
+  }
+}
 
+const applyConflict = (
+  matchStructure: MatchStructure,
+  conflict: ConflictResponse
+) => {
+  if (!conflict) {
+    return;
+  }
+  const [team, divIdx, weekIdx, matchIdx, teamIdx] = conflict;
+  matchStructure[divIdx][weekIdx][matchIdx][teamIdx] = team;
+};
+
+const undoConflict = (
+  matchStructure: MatchStructure,
+  conflict: ConflictResponse
+) => {
+  if (!conflict) {
+    return;
+  }
+  const [team, divIdx, weekIdx, matchIdx, teamIdx] = conflict;
+  matchStructure[divIdx][weekIdx][matchIdx][teamIdx] = null;
+};
+
+export const runProcess = (config: Config, maxIterations: number): void => {
+  const { matches, divTeams, divNames } = config;
   const start = process.hrtime();
   let c = 0;
   const generate = () => {
@@ -51,6 +79,12 @@ export const runProcess = (config: Config): void => {
                   }
                   matches[divIdx][weekIdx][matchIdx][teamIdx] = null;
                   undoConflict(matches, conflict);
+
+                  if (c > maxIterations) {
+                    throw new MaxIterationsExceededError(
+                      "Max iterations exceeded"
+                    );
+                  }
                 }
               }
               return false;
@@ -62,44 +96,22 @@ export const runProcess = (config: Config): void => {
     console.log(c);
     return true;
   };
-  try {
-    generate();
-  } catch (ex) {
-    console.log(ex);
-  } finally {
-    fs.writeFileSync(
-      "./output.json",
-      JSON.stringify(
-        {
-          seed,
-          matches,
-        },
-        null,
-        2
-      )
-    );
-    displayOutput(matches, divNames);
-    console.log(`Used seed ${seed.toString()}`);
-  }
-};
-const applyConflict = (
-  matchStructure: MatchStructure,
-  conflict: ConflictResponse
-) => {
-  if (!conflict) {
-    return;
-  }
-  const [team, divIdx, weekIdx, matchIdx, teamIdx] = conflict;
-  matchStructure[divIdx][weekIdx][matchIdx][teamIdx] = team;
-};
 
-const undoConflict = (
-  matchStructure: MatchStructure,
-  conflict: ConflictResponse
-) => {
-  if (!conflict) {
-    return;
-  }
-  const [team, divIdx, weekIdx, matchIdx, teamIdx] = conflict;
-  matchStructure[divIdx][weekIdx][matchIdx][teamIdx] = null;
+  c = 0;
+  const seed = setSeed();
+  generate();
+  fs.writeFileSync(
+    "./output.json",
+    JSON.stringify(
+      {
+        seed,
+        matches,
+      },
+      null,
+      2
+    )
+  );
+  console.log("Complete");
+  displayOutput(matches, divNames);
+  console.log(`Used seed ${seed.toString()}`);
 };

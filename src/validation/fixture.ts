@@ -66,7 +66,7 @@ export const notUnevenVenues = (
   team: string
 ): boolean => {
   const { matches: matchStructure } = config;
-  const consecutiveVenueWeeks = 2;
+  const consecutiveVenueWeeks = 3;
   const latestWeek = Math.max(weekIdx - 1, 0);
   const earliestWeek = 0;
   let testFixtures: Fixture[] = [];
