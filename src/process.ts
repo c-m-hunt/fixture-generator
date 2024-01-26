@@ -67,7 +67,17 @@ export const runProcess = (config: Config): void => {
   } catch (ex) {
     console.log(ex);
   } finally {
-    fs.writeFileSync("./output.json", JSON.stringify(matches, null, 2));
+    fs.writeFileSync(
+      "./output.json",
+      JSON.stringify(
+        {
+          seed,
+          matches,
+        },
+        null,
+        2
+      )
+    );
     displayOutput(matches, divNames);
     console.log(`Used seed ${seed.toString()}`);
   }

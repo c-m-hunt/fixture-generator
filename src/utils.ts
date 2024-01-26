@@ -7,8 +7,8 @@ import {
 } from "./config/types";
 import seedrandom from "seedrandom";
 
-//export const seed = Math.random();
-export const seed = 0.28617905420599443;
+export const seed = Math.random();
+// export const seed = 0.28617905420599443;
 console.log(`Using seed ${seed.toString()}`);
 seedrandom(seed.toString(), { global: true });
 
