@@ -3,11 +3,11 @@ import {
   notSameVenueXWeeks,
   notVenueClash,
 } from "../fixture";
-import { MatchStructure } from "../../config";
+import { Config, MatchStructure } from "../../config/types";
 
 describe("Fixture validation", () => {
   it("should validate a team is playing that week", () => {
-    const matchStructure: MatchStructure = [
+    const matches: MatchStructure = [
       [
         [
           ["WAN", "CHI"],
@@ -19,12 +19,19 @@ describe("Fixture validation", () => {
         ],
       ],
     ];
-    const valid = fixtureDoesNotExists(matchStructure, 0, 1, 1, 1, "CHI");
+    const config: Config = {
+      matches,
+      divTeams: [["WAN", "CHI", "ABC"]],
+      divNames: ["A"],
+      divWeeks: [1],
+      venConflicts: {},
+    };
+    const valid = fixtureDoesNotExists(config, 0, 1, 1, 1, "CHI");
     expect(valid).toBe(false);
   });
 
   it("should validate not same venue for three weeks", () => {
-    const matchStructure: MatchStructure = [
+    const matches: MatchStructure = [
       [
         [
           ["WAN", "CHI"],
@@ -41,14 +48,21 @@ describe("Fixture validation", () => {
       ],
     ];
     let valid = true;
-    valid = notSameVenueXWeeks(matchStructure, 0, 2, 1, 0, "WAN");
+    const config: Config = {
+      matches,
+      divTeams: [["WAN", "CHI", "ABC"]],
+      divNames: ["A"],
+      divWeeks: [1],
+      venConflicts: {},
+    };
+    valid = notSameVenueXWeeks(config, 0, 2, 1, 0, "WAN");
     expect(valid).toBe(false);
-    valid = notSameVenueXWeeks(matchStructure, 0, 2, 1, 0, "CHI");
+    valid = notSameVenueXWeeks(config, 0, 2, 1, 0, "CHI");
     expect(valid).toBe(true);
   });
 
   it("should validate ground available", () => {
-    const matchStructure: MatchStructure = [
+    const matches: MatchStructure = [
       [
         [
           ["WAN1", "CHI1"],
@@ -62,9 +76,14 @@ describe("Fixture validation", () => {
         ],
       ],
     ];
-    expect(notVenueClash(matchStructure, 1, 0, 1, 1, "WAN2")).toBe(true);
-    expect(notVenueClash(matchStructure, 1, 0, 1, 0, "WAN2")).toBe(
-      false,
-    );
+    const config: Config = {
+      matches,
+      divTeams: [["WAN", "CHI", "ABC"]],
+      divNames: ["A"],
+      divWeeks: [1],
+      venConflicts: { WAN2: "WAN1" },
+    };
+    expect(notVenueClash(config, 1, 0, 1, 1, "WAN2")).toBe(true);
+    expect(notVenueClash(config, 1, 0, 1, 0, "WAN2")).toBe(false);
   });
 });

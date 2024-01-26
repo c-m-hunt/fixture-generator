@@ -1,41 +1,38 @@
-import { MatchStructure, divNames } from "../config";
-import {
-  validateOppoTeam,
-  notPlayingThatWeek,
-} from "./team";
+import { validateOppoTeam, notPlayingThatWeek } from "./team";
 import {
   fixtureDoesNotExists,
   notSameVenueXWeeks,
   notUnevenVenues,
   notVenueClash,
 } from "./fixture";
-import { venConflictsLookup, divTeams } from "../config";
-import { displayOutput } from "../utils";
+import { Config, ConflictsObject } from "../config/types";
 
 export type ConflictResponse = [string, number, number, number, number] | null;
 
 export const findVenueConflictAndDiv = (
   team: string,
+  divTeams: string[][],
+  venConflicts: ConflictsObject
 ): [string, number] | null => {
-  if (!Object.keys(venConflictsLookup).includes(team)) {
+  if (!Object.keys(venConflicts).includes(team)) {
     return null;
   }
-  const conflictTeam = venConflictsLookup[team];
+  const conflictTeam = venConflicts[team];
   const div = divTeams.findIndex((t) => t.includes(conflictTeam));
   return [conflictTeam, div];
 };
 
 type ValidationFunction = (
-  matchStructure: MatchStructure,
+  config: Config,
   divIdx: number,
   weekIdx: number,
   matchIdx: number,
   teamIdx: number,
-  team: string,
+  team: string
 ) => boolean;
 
 export const isValid = (
-  matchStructure: MatchStructure,
+  config: Config,
   divIdx: number,
   weekIdx: number,
   matchIdx: number,
@@ -49,24 +46,22 @@ export const isValid = (
     notSameVenueXWeeks,
     notUnevenVenues,
     notVenueClash,
-  ],
+  ]
 ): [boolean, ConflictResponse | null] => {
   for (const v of validationFunctions) {
-    if (
-      !v(matchStructure, divIdx, weekIdx, matchIdx, teamIdx, team)
-    ) {
+    if (!v(config, divIdx, weekIdx, matchIdx, teamIdx, team)) {
       return [false, null];
     }
   }
 
   if (checkDependents) {
     const dependentsValid = checkDependentsValid(
-      matchStructure,
+      config,
       divIdx,
       weekIdx,
       matchIdx,
       teamIdx,
-      team,
+      team
     );
     if (dependentsValid) {
       return dependentsValid;
@@ -76,14 +71,15 @@ export const isValid = (
 };
 
 const checkDependentsValid = (
-  matchStructure: MatchStructure,
+  config: Config,
   divIdx: number,
   weekIdx: number,
   matchIdx: number,
   teamIdx: number,
-  team: string,
+  team: string
 ): [boolean, ConflictResponse | null] | null => {
-  const teamDiv = findVenueConflictAndDiv(team);
+  const { matches: matchStructure, divTeams, venConflicts } = config;
+  const teamDiv = findVenueConflictAndDiv(team, divTeams, venConflicts);
 
   if (teamDiv) {
     const [conflictTeam, conflictTeamDivIdx] = teamDiv;
@@ -99,20 +95,12 @@ const checkDependentsValid = (
         mIdx++
       ) {
         if (
-          matchStructure[conflictTeamDivIdx][weekIdx][mIdx][
-            conflictTeamIdx
-          ] ===
-            null
+          matchStructure[conflictTeamDivIdx][weekIdx][mIdx][conflictTeamIdx] ===
+          null
         ) {
           return [
             true,
-            [
-              conflictTeam,
-              conflictTeamDivIdx,
-              weekIdx,
-              mIdx,
-              conflictTeamIdx,
-            ],
+            [conflictTeam, conflictTeamDivIdx, weekIdx, mIdx, conflictTeamIdx],
           ];
         }
       }
@@ -123,6 +111,8 @@ const checkDependentsValid = (
       const oppoConflict = findVenueConflictAndDiv(
         //@ts-ignore
         matchStructure[divIdx][weekIdx][matchIdx][0],
+        divTeams,
+        venConflicts
       );
       // Only interested if there's a match up
       if (!oppoConflict) {
@@ -141,13 +131,7 @@ const checkDependentsValid = (
         ) {
           return [
             true,
-            [
-              conflictTeam,
-              conflictTeamDivIdx,
-              weekIdx,
-              mIdx,
-              conflictTeamIdx,
-            ],
+            [conflictTeam, conflictTeamDivIdx, weekIdx, mIdx, conflictTeamIdx],
           ];
         }
       }
