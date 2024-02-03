@@ -1,18 +1,27 @@
 import { setupConfig } from "./config";
 import { runProcess, MaxIterationsExceededError } from "./process";
 
-const maxIterations = 5000000;
+const maxIterations = 1000000;
 
-for (let i = 1; i <= 100; i++) {
-  try {
-    setupConfig().then((config) => {
-      runProcess(config, maxIterations);
-    });
-  } catch (e) {
-    if (e instanceof MaxIterationsExceededError === false) {
-      throw e;
-    } else {
-      console.log("Max iterations exceeded");
+(async () => {
+  for (let i = 1; i <= 10; i++) {
+    try {
+      console.log("-----------------------------------");
+      console.log(`Run ${i}`);
+      console.log("-----------------------------------");
+
+      const config = await setupConfig();
+      const success = runProcess(config, maxIterations);
+      if (success) {
+        console.log("Success");
+        break;
+      }
+    } catch (e) {
+      if (e instanceof MaxIterationsExceededError === false) {
+        throw e;
+      } else {
+        console.log("Max iterations exceeded");
+      }
     }
   }
-}
+})();

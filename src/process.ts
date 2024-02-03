@@ -32,7 +32,7 @@ const undoConflict = (
   matchStructure[divIdx][weekIdx][matchIdx][teamIdx] = null;
 };
 
-export const runProcess = (config: Config, maxIterations: number): void => {
+export const runProcess = (config: Config, maxIterations: number): boolean => {
   const { matches, divTeams, divNames } = config;
   const start = process.hrtime();
   let c = 0;
@@ -99,7 +99,7 @@ export const runProcess = (config: Config, maxIterations: number): void => {
 
   c = 0;
   const seed = setSeed();
-  generate();
+  const success = generate();
   fs.writeFileSync(
     "./output.json",
     JSON.stringify(
@@ -114,4 +114,5 @@ export const runProcess = (config: Config, maxIterations: number): void => {
   console.log("Complete");
   displayOutput(matches, divNames);
   console.log(`Used seed ${seed.toString()}`);
+  return success;
 };
