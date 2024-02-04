@@ -1,10 +1,10 @@
 import { setupConfig } from "./config";
 import { runProcess, MaxIterationsExceededError } from "./process";
 
-const maxIterations = 1000000;
+const maxIterations = 2000000;
 
 (async () => {
-  for (let i = 1; i <= 10; i++) {
+  for (let i = 1; i <= 100000; i++) {
     try {
       console.log("-----------------------------------");
       console.log(`Run ${i}`);
