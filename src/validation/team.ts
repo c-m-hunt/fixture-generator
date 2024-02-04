@@ -1,28 +1,30 @@
-import { MatchStructure } from "../config";
+import { Config, MatchStructure } from "../config/types";
 
 export const validateOppoTeam = (
-  matchStructure: MatchStructure,
+  config: Config,
   divIdx: number,
   weekIdx: number,
   matchIdx: number,
   teamIdx: number,
-  team: string,
+  team: string
 ): boolean => {
+  const { matches } = config;
   const otherTeam = teamIdx === 1 ? 0 : 1;
-  if (matchStructure[divIdx][weekIdx][matchIdx][otherTeam] === team) {
+  if (matches[divIdx][weekIdx][matchIdx][otherTeam] === team) {
     return false;
   }
   return true;
 };
 
 export const notPlayingThatWeek = (
-  matchStructure: MatchStructure,
+  config: Config,
   divIdx: number,
   weekIdx: number,
   matchIdx: number,
   teamIdx: number,
-  team: string,
+  team: string
 ): boolean => {
+  const { matches: matchStructure } = config;
   const teams = matchStructure[divIdx][weekIdx].flat(2);
   if (teams.includes(team)) {
     return false;

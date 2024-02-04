@@ -1,9 +1,9 @@
 import { notPlayingThatWeek } from "./../team";
-import { MatchStructure } from "../../config";
+import { Config, MatchStructure } from "../../config/types";
 
 describe("Team validation", () => {
   it("should validate a team is playing that week", () => {
-    const matchStructure: MatchStructure = [
+    const matches: MatchStructure = [
       [
         [
           ["WAN", "CHI"],
@@ -11,9 +11,16 @@ describe("Team validation", () => {
         ],
       ],
     ];
-    let valid = notPlayingThatWeek(matchStructure, 0, 0, 0, 0, "WAN");
+    const config: Config = {
+      matches,
+      divTeams: [["WAN", "CHI", "ABC"]],
+      divNames: ["A"],
+      divWeeks: [1],
+      venConflicts: {},
+    };
+    let valid = notPlayingThatWeek(config, 0, 0, 0, 0, "WAN");
     expect(valid).toBe(false);
-    valid = notPlayingThatWeek(matchStructure, 0, 0, 0, 0, "DEF");
+    valid = notPlayingThatWeek(config, 0, 0, 0, 0, "DEF");
     expect(valid).toBe(true);
   });
 });

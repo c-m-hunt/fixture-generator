@@ -1,20 +1,16 @@
-import { divConfig, venConflicts } from "./config";
-import {
-  ConflictsObject,
-  teamConflictsToObject,
-  shuffle,
-} from "../utils";
+import { teamConflictsToObject, shuffle } from "../utils";
+import { loadDivConfig } from "./configLoader";
+import { Fixture, MatchStructure, Config, ConflictsObject } from "./types";
+import { generateVenueConflicts } from "./utils";
 
-export type Fixture = [string | null, string | null];
+export const setupConfig = async (): Promise<Config> => {
+  const divConfig = await loadDivConfig();
+  const divTeams = divConfig.map((d) => shuffle(d.teams));
+  const divWeeks = divConfig.map((d) => d.teams.length - 1);
+  const divNames = divConfig.map((d) => d.name);
+  const venConflicts = generateVenueConflicts(divConfig);
+  const venConflictsLookup = teamConflictsToObject(venConflicts, true);
 
-export type MatchStructure = Array<
-  Array<Array<Fixture>>
->;
-
-export const setup = (
-  divTeams: string[][],
-  divWeeks: number[],
-): MatchStructure => {
   if (divTeams.length !== divWeeks.length) {
     throw new Error("Teams and weeks must be the same length");
   }
@@ -32,15 +28,11 @@ export const setup = (
     }
   }
 
-  return matches;
+  return {
+    matches,
+    divTeams,
+    divWeeks,
+    divNames,
+    venConflicts: venConflictsLookup,
+  };
 };
-
-export const divTeams = divConfig.map((d) => shuffle(d.teams));
-
-export const divNames = divConfig.map((d) => d.name);
-
-export const divWeeks = divConfig.map((d) => d.teams.length - 1);
-
-export const venConflictsLookup: ConflictsObject = teamConflictsToObject(
-  venConflicts,
-);
