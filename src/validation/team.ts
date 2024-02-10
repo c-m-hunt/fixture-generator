@@ -1,4 +1,5 @@
-import { Config, MatchStructure } from "../config/types";
+import { Config } from "../config/types";
+import { ValidationFunction } from ".";
 
 export const validateOppoTeam = (
   config: Config,
@@ -16,7 +17,7 @@ export const validateOppoTeam = (
   return true;
 };
 
-export const notPlayingThatWeek = (
+export const notPlayingThatWeek: ValidationFunction = (
   config: Config,
   divIdx: number,
   weekIdx: number,

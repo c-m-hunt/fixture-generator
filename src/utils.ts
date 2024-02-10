@@ -61,3 +61,19 @@ export const elapsedTime = (note: string, start: [number, number]): void => {
   ); // print message + time
   //start = process.hrtime(); // reset the timer
 };
+
+export const completedState = (matchStructure: MatchStructure): number => {
+  let totalMatches = 0;
+  let totalMatchesCompleted = 0;
+  for (const week of matchStructure) {
+    for (const div of week) {
+      for (const match of div) {
+        totalMatches += 1;
+        if (match.every((t) => t !== null)) {
+          totalMatchesCompleted += 1;
+        }
+      }
+    }
+  }
+  return totalMatchesCompleted / totalMatches;
+};

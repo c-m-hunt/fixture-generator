@@ -1,4 +1,5 @@
-import { teamConflictsToObject } from "./../utils";
+import { MatchStructure } from "../config/types";
+import { completedState, teamConflictsToObject } from "./../utils";
 
 describe("Utils", () => {
   it("should convert conflict array to objects", () => {
@@ -21,5 +22,45 @@ describe("Utils", () => {
     expect(Object.keys(conflictObj).length).toBe(4);
     expect(conflictObj["WAN2"]).toEqual("WAN1");
     expect(conflictObj["WAN1"]).toEqual("WAN2");
+  });
+
+  it("should give a percentage of completed fixtures", () => {
+    let matches = [
+      [
+        [
+          ["BRE1", "WAN1"],
+          ["CHE1", "SOS1"],
+        ],
+      ],
+    ] as MatchStructure;
+    expect(completedState(matches)).toBe(1);
+
+    matches = [
+      [
+        [
+          ["BRE1", "WAN1"],
+          ["CHE1", null],
+        ],
+        [
+          ["BRE1", "WAN1"],
+          ["CHE1", "SOS1"],
+        ],
+      ],
+    ] as MatchStructure;
+    expect(completedState(matches)).toBe(0.75);
+
+    matches = [
+      [
+        [
+          ["BRE1", "WAN1"],
+          ["CHE1", null],
+        ],
+        [
+          [null, null],
+          ["CHE1", "SOS1"],
+        ],
+      ],
+    ] as MatchStructure;
+    expect(completedState(matches)).toBe(0.5);
   });
 });

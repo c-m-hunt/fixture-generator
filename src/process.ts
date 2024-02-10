@@ -1,12 +1,27 @@
 import fs from "fs";
 import { isValid, ConflictResponse } from "./validation";
-import { displayOutput, elapsedTime, setSeed } from "./utils";
+import { completedState, displayOutput, elapsedTime, setSeed } from "./utils";
 import { Config, MatchStructure } from "./config/types";
+
+type State = {
+  completed: boolean;
+  currentGen: number;
+  completedState: number;
+  maxCompletedState: number;
+  lastTestCompletedState: number;
+};
 
 export class MaxIterationsExceededError extends Error {
   constructor(message: string) {
     super(message);
     this.name = "MaxIterationsExceededError";
+  }
+}
+
+export class NoProgressError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "NoProgressError";
   }
 }
 
@@ -32,11 +47,20 @@ const undoConflict = (
   matchStructure[divIdx][weekIdx][matchIdx][teamIdx] = null;
 };
 
-export const runProcess = (config: Config, maxIterations: number): boolean => {
+export const runProcess = (config: Config): boolean => {
   const { matches, divTeams, divNames } = config;
   const start = process.hrtime();
+  let state = {
+    completed: false,
+    currentGen: 0,
+    completedState: 0,
+    maxCompletedState: 0,
+    lastTestCompletedState: 0,
+  } as State;
+  const checkInterval = 100000;
+  const improvementCheckInterval = 1000000;
   let c = 0;
-  const generate = () => {
+  const generate = (): boolean => {
     // Iterate divs
     for (let divIdx = 0; divIdx < matches.length; divIdx++) {
       // Iterate weeks in division
@@ -68,9 +92,39 @@ export const runProcess = (config: Config, maxIterations: number): boolean => {
                   matches[divIdx][weekIdx][matchIdx][teamIdx] = team;
                   applyConflict(matches, conflict);
                   c += 1;
-                  if (c % 100000 === 0) {
+                  const completedPct = completedState(matches);
+                  state = {
+                    ...state,
+                    completed: false,
+                    currentGen: c,
+                    maxCompletedState: Math.max(
+                      completedPct,
+                      state.maxCompletedState
+                    ),
+                    completedState: completedPct,
+                  };
+                  if (c % checkInterval === 0) {
                     elapsedTime(c.toString(), start);
-                    displayOutput(matches, divNames);
+                    console.log(`Completed: ${completedPct}`);
+                    console.log(`Max completed: ${state.maxCompletedState}`);
+                    //displayOutput(matches, divNames);
+                    if (c % improvementCheckInterval === 0) {
+                      if (
+                        state.maxCompletedState ===
+                          state.lastTestCompletedState ||
+                        (state.maxCompletedState >
+                          state.lastTestCompletedState &&
+                          state.lastTestCompletedState === state.completedState)
+                      ) {
+                        fs.appendFileSync(
+                          "log.txt",
+                          `{"seed":${seed}, "iterations": ${c}, "maxCompletedPct": ${state.maxCompletedState}}\n`
+                        );
+                        displayOutput(matches, divNames);
+                        throw new NoProgressError("No progress");
+                      }
+                      state.lastTestCompletedState = state.completedState;
+                    }
                   }
 
                   const complete = generate();
@@ -79,12 +133,6 @@ export const runProcess = (config: Config, maxIterations: number): boolean => {
                   }
                   matches[divIdx][weekIdx][matchIdx][teamIdx] = null;
                   undoConflict(matches, conflict);
-
-                  if (c > maxIterations) {
-                    throw new MaxIterationsExceededError(
-                      "Max iterations exceeded"
-                    );
-                  }
                 }
               }
               return false;

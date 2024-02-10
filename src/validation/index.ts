@@ -22,7 +22,7 @@ export const findVenueConflictAndDiv = (
   return [conflictTeam, div];
 };
 
-type ValidationFunction = (
+export type ValidationFunction = (
   config: Config,
   divIdx: number,
   weekIdx: number,

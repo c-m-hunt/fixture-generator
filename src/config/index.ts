@@ -9,7 +9,7 @@ export const setupConfig = async (): Promise<Config> => {
   const divWeeks = divConfig.map((d) => d.teams.length - 1);
   const divNames = divConfig.map((d) => d.name);
   const venConflicts = generateVenueConflicts(divConfig);
-  const venConflictsLookup = teamConflictsToObject(venConflicts, true);
+  const venConflictsLookup = teamConflictsToObject(venConflicts, false);
 
   if (divTeams.length !== divWeeks.length) {
     throw new Error("Teams and weeks must be the same length");

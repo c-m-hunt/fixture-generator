@@ -1,8 +1,7 @@
-import { config } from "process";
-import { MatchStructure, Fixture, Config } from "../config/types";
-import { logger } from "../logger";
+import { ValidationFunction } from ".";
+import { Fixture, Config } from "../config/types";
 
-export const fixtureDoesNotExists = (
+export const fixtureDoesNotExists: ValidationFunction = (
   config: Config,
   divIdx: number,
   weekIdx: number,
@@ -27,7 +26,7 @@ export const fixtureDoesNotExists = (
   return true;
 };
 
-export const notSameVenueXWeeks = (
+export const notSameVenueXWeeks: ValidationFunction = (
   config: Config,
   divIdx: number,
   weekIdx: number,
@@ -57,7 +56,7 @@ export const notSameVenueXWeeks = (
   return true;
 };
 
-export const notUnevenVenues = (
+export const notUnevenVenues: ValidationFunction = (
   config: Config,
   divIdx: number,
   weekIdx: number,
@@ -66,7 +65,6 @@ export const notUnevenVenues = (
   team: string
 ): boolean => {
   const { matches: matchStructure } = config;
-  const consecutiveVenueWeeks = 3;
   const latestWeek = Math.max(weekIdx - 1, 0);
   const earliestWeek = 0;
   let testFixtures: Fixture[] = [];
@@ -91,7 +89,7 @@ export const notUnevenVenues = (
   return true;
 };
 
-export const notVenueClash = (
+export const notVenueClash: ValidationFunction = (
   config: Config,
   divIdx: number,
   weekIdx: number,
