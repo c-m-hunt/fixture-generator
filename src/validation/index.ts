@@ -22,7 +22,7 @@ export const findVenueConflictAndDiv = (
   return [conflictTeam, div];
 };
 
-type ValidationFunction = (
+export type ValidationFunction = (
   config: Config,
   divIdx: number,
   weekIdx: number,
@@ -109,8 +109,7 @@ const checkDependentsValid = (
     // Away team - only match up of full reverse fixture
     if (teamIdx === 1) {
       const oppoConflict = findVenueConflictAndDiv(
-        //@ts-ignore
-        matchStructure[divIdx][weekIdx][matchIdx][0],
+        matchStructure[divIdx][weekIdx][matchIdx][0] as string,
         divTeams,
         venConflicts
       );

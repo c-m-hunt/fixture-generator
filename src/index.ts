@@ -1,7 +1,9 @@
 import { setupConfig } from "./config";
-import { runProcess, MaxIterationsExceededError } from "./process";
-
-const maxIterations = 2000000;
+import {
+  runProcess,
+  MaxIterationsExceededError,
+  NoProgressError,
+} from "./process";
 
 (async () => {
   for (let i = 1; i <= 100000; i++) {
@@ -11,16 +13,19 @@ const maxIterations = 2000000;
       console.log("-----------------------------------");
 
       const config = await setupConfig();
-      const success = runProcess(config, maxIterations);
+      console.log(config.venRequirements);
+      const success = runProcess(config);
       if (success) {
         console.log("Success");
         break;
       }
     } catch (e) {
-      if (e instanceof MaxIterationsExceededError === false) {
-        throw e;
-      } else {
+      if (e instanceof NoProgressError) {
+        console.log("No progress. Exiting");
+      } else if (e instanceof MaxIterationsExceededError) {
         console.log("Max iterations exceeded");
+      } else {
+        throw e;
       }
     }
   }

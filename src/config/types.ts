@@ -3,6 +3,12 @@ export type DivisionConfig = {
   teams: string[];
 };
 
+export type VenRequirements = {
+  team: string;
+  venue: "h" | "a";
+  week: number;
+};
+
 export type Fixture = [string | null, string | null];
 
 export type MatchStructure = Array<Array<Array<Fixture>>>;
@@ -12,6 +18,7 @@ export type Config = {
   divTeams: string[][];
   divWeeks: number[];
   divNames: string[];
+  venRequirements: VenRequirements[];
   venConflicts: ConflictsObject;
 };
 

@@ -29,7 +29,7 @@ export const teamConflictsToObject = (
   return teamConflictsObj;
 };
 
-export const shuffle = (a: Array<any>): Array<any> => {
+export const shuffle = <T>(a: Array<T>): Array<T> => {
   a.sort(() => Math.random() - 0.5);
   return a;
 };
@@ -60,4 +60,20 @@ export const elapsedTime = (note: string, start: [number, number]): void => {
       note
   ); // print message + time
   //start = process.hrtime(); // reset the timer
+};
+
+export const completedState = (matchStructure: MatchStructure): number => {
+  let totalMatches = 0;
+  let totalMatchesCompleted = 0;
+  for (const week of matchStructure) {
+    for (const div of week) {
+      for (const match of div) {
+        totalMatches += 1;
+        if (match.every((t) => t !== null)) {
+          totalMatchesCompleted += 1;
+        }
+      }
+    }
+  }
+  return totalMatchesCompleted / totalMatches;
 };
