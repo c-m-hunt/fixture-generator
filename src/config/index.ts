@@ -1,10 +1,11 @@
 import { teamConflictsToObject, shuffle } from "../utils";
-import { loadDivConfig } from "./configLoader";
-import { Fixture, MatchStructure, Config, ConflictsObject } from "./types";
+import { loadDivConfig, loadVenReqConfig } from "./configLoader";
+import { Fixture, MatchStructure, Config } from "./types";
 import { generateVenueConflicts } from "./utils";
 
 export const setupConfig = async (): Promise<Config> => {
   const divConfig = await loadDivConfig();
+  const venReqConfig = await loadVenReqConfig();
   const divTeams = divConfig.map((d) => shuffle(d.teams));
   const divWeeks = divConfig.map((d) => d.teams.length - 1);
   const divNames = divConfig.map((d) => d.name);
@@ -33,6 +34,7 @@ export const setupConfig = async (): Promise<Config> => {
     divTeams,
     divWeeks,
     divNames,
+    venRequirements: venReqConfig,
     venConflicts: venConflictsLookup,
   };
 };

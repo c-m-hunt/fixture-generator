@@ -29,7 +29,7 @@ export const teamConflictsToObject = (
   return teamConflictsObj;
 };
 
-export const shuffle = (a: Array<any>): Array<any> => {
+export const shuffle = <T>(a: Array<T>): Array<T> => {
   a.sort(() => Math.random() - 0.5);
   return a;
 };

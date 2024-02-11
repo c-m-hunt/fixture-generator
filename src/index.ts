@@ -13,7 +13,7 @@ import {
       console.log("-----------------------------------");
 
       const config = await setupConfig();
-      console.log(config.venConflicts);
+      console.log(config.venRequirements);
       const success = runProcess(config);
       if (success) {
         console.log("Success");

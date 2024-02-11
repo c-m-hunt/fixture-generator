@@ -9,6 +9,7 @@
     "build": "rimraf ./build && tsc",
     "start": "yarn run build && node build/index.js",
     "lint": "eslint . --ext .ts",
+    "biome": "biome check --apply-unsafe ./src",
     "test": "jest --coverage",
     "test:watch": "jest --coverage --watchAll"
   },
@@ -18,6 +19,7 @@
     "@types/source-map-support": "^0.5.3",
     "@typescript-eslint/eslint-plugin": "^3.10.1",
     "@typescript-eslint/parser": "^3.10.1",
+    "biome": "^0.3.3",
     "eslint": "^7.7.0",
     "jest": "^26.4.2",
     "nodemon": "^2.0.4",
