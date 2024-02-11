@@ -1,6 +1,6 @@
 import { teamConflictsToObject, shuffle } from "../utils";
 import { loadDivConfig, loadVenReqConfig } from "./configLoader";
-import { Fixture, MatchStructure, Config } from "./types";
+import { Fixture, MatchStructure, Config, VenRequirements } from "./types";
 import { generateVenueConflicts } from "./utils";
 
 export const setupConfig = async (): Promise<Config> => {
@@ -15,7 +15,7 @@ export const setupConfig = async (): Promise<Config> => {
   if (divTeams.length !== divWeeks.length) {
     throw new Error("Teams and weeks must be the same length");
   }
-  const matches: MatchStructure = new Array(divWeeks.length);
+  let matches: MatchStructure = new Array(divWeeks.length);
 
   const fixture: Fixture = [null, null];
   for (let d = 0; d < matches.length; d++) {
@@ -29,6 +29,8 @@ export const setupConfig = async (): Promise<Config> => {
     }
   }
 
+  matches = populateVenueRequirements(matches, divTeams, venReqConfig);
+
   return {
     matches,
     divTeams,
@@ -37,4 +39,27 @@ export const setupConfig = async (): Promise<Config> => {
     venRequirements: venReqConfig,
     venConflicts: venConflictsLookup,
   };
+};
+
+const populateVenueRequirements = (
+  matches: MatchStructure,
+  divTeams: string[][],
+  venReq: VenRequirements[]
+) => {
+  for (const req of venReq) {
+    const { team, venue, week } = req;
+    const divIdx = divTeams.findIndex((d) => d.includes(team));
+    if (divIdx === -1) {
+      return matches;
+    }
+    const weekIdx = week - 1;
+    const venIdx = venue === "h" ? 0 : 1;
+    for (const match of matches[divIdx][weekIdx]) {
+      if (match[venIdx] === null) {
+        match[venIdx] = team;
+        break;
+      }
+    }
+  }
+  return matches;
 };
