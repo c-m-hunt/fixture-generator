@@ -14,6 +14,7 @@ export type Fixture = [string | null, string | null];
 export type MatchStructure = Array<Array<Array<Fixture>>>;
 
 export type Config = {
+  seed: number;
   matches: MatchStructure;
   divTeams: string[][];
   divWeeks: number[];

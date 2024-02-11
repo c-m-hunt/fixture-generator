@@ -116,10 +116,7 @@ export const runProcess = (config: Config): boolean => {
                           state.lastTestCompletedState &&
                           state.lastTestCompletedState === state.completedState)
                       ) {
-                        fs.appendFileSync(
-                          "log.txt",
-                          `{"seed":${seed}, "iterations": ${c}, "maxCompletedPct": ${state.maxCompletedState}}\n`
-                        );
+                        writeLog(config.seed, c, state);
                         displayOutput(matches, divNames);
                         throw new NoProgressError("No progress");
                       }
@@ -144,12 +141,18 @@ export const runProcess = (config: Config): boolean => {
     console.log(c);
     return true;
   };
-
   c = 0;
-  const seed = setSeed();
   const success = generate();
+  writeOutput(matches, config.seed);
+  console.log("Complete");
+  displayOutput(matches, divNames);
+  console.log(`Used seed ${config.seed.toString()}`);
+  return success;
+};
+
+const writeOutput = (matches: MatchStructure, seed: number) => {
   fs.writeFileSync(
-    "./output.json",
+    "./output/output.json",
     JSON.stringify(
       {
         seed,
@@ -159,8 +162,11 @@ export const runProcess = (config: Config): boolean => {
       2
     )
   );
-  console.log("Complete");
-  displayOutput(matches, divNames);
-  console.log(`Used seed ${seed.toString()}`);
-  return success;
+};
+
+const writeLog = (seed: number, iterations: number, state: State) => {
+  fs.appendFileSync(
+    "./output/log.txt",
+    `{"seed":${seed}, "iterations": ${iterations}, "maxCompletedPct": ${state.maxCompletedState}}\n`
+  );
 };

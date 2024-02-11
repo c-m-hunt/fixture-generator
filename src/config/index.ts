@@ -1,9 +1,10 @@
-import { teamConflictsToObject, shuffle } from "../utils";
+import { teamConflictsToObject, shuffle, setSeed } from "../utils";
 import { loadDivConfig, loadVenReqConfig } from "./configLoader";
 import { Fixture, MatchStructure, Config, VenRequirements } from "./types";
 import { generateVenueConflicts } from "./utils";
 
 export const setupConfig = async (): Promise<Config> => {
+  const seed = setSeed();
   const divConfig = await loadDivConfig();
   const venReqConfig = await loadVenReqConfig();
   const divTeams = divConfig.map((d) => shuffle(d.teams));
@@ -32,6 +33,7 @@ export const setupConfig = async (): Promise<Config> => {
   matches = populateVenueRequirements(matches, divTeams, venReqConfig);
 
   return {
+    seed,
     matches,
     divTeams,
     divWeeks,
