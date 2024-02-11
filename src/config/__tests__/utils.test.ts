@@ -29,11 +29,15 @@ describe("Venue conflicts", () => {
     const divConfig = [
       {
         name: "Prem",
-        teams: ["BRE1", "WAN1", "CHE1"],
+        teams: ["BRE1", "WAN3", "CHE1"],
       },
       {
         name: "1",
-        teams: ["BRE2", "WAN2", "SOS1"],
+        teams: ["BRE2", "WAN4", "SOS1"],
+      },
+      {
+        name: "1",
+        teams: ["LOS3", "LOS4", "SOS3"],
       },
     ];
 
@@ -41,7 +45,8 @@ describe("Venue conflicts", () => {
 
     expect(venueConflicts).toEqual([
       ["BRE1", "BRE2"],
-      ["WAN1", "WAN2"],
+      ["WAN3", "WAN4"],
+      ["LOS3", "LOS4"],
     ]);
   });
 });

@@ -11,7 +11,7 @@ export const generateVenueConflicts = (
       continue;
     }
     for (const [i, team] of teams.entries()) {
-      if (team % 2 === 1 && i + 1 < teams.length) {
+      if (team % 2 === 1 && i + 1 < teams.length && teams.includes(team + 1)) {
         conflicts.push([`${club}${team}`, `${club}${teams[i + 1]}`]);
       }
     }
