@@ -1,4 +1,4 @@
-import { MatchStructure } from "../config/types";
+import { MatchStructure } from "../../config/types";
 import { completedState, teamConflictsToObject } from "./../utils";
 
 describe("Utils", () => {

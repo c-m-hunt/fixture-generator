@@ -13,6 +13,9 @@ export type Fixture = [string | null, string | null];
 
 export type MatchStructure = Array<Array<Array<Fixture>>>;
 
+/**
+ * Represents the configuration object for generating fixtures.
+ */
 export type Config = {
   seed: number;
   matches: MatchStructure;
@@ -28,3 +31,5 @@ export type ConflictsArray = [string, string][];
 export interface ConflictsObject {
   [key: string]: string;
 }
+
+export type ClubTeams = { [k: string]: number[] };

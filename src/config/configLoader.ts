@@ -1,6 +1,10 @@
 import parse from "csv-simple-parser";
 import { DivisionConfig, VenRequirements } from "./types";
 
+/**
+ * Loads the division configuration from a CSV file.
+ * @returns A promise that resolves to an array of DivisionConfig objects.
+ */
 export const loadDivConfig = async (): Promise<DivisionConfig[]> => {
   const file = Bun.file(`${import.meta.dir}/data/divisions.csv`);
   const csv = await file.text();
@@ -13,6 +17,10 @@ export const loadDivConfig = async (): Promise<DivisionConfig[]> => {
   }));
 };
 
+/**
+ * Loads the VenRequirements configuration from a CSV file.
+ * @returns A promise that resolves to an array of VenRequirements objects.
+ */
 export const loadVenReqConfig = async (): Promise<VenRequirements[]> => {
   const file = Bun.file(`${import.meta.dir}/data/venReq.csv`);
   const csv = await file.text();

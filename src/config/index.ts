@@ -43,6 +43,14 @@ export const setupConfig = async (): Promise<Config> => {
   };
 };
 
+/**
+ * Populates the venue requirements for matches in a given division.
+ *
+ * @param matches - The structure of matches organized by division, week, and venue.
+ * @param divTeams - The teams organized by division.
+ * @param venReq - The venue requirements for each team.
+ * @returns The updated structure of matches with venue requirements populated.
+ */
 const populateVenueRequirements = (
   matches: MatchStructure,
   divTeams: string[][],

@@ -20,6 +20,8 @@ describe("Fixture validation", () => {
       ],
     ];
     const config: Config = {
+      seed: 1,
+      venRequirements: [],
       matches,
       divTeams: [["WAN", "CHI", "ABC"]],
       divNames: ["A"],
@@ -49,6 +51,8 @@ describe("Fixture validation", () => {
     ];
     let valid = true;
     const config: Config = {
+      seed: 1,
+      venRequirements: [],
       matches,
       divTeams: [["WAN", "CHI", "ABC"]],
       divNames: ["A"],
@@ -77,6 +81,8 @@ describe("Fixture validation", () => {
       ],
     ];
     const config: Config = {
+      seed: 1,
+      venRequirements: [],
       matches,
       divTeams: [["WAN", "CHI", "ABC"]],
       divNames: ["A"],

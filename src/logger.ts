@@ -1,5 +1,8 @@
 import winston, { transports } from "winston";
 
+/**
+ * The logger instance for the application.
+ */
 export const logger = winston.createLogger({
   level: process.env.DEBUG ? "debug" : "info",
   transports: [

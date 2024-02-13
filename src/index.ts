@@ -1,3 +1,15 @@
+/**
+ * Entry point of the fixture generator application.
+ *
+ * This script runs a process multiple times, attempting to generate a fixture.
+ * It displays a run header, sets up the configuration, and runs the process.
+ * If the process is successful, it logs a success message and exits.
+ * If an error occurs, it handles specific error types and logs corresponding warning messages.
+ *
+ * @throws {NoProgressError} If there is no progress during the process.
+ * @throws {MaxIterationsExceededError} If the maximum number of iterations is exceeded.
+ * @throws {LowStartPointError} If the start point is too low and needs to be retried.
+ */
 import { setupConfig } from "./config";
 import { displayRunHeader } from "./process/display";
 import { runProcess } from "./process/process";

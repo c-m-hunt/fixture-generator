@@ -1,3 +1,6 @@
+/**
+ * Error thrown when the maximum number of iterations is exceeded.
+ */
 export class MaxIterationsExceededError extends Error {
   constructor(message: string) {
     super(message);
@@ -5,6 +8,9 @@ export class MaxIterationsExceededError extends Error {
   }
 }
 
+/**
+ * Error class representing a low start point error.
+ */
 export class LowStartPointError extends Error {
   constructor(message: string) {
     super(message);
@@ -12,6 +18,9 @@ export class LowStartPointError extends Error {
   }
 }
 
+/**
+ * Represents an error that occurs when there is no progress.
+ */
 export class NoProgressError extends Error {
   constructor(message: string) {
     super(message);

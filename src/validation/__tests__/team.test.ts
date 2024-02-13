@@ -12,11 +12,13 @@ describe("Team validation", () => {
       ],
     ];
     const config: Config = {
+      seed: 1,
       matches,
       divTeams: [["WAN", "CHI", "ABC"]],
       divNames: ["A"],
       divWeeks: [1],
       venConflicts: {},
+      venRequirements: [],
     };
     let valid = notPlayingThatWeek(config, 0, 0, 0, 0, "WAN");
     expect(valid).toBe(false);

@@ -1,4 +1,9 @@
-import { DivisionConfig, ConflictsArray } from "./types";
+import { DivisionConfig, ConflictsArray, ClubTeams } from "./types";
+/**
+ * Generates an array of venue conflicts based on the provided division configuration.
+ * @param divConfig - The division configuration.
+ * @returns An array of venue conflicts.
+ */
 export const generateVenueConflicts = (
   divConfig: DivisionConfig[]
 ): ConflictsArray => {
@@ -19,8 +24,11 @@ export const generateVenueConflicts = (
   return conflicts;
 };
 
-type ClubTeams = { [k: string]: number[] };
-
+/**
+ * Retrieves a list of clubs from the given division configuration.
+ * @param divConfig - The division configuration containing team information.
+ * @returns An object representing the clubs and their corresponding teams.
+ */
 export const getClubList = (divConfig: DivisionConfig[]): ClubTeams => {
   const teamList = divConfig.map((d) => d.teams).flat();
   const clubs: ClubTeams = {};
