@@ -3,6 +3,11 @@ import { loadDivConfig, loadVenReqConfig } from "./configLoader";
 import { Fixture, MatchStructure, Config, VenRequirements } from "./types";
 import { generateVenueConflicts } from "./utils";
 
+/**
+ * Sets up the configuration for generating fixtures.
+ *
+ * @returns A promise that resolves to a Config object.
+ */
 export const setupConfig = async (): Promise<Config> => {
   const seed = setSeed();
   const divConfig = await loadDivConfig();
