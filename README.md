@@ -8,6 +8,12 @@ Will handle the generation of fixtures with complex rules. Examples:
 * Venue clashes
 * Max consecutive home/away games
 
+## Installing
+To install the app, run the following command:
+```
+bun install
+```
+
 ## Config
 In the `src/config/data` directory, add the following files:
 
@@ -52,8 +58,11 @@ bun run ./src/index.ts
 * The app does not handle two teams in the same division with a venue conflict.
 
 ## Working seeds
+```
 0.25211828478073406
 0.4744967766477323
+```
+```
 1st XI Premier,BRE1,BUC1,CHE1,CHI1,COL1,HAD1,HOR1,HUT1,LOU1,WAN1
 1st XI Div 1,BEL1,BIL1,EPP1,FIV1,GPR1,HAW1,ILF1,ORS1,SPR1,UPM1
 1st XI Div 2,AZT1,GOR1,HOH1,OBR1,OPA1,OSS1,SHE1,WGR1,WOS1,WWE1
@@ -62,3 +71,23 @@ bun run ./src/index.ts
 2nd XI Div 1,BRE2,BUC2,GPR2,HAR2,HUT2,LOU2,OPA2,ORS2,SWD2,WWE2
 2nd XI Div 2,BEN2,COL2,FIV2,HAD2,OBR2,OSS2,SLH2,WES2,WIC2,WOS2
 2nd XI Div 3,BEL2,FRE2,GOR2,HAT2,HOH2,LOS2,NEW2,SOS2,WAL2,WGR2
+```
+```
+HAD1,h,1
+HOR1,a,1
+WAN1,a,7
+COL1,a,3
+HAR1,a,2
+HAR4,a,2
+HAR2,a,3
+HAR3,a,3
+WWE1,h,1
+WWE1,a,2
+WWE3,h,1
+WWE3,a,2
+GOR1,a,1
+GOR1,h,9
+SPR1,h,1
+SPR1,h,9
+SLH1,h,9
+```
