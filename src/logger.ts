@@ -1,12 +1,12 @@
 import winston, { transports } from "winston";
 
 export const logger = winston.createLogger({
-  level: "info",
+  level: process.env.DEBUG ? "debug" : "info",
   transports: [
     new transports.Console({
       format: winston.format.combine(
         winston.format.colorize(),
-        winston.format.simple(),
+        winston.format.simple()
       ),
     }),
   ],

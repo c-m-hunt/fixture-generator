@@ -1,29 +1,22 @@
 import fs from "fs";
-import { isValid, ConflictResponse } from "./validation";
-import { completedState, displayOutput, elapsedTime, setSeed } from "./utils";
-import { Config, MatchStructure } from "./config/types";
+import { isValid, ConflictResponse } from "../validation";
+import { completedState, elapsedTime } from "./utils";
+import { Config, MatchStructure } from "../config/types";
+import { displayOutput, displayState } from "./display";
+import { logger } from "../logger";
+import { LowStartPointError, NoProgressError } from "./errors";
 
-type State = {
+const EXIT_PCT = 0.8;
+const CHECK_INTERVAL = 100000;
+const IMPROVEMENT_CHECK_INTERVAL = 1000000;
+
+export type State = {
   completed: boolean;
   currentGen: number;
   completedState: number;
   maxCompletedState: number;
   lastTestCompletedState: number;
 };
-
-export class MaxIterationsExceededError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "MaxIterationsExceededError";
-  }
-}
-
-export class NoProgressError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "NoProgressError";
-  }
-}
 
 const applyConflict = (
   matchStructure: MatchStructure,
@@ -57,8 +50,7 @@ export const runProcess = (config: Config): boolean => {
     maxCompletedState: 0,
     lastTestCompletedState: 0,
   } as State;
-  const checkInterval = 100000;
-  const improvementCheckInterval = 1000000;
+
   let c = 0;
   const generate = (): boolean => {
     // Iterate divs
@@ -103,12 +95,13 @@ export const runProcess = (config: Config): boolean => {
                     ),
                     completedState: completedPct,
                   };
-                  if (c % checkInterval === 0) {
+                  if (c % CHECK_INTERVAL === 0) {
                     elapsedTime(c.toString(), start);
-                    console.log(`Completed: ${completedPct}`);
-                    console.log(`Max completed: ${state.maxCompletedState}`);
-                    //displayOutput(matches, divNames);
-                    if (c % improvementCheckInterval === 0) {
+                    displayState(state);
+                    if (state.maxCompletedState < EXIT_PCT) {
+                      throw new LowStartPointError("Low start point");
+                    }
+                    if (c % IMPROVEMENT_CHECK_INTERVAL === 0) {
                       if (
                         state.maxCompletedState ===
                           state.lastTestCompletedState ||
@@ -138,15 +131,14 @@ export const runProcess = (config: Config): boolean => {
         }
       }
     }
-    console.log(c);
     return true;
   };
   c = 0;
   const success = generate();
   writeOutput(matches, config.seed);
-  console.log("Complete");
+  logger.info("Complete");
   displayOutput(matches, divNames);
-  console.log(`Used seed ${config.seed.toString()}`);
+  logger.info(`Used seed ${config.seed.toString()}`);
   return success;
 };
 

@@ -1,28 +1,31 @@
 import { setupConfig } from "./config";
+import { displayRunHeader } from "./process/display";
+import { runProcess } from "./process/process";
 import {
-  runProcess,
+  LowStartPointError,
   MaxIterationsExceededError,
   NoProgressError,
-} from "./process";
+} from "./process/errors";
+import { logger } from "./logger";
 
 (async () => {
   for (let i = 1; i <= 100000; i++) {
     try {
-      console.log("-----------------------------------");
-      console.log(`Run ${i}`);
-      console.log("-----------------------------------");
+      displayRunHeader(i);
 
       const config = await setupConfig();
       const success = runProcess(config);
       if (success) {
-        console.log("Success");
+        logger.info("Success");
         break;
       }
     } catch (e) {
       if (e instanceof NoProgressError) {
-        console.log("No progress. Exiting");
+        logger.warn("No progress. Exiting");
       } else if (e instanceof MaxIterationsExceededError) {
-        console.log("Max iterations exceeded");
+        logger.warn("Max iterations exceeded");
+      } else if (e instanceof LowStartPointError) {
+        logger.warn("Low start point. Let's retry");
       } else {
         throw e;
       }

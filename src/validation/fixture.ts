@@ -1,5 +1,6 @@
 import { ValidationFunction } from ".";
 import { Fixture, Config } from "../config/types";
+import { logger } from "../logger";
 
 export const fixtureDoesNotExists: ValidationFunction = (
   config: Config,
@@ -110,7 +111,7 @@ export const notVenueClash: ValidationFunction = (
 
   const clashTeam = venConflicts[team];
   if (homeTeams.includes(clashTeam)) {
-    //logger.debug("Fails notVenueClash");
+    // logger.debug("Fails notVenueClash");
     return false;
   }
   return true;

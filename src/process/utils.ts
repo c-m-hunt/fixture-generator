@@ -1,15 +1,14 @@
-import chalk from "chalk";
-
 import {
   MatchStructure,
   ConflictsArray,
   ConflictsObject,
-} from "./config/types";
+} from "../config/types";
 import seedrandom from "seedrandom";
+import { logger } from "../logger";
 
 export const setSeed = (): number => {
-  const seed = Math.random();
-  console.log(`Using seed ${seed.toString()}`);
+  const seed = process.env.SEED ? parseFloat(process.env.SEED) : Math.random();
+  logger.info(`Using seed ${seed.toString()}`);
   seedrandom(seed.toString(), { global: true });
   return seed;
 };
@@ -33,25 +32,10 @@ export const shuffle = <T>(a: Array<T>): Array<T> => {
   return a;
 };
 
-export const displayOutput = (
-  matchStructure: MatchStructure,
-  divNames: Array<string>
-): void => {
-  for (let d = 0; d < matchStructure.length; d++) {
-    const div = matchStructure[d];
-    console.log(chalk.bold.underline(`${divNames[d]}`));
-    for (let m = 0; m < div[0].length; m++) {
-      console.log(div.map((w) => `${w[m][0]} v ${w[m][1]}`).join("    "));
-    }
-    console.log("-------------------------------------------------");
-  }
-  console.log("-------------------------------------------------");
-};
-
 export const elapsedTime = (note: string, start: [number, number]): void => {
   const precision = 3; // 3 decimal places
   const elapsed = process.hrtime(start)[1] / 1000000; // divide by a million to get nano to milli
-  console.log(
+  logger.info(
     process.hrtime(start)[0] +
       " s, " +
       elapsed.toFixed(precision) +

@@ -1,4 +1,4 @@
-import { teamConflictsToObject, shuffle, setSeed } from "../utils";
+import { teamConflictsToObject, shuffle, setSeed } from "../process/utils";
 import { loadDivConfig, loadVenReqConfig } from "./configLoader";
 import { Fixture, MatchStructure, Config, VenRequirements } from "./types";
 import { generateVenueConflicts } from "./utils";
