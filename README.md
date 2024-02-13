@@ -46,6 +46,11 @@ To run the program, execute the following command:
 bun run ./src/index.ts
 ```
 
+## Known issues
+* The app does not handle custom venue conflicts yet.
+* Venue requirements are not done "smarty" and just added in first empty slot.
+* The app does not handle two teams in the same division with a venue conflict.
+
 ## Working seeds
 0.25211828478073406
 0.4744967766477323
