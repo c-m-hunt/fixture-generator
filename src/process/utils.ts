@@ -1,8 +1,4 @@
-import {
-  MatchStructure,
-  ConflictsArray,
-  ConflictsObject,
-} from "../config/types";
+import { MatchStructure, VenConflicts, ConflictsObject } from "../config/types";
 import seedrandom from "seedrandom";
 import { logger } from "../logger";
 
@@ -26,7 +22,7 @@ export const setSeed = (): number => {
  * @returns The object representation of the team conflicts.
  */
 export const teamConflictsToObject = (
-  teamConflicts: ConflictsArray,
+  teamConflicts: VenConflicts,
   includeReverse = false
 ): ConflictsObject => {
   const teamConflictsObj = Object.fromEntries(new Map(teamConflicts));

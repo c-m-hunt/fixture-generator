@@ -1,6 +1,7 @@
 import parse from "csv-simple-parser";
-import { MatchStructure } from "../../config/types";
+import moment from "moment";
 import { readFileSync } from "fs";
+import { MatchStructure } from "../../config/types";
 type Mapping = {
   team: string;
   divisionId: number;
@@ -10,12 +11,16 @@ type Mapping = {
 
 interface OutputFormatter {
   mappings: Mapping[];
-  outputData: (data: MatchStructure) => void;
+  writeOutput: (data: MatchStructure) => void;
 }
 
+// Class which formats the output for PlayCricket.
+// This class is responsible for taking the generated fixtures and formatting them
+// in a way that can be used by the PlayCricket API.
 export class PlayCricketForamtter implements OutputFormatter {
   mappings: Mapping[];
-  outputPath: string;
+  outputPath?: string;
+  startDate?: Date;
   constructor() {
     this.mappings = this.#loadMappings();
     this.outputPath = "";
@@ -34,12 +39,49 @@ export class PlayCricketForamtter implements OutputFormatter {
     }));
   };
 
-  outputData = (data: MatchStructure) => {
+  writeOutput = (data: MatchStructure) => {
     if (!data) {
       throw new Error("No data to output");
     }
     if (!this.outputPath) {
       throw new Error("No output path set");
+    }
+    if (!this.startDate) {
+      throw new Error("No start date set");
+    }
+    for (const div of data) {
+      let weekNo = 0;
+      for (const week of div) {
+        const matchDate1 = moment(this.startDate).add(weekNo * 7, "days");
+        const matchDate2 = moment(this.startDate).add((weekNo + 9) * 7, "days");
+        for (const match of week) {
+          if (match[0] && match[1]) {
+            const homeTeam = this.mappings.find((m) => m.team === match[0]);
+            const awayTeam = this.mappings.find((m) => m.team === match[1]);
+
+            // Division, Date, Time, Team1, Team2, Ground
+            if (!homeTeam) {
+              throw new Error(`Home team not found in mappings: ${match[0]}`);
+            }
+            if (!awayTeam) {
+              throw new Error(`Away team not found in mappings: ${match[1]}`);
+            }
+            const outputLine1 = `${homeTeam.divisionId}, ${matchDate1.format(
+              "YYYY-MM-DD"
+            )}, 12:00, ${homeTeam.teamId}, ${awayTeam.teamId}, ${
+              homeTeam.ground
+            }`;
+            const outputLine2 = `${awayTeam.divisionId}, ${matchDate2.format(
+              "YYYY-MM-DD"
+            )}, 12:00, ${awayTeam.teamId}, ${homeTeam.teamId}, ${
+              awayTeam.ground
+            }`;
+            console.log(outputLine1);
+            console.log(outputLine2);
+          }
+        }
+        weekNo++;
+      }
     }
   };
 }

@@ -13,14 +13,14 @@ describe("Play", () => {
 
   it("should throw error if no output path given", () => {
     const formatter = new PlayCricketForamtter();
-    expect(() => formatter.outputData({})).toThrow("No output path set");
+    expect(() => formatter.writeOutput({})).toThrow("No output path set");
   });
 
   it("should throw error if no data given", () => {
     const formatter = new PlayCricketForamtter();
     formatter.outputPath = "path";
-    expect(() => formatter.outputData()).toThrow("No data to output");
+    expect(() => formatter.writeOutput()).toThrow("No data to output");
 
-    expect(() => formatter.outputData(null)).toThrow("No data to output");
+    expect(() => formatter.writeOutput(null)).toThrow("No data to output");
   });
 });
