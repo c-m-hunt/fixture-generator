@@ -2,13 +2,7 @@ import { applyConflict } from "../process/process";
 import { setSeed, shuffle, teamConflictsToObject } from "../process/utils";
 import { isValid } from "../validation";
 import { loadDivConfig, loadVenReqConfig } from "./configLoader";
-import {
-  Config,
-  VenConflicts,
-  Fixture,
-  MatchStructure,
-  VenRequirements,
-} from "./types";
+import { Config, Fixture, MatchStructure } from "./types";
 import { generateVenueConflicts } from "./utils";
 
 /**
@@ -43,13 +37,18 @@ export const setupConfig = async (): Promise<Config> => {
     }
   }
 
+  let venReqConfigSuffled = venReqConfig
+    .map((value) => ({ value, sort: Math.random() }))
+    .sort((a, b) => a.sort - b.sort)
+    .map(({ value }) => value);
+
   const config = {
     seed,
     matches,
     divTeams,
     divWeeks,
     divNames,
-    venRequirements: venReqConfig,
+    venRequirements: venReqConfigSuffled,
     venConflicts: venConflictsLookup,
   };
 

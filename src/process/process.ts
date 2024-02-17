@@ -6,7 +6,7 @@ import { displayOutput, displayState } from "./display";
 import { logger } from "../logger";
 import { LowStartPointError, NoProgressError } from "./errors";
 
-const EXIT_PCT = 0.5;
+const EXIT_PCT = 0.3;
 const CHECK_INTERVAL = 100000;
 const IMPROVEMENT_CHECK_INTERVAL = 1000000;
 
