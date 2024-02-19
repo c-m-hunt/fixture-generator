@@ -1,5 +1,6 @@
 import { ValidationFunction } from ".";
 import { Fixture, Config } from "../config/types";
+import { config as appConfig } from "../config";
 
 /**
  * Checks if a fixture does not already exist in the given configuration.
@@ -56,7 +57,7 @@ export const notSameVenueXWeeks: ValidationFunction = (
   team: string
 ): boolean => {
   const { matches: matchStructure } = config;
-  const consecutiveVenueWeeks = 2;
+  const consecutiveVenueWeeks = appConfig.consecutiveVenueWeeks;
   const latestWeek = Math.max(weekIdx - 1, 0);
   const earliestWeek = Math.max(weekIdx - consecutiveVenueWeeks, 0);
   let testFixtures: Fixture[] = [];

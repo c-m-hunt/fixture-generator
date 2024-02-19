@@ -5,10 +5,11 @@ import { Config, MatchStructure } from "../config/types";
 import { displayOutput, displayState } from "./display";
 import { logger } from "../logger";
 import { LowStartPointError, NoProgressError } from "./errors";
+import { config as appConfig } from "../config";
 
-const EXIT_PCT = 0.3;
-const CHECK_INTERVAL = 100000;
-const IMPROVEMENT_CHECK_INTERVAL = 1000000;
+const EXIT_PCT = appConfig.exitPct;
+const CHECK_INTERVAL = appConfig.checkInterval;
+const IMPROVEMENT_CHECK_INTERVAL = appConfig.improvementCheckInterval;
 
 export type State = {
   completed: boolean;
