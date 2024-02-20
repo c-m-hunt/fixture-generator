@@ -36,7 +36,7 @@ describe("Fixture validation", () => {
     const matches: MatchStructure = [
       [
         [
-          ["WAN", "CHI"],
+          ["WAN", "WHA"],
           ["ABC", "BAS"],
         ],
         [
@@ -45,7 +45,11 @@ describe("Fixture validation", () => {
         ],
         [
           ["ABC", "CHI"],
-          [null, "CHI"],
+          ["WHA", "CHI"],
+        ],
+        [
+          ["WHA", "CHE"],
+          ["SOS", null],
         ],
       ],
     ];
@@ -63,6 +67,12 @@ describe("Fixture validation", () => {
     expect(valid).toBe(false);
     valid = notSameVenueXWeeks(config, 0, 2, 1, 0, "CHI");
     expect(valid).toBe(true);
+    // // If the fixtures reverse, the same team shouldn't be valid if
+    // // last venue is the same as the reverse of the first two
+    valid = notSameVenueXWeeks(config, 0, 3, 1, 1, "WAN");
+    expect(valid).toBe(false);
+    valid = notSameVenueXWeeks(config, 0, 3, 1, 0, "WHA");
+    expect(valid).toBe(false);
   });
 
   it("should validate ground available", () => {

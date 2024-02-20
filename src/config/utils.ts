@@ -1,4 +1,4 @@
-import { DivisionConfig, ConflictsArray, ClubTeams } from "./types";
+import { DivisionConfig, VenConflicts, ClubTeams } from "./types";
 /**
  * Generates an array of venue conflicts based on the provided division configuration.
  * @param divConfig - The division configuration.
@@ -6,9 +6,9 @@ import { DivisionConfig, ConflictsArray, ClubTeams } from "./types";
  */
 export const generateVenueConflicts = (
   divConfig: DivisionConfig[]
-): ConflictsArray => {
+): VenConflicts => {
   const clubTeams = getClubList(divConfig);
-  const conflicts: ConflictsArray = [];
+  const conflicts: VenConflicts = [];
   for (const club of Object.keys(clubTeams)) {
     const teams = clubTeams[club];
 

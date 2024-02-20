@@ -1,5 +1,6 @@
 import { ValidationFunction } from ".";
 import { Fixture, Config } from "../config/types";
+import { config as appConfig } from "../appConfig";
 
 /**
  * Checks if a fixture does not already exist in the given configuration.
@@ -56,22 +57,31 @@ export const notSameVenueXWeeks: ValidationFunction = (
   team: string
 ): boolean => {
   const { matches: matchStructure } = config;
-  const consecutiveVenueWeeks = 2;
-  const latestWeek = Math.max(weekIdx - 1, 0);
-  const earliestWeek = Math.max(weekIdx - consecutiveVenueWeeks, 0);
-  let testFixtures: Fixture[] = [];
-  for (let w = earliestWeek; w <= latestWeek; w++) {
-    const fixtures = matchStructure[divIdx][w];
-    testFixtures = testFixtures.concat([...fixtures]);
+  const { consecutiveVenueWeeks, reverseFixtures } = appConfig;
+  let consecutiveWeeks = 0;
+  for (let w = weekIdx - 1; w >= weekIdx - consecutiveVenueWeeks; w--) {
+    if (w < 0) {
+      break;
+    }
+    const weekFixs = matchStructure[divIdx][w].find((f) => f[teamIdx] === team);
+    if (!weekFixs) {
+      break;
+    }
+    consecutiveWeeks++;
   }
-  let invalidCount = 0;
-  for (const f of testFixtures) {
-    const fixTeamIdx = f.indexOf(team);
-    if (fixTeamIdx > -1 && fixTeamIdx == teamIdx) {
-      invalidCount++;
+  if (reverseFixtures && weekIdx === matchStructure[divIdx].length - 1) {
+    const newTeamIdx = teamIdx === 0 ? 1 : 0;
+    for (let w = 0; w < consecutiveVenueWeeks; w++) {
+      const reverseWeekFixs = matchStructure[divIdx][w].find(
+        (f) => f[newTeamIdx] === team
+      );
+      if (!reverseWeekFixs) {
+        break;
+      }
+      consecutiveWeeks++;
     }
   }
-  if (invalidCount === consecutiveVenueWeeks) {
+  if (consecutiveWeeks >= consecutiveVenueWeeks) {
     return false;
   }
   return true;

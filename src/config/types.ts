@@ -26,7 +26,7 @@ export type Config = {
   venConflicts: ConflictsObject;
 };
 
-export type ConflictsArray = [string, string][];
+export type VenConflicts = [string, string][];
 
 export interface ConflictsObject {
   [key: string]: string;

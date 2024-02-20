@@ -1,11 +1,11 @@
-import { validateOppoTeam, notPlayingThatWeek } from "./team";
+import { Config, ConflictsObject } from "../config/types";
 import {
   fixtureDoesNotExists,
   notSameVenueXWeeks,
   notUnevenVenues,
   notVenueClash,
 } from "./fixture";
-import { Config, ConflictsObject } from "../config/types";
+import { validateOppoTeam, notPlayingThatWeek } from "./team";
 
 export type ConflictResponse = [string, number, number, number, number] | null;
 

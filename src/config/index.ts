@@ -1,6 +1,8 @@
-import { teamConflictsToObject, shuffle, setSeed } from "../process/utils";
+import { applyConflict } from "../process/process";
+import { setSeed, shuffle, teamConflictsToObject } from "../process/utils";
+import { isValid } from "../validation";
 import { loadDivConfig, loadVenReqConfig } from "./configLoader";
-import { Fixture, MatchStructure, Config, VenRequirements } from "./types";
+import { Config, Fixture, MatchStructure } from "./types";
 import { generateVenueConflicts } from "./utils";
 
 /**
@@ -35,43 +37,55 @@ export const setupConfig = async (): Promise<Config> => {
     }
   }
 
-  matches = populateVenueRequirements(matches, divTeams, venReqConfig);
+  let venReqConfigSuffled = venReqConfig
+    .map((value) => ({ value, sort: Math.random() }))
+    .sort((a, b) => a.sort - b.sort)
+    .map(({ value }) => value);
 
-  return {
+  const config = {
     seed,
     matches,
     divTeams,
     divWeeks,
     divNames,
-    venRequirements: venReqConfig,
+    venRequirements: venReqConfigSuffled,
     venConflicts: venConflictsLookup,
   };
+
+  matches = populateVenueRequirements(config);
+
+  return { ...config, matches };
 };
 
 /**
  * Populates the venue requirements for matches in a given division.
  *
- * @param matches - The structure of matches organized by division, week, and venue.
- * @param divTeams - The teams organized by division.
- * @param venReq - The venue requirements for each team.
+ * @param config - The configuration object.
  * @returns The updated structure of matches with venue requirements populated.
  */
-const populateVenueRequirements = (
-  matches: MatchStructure,
-  divTeams: string[][],
-  venReq: VenRequirements[]
-) => {
-  for (const req of venReq) {
+const populateVenueRequirements = (config: Config): MatchStructure => {
+  const { matches, divTeams, venRequirements, venConflicts } = config;
+  for (const req of venRequirements) {
     const { team, venue, week } = req;
     const divIdx = divTeams.findIndex((d) => d.includes(team));
     if (divIdx === -1) {
-      return matches;
+      continue;
     }
     const weekIdx = week - 1;
     const venIdx = venue === "h" ? 0 : 1;
-    for (const match of matches[divIdx][weekIdx]) {
-      if (match[venIdx] === null) {
-        match[venIdx] = team;
+    for (const matchIdx in matches[divIdx][weekIdx]) {
+      const [valid, conflict] = isValid(
+        config,
+        divIdx,
+        weekIdx,
+        parseInt(matchIdx),
+        venIdx,
+        team,
+        true
+      );
+      if (valid) {
+        matches[divIdx][weekIdx][matchIdx][venIdx] = team;
+        applyConflict(matches, conflict);
         break;
       }
     }
