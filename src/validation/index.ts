@@ -1,5 +1,11 @@
 import { Config, ConflictsObject } from "../config/types";
-import { config as appConfig } from "../config";
+import {
+  fixtureDoesNotExists,
+  notSameVenueXWeeks,
+  notUnevenVenues,
+  notVenueClash,
+} from "./fixture";
+import { validateOppoTeam, notPlayingThatWeek } from "./team";
 
 export type ConflictResponse = [string, number, number, number, number] | null;
 
@@ -33,7 +39,14 @@ export const isValid = (
   teamIdx: number,
   team: string,
   checkDependents = false,
-  validationFunctions: ValidationFunction[] = appConfig.defaultValidationFunctions
+  validationFunctions: ValidationFunction[] = [
+    validateOppoTeam,
+    notPlayingThatWeek,
+    fixtureDoesNotExists,
+    notSameVenueXWeeks,
+    notUnevenVenues,
+    notVenueClash,
+  ]
 ): [boolean, ConflictResponse | null] => {
   for (const v of validationFunctions) {
     if (!v(config, divIdx, weekIdx, matchIdx, teamIdx, team)) {

@@ -5,7 +5,7 @@ import { Config, MatchStructure } from "../config/types";
 import { displayOutput, displayState } from "./display";
 import { logger } from "../logger";
 import { LowStartPointError, NoProgressError } from "./errors";
-import { config as appConfig } from "../config";
+import { config as appConfig } from "../appConfig";
 
 const EXIT_PCT = appConfig.exitPct;
 const CHECK_INTERVAL = appConfig.checkInterval;
