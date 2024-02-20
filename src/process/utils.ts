@@ -1,6 +1,16 @@
 import { MatchStructure, VenConflicts, ConflictsObject } from "../config/types";
 import seedrandom from "seedrandom";
 import { logger } from "../logger";
+import fs from "fs";
+import { config as appConfig } from "../appConfig";
+
+export type State = {
+  completed: boolean;
+  currentGen: number;
+  completedState: number;
+  maxCompletedState: number;
+  lastTestCompletedState: number;
+};
 
 /**
  * Sets the seed for generating random numbers.
@@ -84,4 +94,40 @@ export const completedState = (matchStructure: MatchStructure): number => {
     }
   }
   return totalMatchesCompleted / totalMatches;
+};
+
+/**
+ * Writes the output to a JSON file.
+ *
+ * @param {MatchStructure} matches - The matches data to be written.
+ * @param {number} seed - The seed value used for generating the matches.
+ * @returns {void}
+ */
+export const writeOutput = (matches: MatchStructure, seed: number) => {
+  fs.writeFileSync(
+    `${appConfig.outputPath}output.json`,
+    JSON.stringify(
+      {
+        seed,
+        matches,
+      },
+      null,
+      2
+    )
+  );
+};
+
+/**
+ * Writes a log entry to a text file.
+ *
+ * @param {number} seed - The seed value used for generating the log entry.
+ * @param {number} iterations - The number of iterations performed.
+ * @param {State} state - The state object containing relevant information.
+ * @returns {void}
+ */
+export const writeLog = (seed: number, iterations: number, state: State) => {
+  fs.appendFileSync(
+    `${appConfig.outputPath}log.txt`,
+    `{"seed":${seed}, "iterations": ${iterations}, "maxCompletedPct": ${state.maxCompletedState}}\n`
+  );
 };

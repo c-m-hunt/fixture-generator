@@ -1,6 +1,11 @@
-import fs from "fs";
 import { isValid, ConflictResponse } from "../validation";
-import { completedState, elapsedTime } from "./utils";
+import {
+  completedState,
+  elapsedTime,
+  State,
+  writeOutput,
+  writeLog,
+} from "./utils";
 import { Config, MatchStructure } from "../config/types";
 import { displayOutput, displayState } from "./display";
 import { logger } from "../logger";
@@ -10,14 +15,6 @@ import { config as appConfig } from "../appConfig";
 const EXIT_PCT = appConfig.exitPct;
 const CHECK_INTERVAL = appConfig.checkInterval;
 const IMPROVEMENT_CHECK_INTERVAL = appConfig.improvementCheckInterval;
-
-export type State = {
-  completed: boolean;
-  currentGen: number;
-  completedState: number;
-  maxCompletedState: number;
-  lastTestCompletedState: number;
-};
 
 export const applyConflict = (
   matchStructure: MatchStructure,
@@ -141,25 +138,4 @@ export const runProcess = (config: Config): MatchStructure | null => {
   displayOutput(matches, divNames);
   logger.info(`Used seed ${config.seed.toString()}`);
   return success ? matches : null;
-};
-
-const writeOutput = (matches: MatchStructure, seed: number) => {
-  fs.writeFileSync(
-    "./output/output.json",
-    JSON.stringify(
-      {
-        seed,
-        matches,
-      },
-      null,
-      2
-    )
-  );
-};
-
-const writeLog = (seed: number, iterations: number, state: State) => {
-  fs.appendFileSync(
-    "./output/log.txt",
-    `{"seed":${seed}, "iterations": ${iterations}, "maxCompletedPct": ${state.maxCompletedState}}\n`
-  );
 };

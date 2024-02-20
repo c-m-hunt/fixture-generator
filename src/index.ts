@@ -20,6 +20,7 @@ import {
   NoProgressError,
 } from "./process/errors";
 import { logger } from "./logger";
+import { config as appConfig } from "./appConfig";
 
 (async () => {
   for (let i = 1; i <= 100000; i++) {
@@ -31,9 +32,11 @@ import { logger } from "./logger";
       if (matches) {
         logger.info("Success");
         const outputFormatter = new PlayCricketForamtter();
-        outputFormatter.outputPath = `./output/${new Date().toISOString()}.csv`;
+        outputFormatter.outputPath = `${
+          appConfig.outputPath
+        }${new Date().toISOString()}.csv`;
         outputFormatter.startDate = new Date("2024-05-11");
-        outputFormatter.writeOutput(matches);
+        outputFormatter.writeFixtures(matches);
         break;
       }
     } catch (e) {

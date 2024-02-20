@@ -1,6 +1,6 @@
 import parse from "csv-simple-parser";
 import moment from "moment";
-import { readFileSync } from "fs";
+import { readFileSync, appendFileSync } from "fs";
 import { MatchStructure } from "../../config/types";
 type Mapping = {
   team: string;
@@ -11,7 +11,7 @@ type Mapping = {
 
 interface OutputFormatter {
   mappings: Mapping[];
-  writeOutput: (data: MatchStructure) => void;
+  writeFixtures: (data: MatchStructure) => void;
 }
 
 // Class which formats the output for PlayCricket.
@@ -27,7 +27,10 @@ export class PlayCricketForamtter implements OutputFormatter {
   }
 
   #loadMappings = (): Mapping[] => {
-    const csv = readFileSync(`${import.meta.dir}/data/mappings.csv`, "utf-8");
+    const csv = readFileSync(
+      `${import.meta.dir}/../../config/data/mappings.csv`,
+      "utf-8"
+    );
     const data = parse(csv, {
       header: false,
     }) as string[][];
@@ -39,7 +42,15 @@ export class PlayCricketForamtter implements OutputFormatter {
     }));
   };
 
-  writeOutput = (data: MatchStructure) => {
+  #writeOutputLine = (line: string) => {
+    if (!this.outputPath) {
+      throw new Error("No output path set");
+    }
+    const fileName = `${this.outputPath}`;
+    appendFileSync(fileName, `${line}\n`);
+  };
+
+  writeFixtures = (data: MatchStructure) => {
     if (!data) {
       throw new Error("No data to output");
     }
@@ -76,8 +87,8 @@ export class PlayCricketForamtter implements OutputFormatter {
             )}, 12:00, ${awayTeam.teamId}, ${homeTeam.teamId}, ${
               awayTeam.ground
             }`;
-            console.log(outputLine1);
-            console.log(outputLine2);
+            this.#writeOutputLine(outputLine1);
+            this.#writeOutputLine(outputLine2);
           }
         }
         weekNo++;
