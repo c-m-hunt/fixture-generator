@@ -107,7 +107,6 @@ export const runProcess = (config: Config): MatchStructure | null => {
                           state.lastTestCompletedState &&
                           state.lastTestCompletedState === state.completedState)
                       ) {
-                        writeLog(config.seed, c, state);
                         displayOutput(matches, divNames);
                         throw new NoProgressError("No progress");
                       }

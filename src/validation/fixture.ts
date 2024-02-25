@@ -20,18 +20,14 @@ export const fixtureDoesNotExists: ValidationFunction = (
   teamIdx: number,
   team: string
 ): boolean => {
-  if (teamIdx === 0) {
-    return true;
-  }
   const { matches: matchStructure } = config;
   const match: Fixture = [...matchStructure[divIdx][weekIdx][matchIdx]];
   match[teamIdx] = team;
-  const divMatches = matchStructure[divIdx].flat();
-  const filteredDivMatches = divMatches.filter(
-    (m) => m[0] !== null && m[1] !== null
-  );
+  const divMatches = matchStructure[divIdx]
+    .flat()
+    .filter((m) => m[0] !== null && m[1] !== null);
 
-  if (fixtureExists(filteredDivMatches, match)) {
+  if (fixtureExists(divMatches, match)) {
     return false;
   }
   return true;

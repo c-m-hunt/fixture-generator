@@ -17,6 +17,10 @@ describe("Fixture validation", () => {
           ["ABC", "CHI"],
           ["WAN", null],
         ],
+        [
+          ["ABC", "SOS"],
+          [null, "WAN"],
+        ],
       ],
     ];
     const config: Config = {
@@ -28,7 +32,11 @@ describe("Fixture validation", () => {
       divWeeks: [1],
       venConflicts: {},
     };
-    const valid = fixtureDoesNotExists(config, 0, 1, 1, 1, "CHI");
+    let valid = fixtureDoesNotExists(config, 0, 1, 1, 1, "CHI");
+    expect(valid).toBe(false);
+    valid = fixtureDoesNotExists(config, 0, 1, 1, 1, "SOS");
+    expect(valid).toBe(true);
+    valid = fixtureDoesNotExists(config, 0, 2, 1, 0, "CHI");
     expect(valid).toBe(false);
   });
 

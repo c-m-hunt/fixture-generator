@@ -32,11 +32,9 @@ import { config as appConfig } from "./appConfig";
       if (matches) {
         logger.info("Success");
         const outputFormatter = new PlayCricketForamtter();
-        outputFormatter.outputPath = `${
-          appConfig.outputPath
-        }${new Date().toISOString()}.csv`;
+        outputFormatter.outputPath = `${appConfig.outputPath}`;
         outputFormatter.startDate = new Date("2024-05-11");
-        outputFormatter.writeFixtures(matches);
+        outputFormatter.writeFixtures(matches, config.seed);
         break;
       }
     } catch (e) {

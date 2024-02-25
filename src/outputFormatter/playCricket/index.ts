@@ -2,6 +2,7 @@ import parse from "csv-simple-parser";
 import moment from "moment";
 import { readFileSync, appendFileSync } from "fs";
 import { MatchStructure } from "../../config/types";
+import { State } from "../../process/utils";
 type Mapping = {
   team: string;
   divisionId: number;
@@ -11,7 +12,7 @@ type Mapping = {
 
 interface OutputFormatter {
   mappings: Mapping[];
-  writeFixtures: (data: MatchStructure) => void;
+  writeFixtures: (data: MatchStructure, seed: number) => void;
 }
 
 // Class which formats the output for PlayCricket.
@@ -20,7 +21,9 @@ interface OutputFormatter {
 export class PlayCricketForamtter implements OutputFormatter {
   mappings: Mapping[];
   outputPath?: string;
+  outputFileName?: string = `${new Date().toISOString()}.csv`;
   startDate?: Date;
+  _fullOutputPath?: string;
   constructor() {
     this.mappings = this.#loadMappings();
     this.outputPath = "";
@@ -46,11 +49,11 @@ export class PlayCricketForamtter implements OutputFormatter {
     if (!this.outputPath) {
       throw new Error("No output path set");
     }
-    const fileName = `${this.outputPath}`;
+    const fileName = `${this.outputPath}${this.outputFileName}`;
     appendFileSync(fileName, `${line}\n`);
   };
 
-  writeFixtures = (data: MatchStructure) => {
+  writeFixtures = (data: MatchStructure, seed: number) => {
     if (!data) {
       throw new Error("No data to output");
     }
@@ -60,6 +63,7 @@ export class PlayCricketForamtter implements OutputFormatter {
     if (!this.startDate) {
       throw new Error("No start date set");
     }
+    this.#writeOutputLine(seed.toString());
     for (const div of data) {
       let weekNo = 0;
       for (const week of div) {
