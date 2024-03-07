@@ -7,6 +7,7 @@ export const config = {
   // This will trigger the notSameVenueXWeeks validation function to check
   // for the same venue for the reverse fixtures of the first few games of season
   reverseFixtures: true,
+  startDate: new Date("2024-05-11"),
 
   // -------------------
   // Validation

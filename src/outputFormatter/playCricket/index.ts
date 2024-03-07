@@ -1,7 +1,7 @@
 import parse from "csv-simple-parser";
 import moment from "moment";
 import { readFileSync, appendFileSync } from "fs";
-import { MatchStructure } from "../../config/types";
+import { Config, MatchStructure } from "../../config/types";
 import { State } from "../../process/utils";
 type Mapping = {
   team: string;
@@ -12,6 +12,7 @@ type Mapping = {
 
 interface OutputFormatter {
   mappings: Mapping[];
+  writeConfig: (config: Config) => void;
   writeFixtures: (data: MatchStructure, seed: number) => void;
 }
 
@@ -19,14 +20,18 @@ interface OutputFormatter {
 // This class is responsible for taking the generated fixtures and formatting them
 // in a way that can be used by the PlayCricket API.
 export class PlayCricketForamtter implements OutputFormatter {
+  config: Config;
+  matches: MatchStructure;
   mappings: Mapping[];
   outputPath?: string;
   outputFileName?: string = `${new Date().toISOString()}.csv`;
   startDate?: Date;
   _fullOutputPath?: string;
-  constructor() {
+  constructor(config: Config, matches: MatchStructure) {
     this.mappings = this.#loadMappings();
     this.outputPath = "";
+    this.config = config;
+    this.matches = matches;
   }
 
   #loadMappings = (): Mapping[] => {
@@ -53,7 +58,32 @@ export class PlayCricketForamtter implements OutputFormatter {
     appendFileSync(fileName, `${line}\n`);
   };
 
-  writeFixtures = (data: MatchStructure, seed: number) => {
+  #writeOutputLineDivider = () => {
+    this.#writeOutputLine(
+      "----------------------------------------------------"
+    );
+  };
+
+  writeConfig = () => {
+    const { config } = this;
+    this.#writeOutputLine(config.seed.toString());
+    this.#writeOutputLineDivider();
+    for (const team1 in config.venConflicts) {
+      this.#writeOutputLine(`${team1},${config.venConflicts[team1]}`);
+    }
+    this.#writeOutputLineDivider();
+    for (const team of config.venRequirements) {
+      this.#writeOutputLine(`${team.team},${team.venue},${team.week}`);
+    }
+    this.#writeOutputLineDivider();
+    for (const [i, divName] of config.divNames.entries()) {
+      this.#writeOutputLine(`${divName},${config.divTeams[i].join(",")}`);
+    }
+    this.#writeOutputLineDivider();
+  };
+
+  writeFixtures = () => {
+    const { matches: data } = this;
     if (!data) {
       throw new Error("No data to output");
     }
@@ -63,7 +93,6 @@ export class PlayCricketForamtter implements OutputFormatter {
     if (!this.startDate) {
       throw new Error("No start date set");
     }
-    this.#writeOutputLine(seed.toString());
     for (const div of data) {
       let weekNo = 0;
       for (const week of div) {

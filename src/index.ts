@@ -31,10 +31,11 @@ import { config as appConfig } from "./appConfig";
       const matches = runProcess(config);
       if (matches) {
         logger.info("Success");
-        const outputFormatter = new PlayCricketForamtter();
+        const outputFormatter = new PlayCricketForamtter(config, matches);
         outputFormatter.outputPath = `${appConfig.outputPath}`;
-        outputFormatter.startDate = new Date("2024-05-11");
-        outputFormatter.writeFixtures(matches, config.seed);
+        outputFormatter.startDate = appConfig.startDate;
+        outputFormatter.writeConfig();
+        outputFormatter.writeFixtures();
         break;
       }
     } catch (e) {
