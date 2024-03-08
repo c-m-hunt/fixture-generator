@@ -132,7 +132,8 @@ const checkDependentsValid = (
         if (
           oppoConflict[1] == conflictTeamDivIdx &&
           matchStructure[conflictTeamDivIdx][weekIdx][mIdx][teamIdx] ===
-            oppoConflict[0]
+            oppoConflict[0] &&
+            matchStructure[conflictTeamDivIdx][weekIdx][mIdx][conflictTeamIdx] === null
         ) {
           return [
             true,
@@ -142,7 +143,7 @@ const checkDependentsValid = (
       }
     }
   }
-  return null;
+  return null
 };
 
 const findTeamGap = (
