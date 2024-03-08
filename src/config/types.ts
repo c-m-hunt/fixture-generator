@@ -1,3 +1,5 @@
+import { AppConfig } from "../appConfig";
+
 export type DivisionConfig = {
   name: string;
   teams: string[];
@@ -24,6 +26,8 @@ export type Config = {
   divNames: string[];
   venRequirements: VenRequirements[];
   venConflicts: ConflictsObject;
+  startDate?: Date;
+  appConfig: AppConfig;
 };
 
 export type VenConflicts = [string, string][];

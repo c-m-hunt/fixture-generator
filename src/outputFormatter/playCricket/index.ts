@@ -2,7 +2,9 @@ import parse from "csv-simple-parser";
 import moment from "moment";
 import { readFileSync, appendFileSync } from "fs";
 import { Config, MatchStructure } from "../../config/types";
-import { State } from "../../process/utils";
+import { uploadFileToS3 } from "./utils";
+import path from "path";
+
 type Mapping = {
   team: string;
   divisionId: number;
@@ -62,6 +64,25 @@ export class PlayCricketForamtter implements OutputFormatter {
     this.#writeOutputLine(
       "----------------------------------------------------"
     );
+  };
+
+  writeOutput = () => {
+    this.writeConfig();
+    this.writeFixtures();
+    if (this.config.appConfig.s3Path) {
+      this.writeToS3();
+    }
+  };
+
+  writeToS3 = async () => {
+    if (this.config.appConfig.s3Path && this.outputFileName) {
+      const fileName = `${this.outputPath}${this.outputFileName}`;
+      const key = path.join(
+        this.config.appConfig.s3Path.key,
+        this.outputFileName
+      );
+      await uploadFileToS3(fileName, this.config.appConfig.s3Path.bucket, key);
+    }
   };
 
   writeConfig = () => {

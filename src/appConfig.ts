@@ -1,4 +1,18 @@
-export const config = {
+export type AppConfig = {
+  reverseFixtures: boolean;
+  startDate: Date;
+  consecutiveVenueWeeks: number;
+  exitPct: number;
+  checkInterval: number;
+  improvementCheckInterval: number;
+  outputPath: string;
+  s3Path: {
+    bucket: string;
+    key: string;
+  } | null;
+};
+
+export const config: AppConfig = {
   // -------------------
   // General
   // -------------------
@@ -14,7 +28,7 @@ export const config = {
   // -------------------
 
   // The number of consecutive weeks a team can play in the same venue
-  consecutiveVenueWeeks: 2,
+  consecutiveVenueWeeks: 3,
 
   // -------------------
   // Process
@@ -29,4 +43,11 @@ export const config = {
   // Display
   // -------------------
   outputPath: "./output/",
+  s3Path:
+    process.env.S3_BUCKET && process.env.S3_KEY
+      ? {
+          bucket: process.env.S3_BUCKET,
+          key: process.env.S3_KEY,
+        }
+      : null,
 };

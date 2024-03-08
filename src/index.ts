@@ -34,8 +34,7 @@ import { config as appConfig } from "./appConfig";
         const outputFormatter = new PlayCricketForamtter(config, matches);
         outputFormatter.outputPath = `${appConfig.outputPath}`;
         outputFormatter.startDate = appConfig.startDate;
-        outputFormatter.writeConfig();
-        outputFormatter.writeFixtures();
+        outputFormatter.writeOutput();
         break;
       }
     } catch (e) {

@@ -4,6 +4,7 @@ import { isValid } from "../validation";
 import { loadDivConfig, loadVenReqConfig } from "./configLoader";
 import { Config, Fixture, MatchStructure } from "./types";
 import { generateVenueConflicts } from "./utils";
+import { config as appConfig } from "../appConfig";
 
 /**
  * Sets up the configuration for generating fixtures.
@@ -50,6 +51,7 @@ export const setupConfig = async (): Promise<Config> => {
     divNames,
     venRequirements: venReqConfigSuffled,
     venConflicts: venConflictsLookup,
+    appConfig,
   };
 
   matches = populateVenueRequirements(config);
