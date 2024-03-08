@@ -77,10 +77,7 @@ export const notSameVenueXWeeks: ValidationFunction = (
       consecutiveWeeks++;
     }
   }
-  if (consecutiveWeeks >= consecutiveVenueWeeks) {
-    return false;
-  }
-  return true;
+  return !(consecutiveWeeks >= consecutiveVenueWeeks)
 };
 
 /**
@@ -119,11 +116,7 @@ export const notUnevenVenues: ValidationFunction = (
   }
 
   venueCount[teamIdx]++;
-
-  if (Math.abs(venueCount[0] - venueCount[1]) > 1) {
-    return false;
-  }
-  return true;
+  return !(Math.abs(venueCount[0] - venueCount[1]) > 1)
 };
 
 /**
@@ -156,10 +149,7 @@ export const notVenueClash: ValidationFunction = (
     .map((f) => f[0]);
 
   const clashTeam = venConflicts[team];
-  if (homeTeams.includes(clashTeam)) {
-    return false;
-  }
-  return true;
+  return !homeTeams.includes(clashTeam)
 };
 
 /**

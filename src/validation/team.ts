@@ -21,10 +21,7 @@ export const validateOppoTeam = (
 ): boolean => {
   const { matches } = config;
   const otherTeam = teamIdx === 1 ? 0 : 1;
-  if (matches[divIdx][weekIdx][matchIdx][otherTeam] === team) {
-    return false;
-  }
-  return true;
+  return !(matches[divIdx][weekIdx][matchIdx][otherTeam] === team)
 };
 
 /**
@@ -46,9 +43,5 @@ export const notPlayingThatWeek: ValidationFunction = (
   team: string
 ): boolean => {
   const { matches: matchStructure } = config;
-  const teams = matchStructure[divIdx][weekIdx].flat(2);
-  if (teams.includes(team)) {
-    return false;
-  }
-  return true;
+  return ! matchStructure[divIdx][weekIdx].flat(2).includes(team);
 };
