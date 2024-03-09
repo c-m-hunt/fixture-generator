@@ -21,7 +21,7 @@ export const validateOppoTeam = (
 ): boolean => {
   const { matches } = config;
   const otherTeam = teamIdx === 1 ? 0 : 1;
-  return !(matches[divIdx][weekIdx][matchIdx][otherTeam] === team)
+  return !(matches[divIdx][weekIdx][matchIdx][otherTeam] === team);
 };
 
 /**
@@ -43,5 +43,34 @@ export const notPlayingThatWeek: ValidationFunction = (
   team: string
 ): boolean => {
   const { matches: matchStructure } = config;
-  return ! matchStructure[divIdx][weekIdx].flat(2).includes(team);
+  return !matchStructure[divIdx][weekIdx].flat(2).includes(team);
+};
+
+/**
+ * Checks if a tean is not playing at a specific venue for a specific week.
+ * @param config - The fixture configuration.
+ * @param divIdx - The division index.
+ * @param weekIdx - The week index.
+ * @param matchIdx - The match index.
+ * @param teamIdx - The team index.
+ * @param team - The team name.
+ * @returns A boolean indicating whether the fixture does not exist.
+ */
+export const matchesVenueRequirements: ValidationFunction = (
+  config: Config,
+  divIdx: number,
+  weekIdx: number,
+  matchIdx: number,
+  teamIdx: number,
+  team: string
+): boolean => {
+  const { venRequirements } = config;
+  const searchTeamIdx = teamIdx === 1 ? "a" : "h";
+  const req = venRequirements.find(
+    (v) => v.team === team && v.week === weekIdx + 1
+  );
+  if (!req) {
+    return true;
+  }
+  return req.venue === searchTeamIdx;
 };
