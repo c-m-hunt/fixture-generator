@@ -67,6 +67,17 @@ export class PlayCricketForamtter implements OutputFormatter {
   };
 
   writeOutput = () => {
+    const { matches: data } = this;
+    if (!this.outputPath) {
+      throw new Error("No output path set");
+    }
+    if (!data) {
+      throw new Error("No data to output");
+    }
+    if (!this.startDate) {
+      throw new Error("No start date set");
+    }
+
     this.writeConfig();
     this.writeFixtures();
     if (this.config.appConfig.s3Path) {
@@ -105,15 +116,6 @@ export class PlayCricketForamtter implements OutputFormatter {
 
   writeFixtures = () => {
     const { matches: data } = this;
-    if (!data) {
-      throw new Error("No data to output");
-    }
-    if (!this.outputPath) {
-      throw new Error("No output path set");
-    }
-    if (!this.startDate) {
-      throw new Error("No start date set");
-    }
     for (const div of data) {
       let weekNo = 0;
       for (const week of div) {

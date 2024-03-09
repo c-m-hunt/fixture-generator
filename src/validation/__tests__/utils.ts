@@ -8,6 +8,7 @@ export const generalConfig: Config = {
   divWeeks: [],
   venConflicts: {},
   venRequirements: [],
+  fixtureRequirements: [],
   appConfig: {
     reverseFixtures: false,
     exitPct: 0.5,
