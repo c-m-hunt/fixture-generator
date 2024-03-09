@@ -4,6 +4,7 @@ import {
   notVenueClash,
 } from "../fixture";
 import { Config, MatchStructure } from "../../config/types";
+import { generalConfig } from "./utils";
 
 describe("Fixture validation", () => {
   it("should validate a team is playing that week", () => {
@@ -24,13 +25,11 @@ describe("Fixture validation", () => {
       ],
     ];
     const config: Config = {
-      seed: 1,
-      venRequirements: [],
+      ...generalConfig,
       matches,
       divTeams: [["WAN", "CHI", "ABC"]],
       divNames: ["A"],
       divWeeks: [1],
-      venConflicts: {},
     };
     let valid = fixtureDoesNotExists(config, 0, 1, 1, 1, "CHI");
     expect(valid).toBe(false);
@@ -63,13 +62,16 @@ describe("Fixture validation", () => {
     ];
     let valid = true;
     const config: Config = {
-      seed: 1,
-      venRequirements: [],
+      ...generalConfig,
       matches,
       divTeams: [["WAN", "CHI", "ABC"]],
       divNames: ["A"],
       divWeeks: [1],
-      venConflicts: {},
+      appConfig: {
+        ...generalConfig.appConfig,
+        consecutiveVenueWeeks: 2,
+        reverseFixtures: true,
+      },
     };
     valid = notSameVenueXWeeks(config, 0, 2, 1, 0, "WAN");
     expect(valid).toBe(false);
@@ -99,8 +101,7 @@ describe("Fixture validation", () => {
       ],
     ];
     const config: Config = {
-      seed: 1,
-      venRequirements: [],
+      ...generalConfig,
       matches,
       divTeams: [["WAN", "CHI", "ABC"]],
       divNames: ["A"],

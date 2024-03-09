@@ -5,7 +5,11 @@ import {
   notUnevenVenues,
   notVenueClash,
 } from "./fixture";
-import { validateOppoTeam, notPlayingThatWeek } from "./team";
+import {
+  validateOppoTeam,
+  notPlayingThatWeek,
+  matchesVenueRequirements,
+} from "./team";
 
 export type ConflictResponse = [string, number, number, number, number] | null;
 
@@ -31,18 +35,17 @@ export type ValidationFunction = (
   team: string
 ) => boolean;
 
-
 const generateValidationFunctions = (): ValidationFunction[] => {
   return [
+    matchesVenueRequirements,
     notVenueClash,
     validateOppoTeam,
     notPlayingThatWeek,
     fixtureDoesNotExists,
     notSameVenueXWeeks,
     // notUnevenVenues,
-  ]
-}
-
+  ];
+};
 
 export const isValid = (
   config: Config,
@@ -76,7 +79,7 @@ export const isValid = (
   return [true, null];
 };
 
-type DelendentsValid = [boolean, ConflictResponse | null] | null
+type DelendentsValid = [boolean, ConflictResponse | null] | null;
 
 const checkDependentsValid = (
   config: Config,
@@ -103,7 +106,7 @@ const checkDependentsValid = (
         weekIdx,
         conflictTeamIdx,
         conflictTeam
-      )
+      );
     }
     // Away team - only match up of full reverse fixture
     if (teamIdx === 1) {
@@ -113,7 +116,7 @@ const checkDependentsValid = (
         venConflicts
       );
       // Only interested if there's a match up
-      if (!oppoConflict || (oppoConflict[1] != conflictTeamDivIdx)) {
+      if (!oppoConflict || oppoConflict[1] != conflictTeamDivIdx) {
         // return [true, null];
         return findTeamGap(
           config,
@@ -121,7 +124,7 @@ const checkDependentsValid = (
           weekIdx,
           conflictTeamIdx,
           conflictTeam
-        )
+        );
       }
 
       for (
@@ -133,7 +136,8 @@ const checkDependentsValid = (
           oppoConflict[1] == conflictTeamDivIdx &&
           matchStructure[conflictTeamDivIdx][weekIdx][mIdx][teamIdx] ===
             oppoConflict[0] &&
-            matchStructure[conflictTeamDivIdx][weekIdx][mIdx][conflictTeamIdx] === null
+          matchStructure[conflictTeamDivIdx][weekIdx][mIdx][conflictTeamIdx] ===
+            null
         ) {
           return [
             true,
@@ -143,7 +147,7 @@ const checkDependentsValid = (
       }
     }
   }
-  return null
+  return null;
 };
 
 const findTeamGap = (
@@ -154,20 +158,10 @@ const findTeamGap = (
   team: string
 ): DelendentsValid => {
   const { matches: matchStructure } = config;
-  for (
-    let mIdx = 0;
-    mIdx < matchStructure[divIdx][weekIdx].length;
-    mIdx++
-  ) {
-    if (
-      matchStructure[divIdx][weekIdx][mIdx][teamIdx] ===
-      null
-    ) {
-      return [
-        true,
-        [team, divIdx, weekIdx, mIdx, teamIdx],
-      ];
+  for (let mIdx = 0; mIdx < matchStructure[divIdx][weekIdx].length; mIdx++) {
+    if (matchStructure[divIdx][weekIdx][mIdx][teamIdx] === null) {
+      return [true, [team, divIdx, weekIdx, mIdx, teamIdx]];
     }
   }
-  return [false, null]
-}
+  return [false, null];
+};

@@ -1,7 +1,11 @@
 import { applyConflict } from "../process/process";
 import { setSeed, shuffle, teamConflictsToObject } from "../process/utils";
 import { isValid } from "../validation";
-import { loadDivConfig, loadVenReqConfig } from "./configLoader";
+import {
+  loadDivConfig,
+  loadFixtureReqConfig,
+  loadVenReqConfig,
+} from "./configLoader";
 import { Config, Fixture, MatchStructure } from "./types";
 import { generateVenueConflicts } from "./utils";
 import { config as appConfig } from "../appConfig";
@@ -15,6 +19,7 @@ export const setupConfig = async (): Promise<Config> => {
   const seed = setSeed();
   const divConfig = await loadDivConfig();
   const venReqConfig = await loadVenReqConfig();
+  const fixtureReqConfig = await loadFixtureReqConfig();
   const divTeams = divConfig.map((d) => shuffle(d.teams));
   const divWeeks = divConfig.map((d) => d.teams.length - 1);
   const divNames = divConfig.map((d) => d.name);
@@ -50,17 +55,64 @@ export const setupConfig = async (): Promise<Config> => {
     divWeeks,
     divNames,
     venRequirements: venReqConfigSuffled,
+    fixtureRequirements: fixtureReqConfig,
     venConflicts: venConflictsLookup,
     appConfig,
   };
 
-  matches = populateVenueRequirements(config);
+  // matches = populateVenueRequirements(config);
+
+  matches = populateFixtureRequirements(config);
 
   return { ...config, matches };
 };
 
+const populateFixtureRequirements = (config: Config): MatchStructure => {
+  const { matches, divTeams, venRequirements, fixtureRequirements } = config;
+  for (const fix of fixtureRequirements) {
+    const { week, team1, team2 } = fix;
+    const divIdx = divTeams.findIndex(
+      (d) => d.includes(team1) && d.includes(team2)
+    );
+    if (divIdx === -1) {
+      throw new Error("Teams not found in the same division");
+    }
+    const weekIdx = week - 1;
+    for (const matchIdx in matches[divIdx][weekIdx]) {
+      const [valid1, conflict1] = isValid(
+        config,
+        divIdx,
+        weekIdx,
+        parseInt(matchIdx),
+        0,
+        team1,
+        true
+      );
+      const [valid2, conflict2] = isValid(
+        config,
+        divIdx,
+        weekIdx,
+        parseInt(matchIdx),
+        1,
+        team2,
+        true
+      );
+      if (valid1 && valid2) {
+        matches[divIdx][weekIdx][matchIdx][0] = team1;
+        applyConflict(matches, conflict1);
+        matches[divIdx][weekIdx][matchIdx][1] = team2;
+        applyConflict(matches, conflict2);
+        break;
+      }
+    }
+  }
+  return matches;
+};
+
 /**
  * Populates the venue requirements for matches in a given division.
+ *
+ * DEPRECATED: This function is no longer used.
  *
  * @param config - The configuration object.
  * @returns The updated structure of matches with venue requirements populated.

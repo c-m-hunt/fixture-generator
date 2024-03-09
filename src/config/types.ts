@@ -5,10 +5,16 @@ export type DivisionConfig = {
   teams: string[];
 };
 
-export type VenRequirements = {
+export type VenRequirement = {
   team: string;
   venue: "h" | "a";
   week: number;
+};
+
+export type FixtureRequirement = {
+  week: number;
+  team1: string;
+  team2: string;
 };
 
 export type Fixture = [string | null, string | null];
@@ -24,7 +30,8 @@ export type Config = {
   divTeams: string[][];
   divWeeks: number[];
   divNames: string[];
-  venRequirements: VenRequirements[];
+  venRequirements: VenRequirement[];
+  fixtureRequirements: FixtureRequirement[];
   venConflicts: ConflictsObject;
   startDate?: Date;
   appConfig: AppConfig;

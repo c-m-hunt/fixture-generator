@@ -1,6 +1,5 @@
 import { ValidationFunction } from ".";
 import { Fixture, Config } from "../config/types";
-import { config as appConfig } from "../appConfig";
 
 /**
  * Checks if a fixture does not already exist in the given configuration.
@@ -53,7 +52,7 @@ export const notSameVenueXWeeks: ValidationFunction = (
   team: string
 ): boolean => {
   const { matches: matchStructure } = config;
-  const { consecutiveVenueWeeks, reverseFixtures } = appConfig;
+  const { consecutiveVenueWeeks, reverseFixtures } = config.appConfig;
   let consecutiveWeeks = 0;
   for (let w = weekIdx - 1; w >= weekIdx - consecutiveVenueWeeks; w--) {
     if (w < 0) {
@@ -77,7 +76,7 @@ export const notSameVenueXWeeks: ValidationFunction = (
       consecutiveWeeks++;
     }
   }
-  return !(consecutiveWeeks >= consecutiveVenueWeeks)
+  return !(consecutiveWeeks >= consecutiveVenueWeeks);
 };
 
 /**
@@ -116,7 +115,7 @@ export const notUnevenVenues: ValidationFunction = (
   }
 
   venueCount[teamIdx]++;
-  return !(Math.abs(venueCount[0] - venueCount[1]) > 1)
+  return !(Math.abs(venueCount[0] - venueCount[1]) > 1);
 };
 
 /**
@@ -149,7 +148,7 @@ export const notVenueClash: ValidationFunction = (
     .map((f) => f[0]);
 
   const clashTeam = venConflicts[team];
-  return !homeTeams.includes(clashTeam)
+  return !homeTeams.includes(clashTeam);
 };
 
 /**

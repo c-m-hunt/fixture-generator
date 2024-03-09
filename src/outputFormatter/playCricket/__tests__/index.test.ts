@@ -13,16 +13,12 @@ describe("Play", () => {
 
   it("should throw error if no output path given", () => {
     const formatter = new PlayCricketForamtter();
-    expect(() => formatter.writeFixtures({}, 123)).toThrow(
-      "No output path set"
-    );
+    expect(() => formatter.writeOutput()).toThrow("No output path set");
   });
 
   it("should throw error if no data given", () => {
     const formatter = new PlayCricketForamtter();
-    formatter.outputPath = "path";
-    expect(() => formatter.writeFixtures()).toThrow("No data to output");
-
-    expect(() => formatter.writeFixtures(null)).toThrow("No data to output");
+    formatter.outputPath = "test";
+    expect(() => formatter.writeOutput()).toThrow("No data to output");
   });
 });
