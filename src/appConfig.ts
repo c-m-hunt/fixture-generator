@@ -28,15 +28,19 @@ export const config: AppConfig = {
   // -------------------
 
   // The number of consecutive weeks a team can play in the same venue
-  consecutiveVenueWeeks: 3,
+  consecutiveVenueWeeks: process.env.MAX_CONSEC_WEEKS
+    ? parseInt(process.env.MAX_CONSEC_WEEKS)
+    : 3,
 
   // -------------------
   // Process
   // -------------------
 
   // Will exit if the improvement is less than this percentage by the check interval
-  exitPct: 0.5,
-  checkInterval: 100000,
+  exitPct: process.env.EXIT_PCT ? parseFloat(process.env.EXIT_PCT) : 0.5,
+  checkInterval: process.env.CHECK_INTERVAL
+    ? parseInt(process.env.CHECK_INTERVAL)
+    : 100000,
   improvementCheckInterval: 1000000,
 
   // -------------------

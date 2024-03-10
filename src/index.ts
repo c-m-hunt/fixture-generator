@@ -11,7 +11,7 @@
  * @throws {LowStartPointError} If the start point is too low and needs to be retried.
  */
 import { setupConfig } from "./config";
-import { PlayCricketForamtter } from "./outputFormatter/playCricket";
+import { PlayCricketWriter } from "./outputWriter/playCricket";
 import { displayRunHeader } from "./process/display";
 import { runProcess } from "./process/process";
 import {
@@ -28,13 +28,12 @@ import { config as appConfig } from "./appConfig";
       displayRunHeader(i);
 
       const config = await setupConfig();
-      const matches = runProcess(config);
+      const outputWriter = new PlayCricketWriter(config);
+      outputWriter.outputPath = `${appConfig.outputPath}`;
+      outputWriter.startDate = appConfig.startDate;
+      const matches = runProcess(config, outputWriter);
       if (matches) {
         logger.info("Success");
-        const outputFormatter = new PlayCricketForamtter(config, matches);
-        outputFormatter.outputPath = `${appConfig.outputPath}`;
-        outputFormatter.startDate = appConfig.startDate;
-        outputFormatter.writeOutput();
         break;
       }
     } catch (e) {

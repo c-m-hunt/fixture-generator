@@ -4,6 +4,8 @@ import { readFileSync, appendFileSync } from "fs";
 import { Config, MatchStructure } from "../../config/types";
 import { uploadFileToS3 } from "./utils";
 import path from "path";
+import fs from "fs";
+import { OutputWriter, OutputWriterBase } from "..";
 
 type Mapping = {
   team: string;
@@ -12,28 +14,26 @@ type Mapping = {
   ground: Number;
 };
 
-interface OutputFormatter {
-  mappings: Mapping[];
-  writeConfig: (config: Config) => void;
-  writeFixtures: (data: MatchStructure, seed: number) => void;
-}
-
 // Class which formats the output for PlayCricket.
 // This class is responsible for taking the generated fixtures and formatting them
 // in a way that can be used by the PlayCricket API.
-export class PlayCricketForamtter implements OutputFormatter {
+export class PlayCricketWriter
+  extends OutputWriterBase
+  implements OutputWriter
+{
   config: Config;
-  matches: MatchStructure;
+  matches?: MatchStructure;
   mappings: Mapping[];
   outputPath?: string;
-  outputFileName?: string = `${new Date().toISOString()}.csv`;
+  outputFileName?: string = `${new Date().toISOString()}.txt`;
+  fullOutputPath?: string;
   startDate?: Date;
   _fullOutputPath?: string;
-  constructor(config: Config, matches: MatchStructure) {
+  constructor(config: Config) {
+    super();
     this.mappings = this.#loadMappings();
     this.outputPath = "";
     this.config = config;
-    this.matches = matches;
   }
 
   #loadMappings = (): Mapping[] => {
@@ -53,11 +53,11 @@ export class PlayCricketForamtter implements OutputFormatter {
   };
 
   #writeOutputLine = (line: string) => {
-    if (!this.outputPath) {
+    if (!this.outputPath || !this.fullOutputPath) {
       throw new Error("No output path set");
     }
-    const fileName = `${this.outputPath}${this.outputFileName}`;
-    appendFileSync(fileName, `${line}\n`);
+
+    appendFileSync(this.fullOutputPath, `${line}\n`);
   };
 
   #writeOutputLineDivider = () => {
@@ -66,22 +66,61 @@ export class PlayCricketForamtter implements OutputFormatter {
     );
   };
 
-  writeOutput = () => {
+  writeOutput = (matches: MatchStructure) => {
+    if (!this.outputPath) {
+      throw new Error("No output path set");
+    }
+    if (!matches || matches.length === 0) {
+      throw new Error("No data to output");
+    }
+    if (!this.startDate) {
+      throw new Error("No start date set");
+    }
+    if (this.outputFileName === undefined) {
+      throw new Error("No output file name set");
+    }
+    this.matches = matches;
+    let filePath = this.outputPath;
+    if (this.bestState?.completed === false) {
+      filePath = path.join(
+        this.outputPath,
+        this.bestState.completedState.toString()
+      );
+    }
+    this.fullOutputPath = path.join(filePath, this.outputFileName);
+    fs.mkdirSync(filePath, { recursive: true });
+
+    this.writeState();
     this.writeConfig();
+    this.writeReadableFixtures();
     this.writeFixtures();
     if (this.config.appConfig.s3Path) {
       this.writeToS3();
     }
   };
 
+  writeReadableFixtures = () => {
+    if (!this.matches) {
+      throw new Error("No matches to output");
+    }
+    const lines = this.createOutput(this.matches, this.config.divNames);
+    for (const line of lines) {
+      this.#writeOutputLine(line);
+    }
+    this.#writeOutputLineDivider();
+  };
+
   writeToS3 = async () => {
-    if (this.config.appConfig.s3Path && this.outputFileName) {
-      const fileName = `${this.outputPath}${this.outputFileName}`;
+    if (this.config.appConfig.s3Path && this.fullOutputPath) {
       const key = path.join(
         this.config.appConfig.s3Path.key,
-        this.outputFileName
+        this.fullOutputPath
       );
-      await uploadFileToS3(fileName, this.config.appConfig.s3Path.bucket, key);
+      await uploadFileToS3(
+        this.fullOutputPath,
+        this.config.appConfig.s3Path.bucket,
+        key
+      );
     }
   };
 
@@ -89,32 +128,53 @@ export class PlayCricketForamtter implements OutputFormatter {
     const { config } = this;
     this.#writeOutputLine(config.seed.toString());
     this.#writeOutputLineDivider();
-    for (const team1 in config.venConflicts) {
-      this.#writeOutputLine(`${team1},${config.venConflicts[team1]}`);
+    if (Object.keys(config.venConflicts).length > 0) {
+      for (const team1 in config.venConflicts) {
+        this.#writeOutputLine(`${team1},${config.venConflicts[team1]}`);
+      }
+    } else {
+      this.#writeOutputLine("No venue conflicts");
     }
     this.#writeOutputLineDivider();
-    for (const team of config.venRequirements) {
-      this.#writeOutputLine(`${team.team},${team.venue},${team.week}`);
+
+    if (config.venRequirements.length > 0) {
+      for (const team of config.venRequirements) {
+        this.#writeOutputLine(`${team.team},${team.venue},${team.week}`);
+      }
+    } else {
+      this.#writeOutputLine("No venue requirements");
     }
     this.#writeOutputLineDivider();
-    for (const [i, divName] of config.divNames.entries()) {
-      this.#writeOutputLine(`${divName},${config.divTeams[i].join(",")}`);
+
+    if (config.divNames.length > 0) {
+      for (const [i, divName] of config.divNames.entries()) {
+        this.#writeOutputLine(`${divName},${config.divTeams[i].join(",")}`);
+      }
+      this.#writeOutputLineDivider();
     }
-    this.#writeOutputLineDivider();
+  };
+
+  writeState = () => {
+    if (this.bestState) {
+      this.#writeOutputLine(
+        `Completed state: ${this.bestState.completedState.toString()}`
+      );
+      this.#writeOutputLineDivider();
+    }
+  };
+
+  writeBest = () => {
+    if (this.bestMatches) {
+      this.writeOutput(this.bestMatches);
+    }
   };
 
   writeFixtures = () => {
-    const { matches: data } = this;
-    if (!data) {
-      throw new Error("No data to output");
+    const { matches } = this;
+    if (!matches) {
+      throw new Error("No matches to output");
     }
-    if (!this.outputPath) {
-      throw new Error("No output path set");
-    }
-    if (!this.startDate) {
-      throw new Error("No start date set");
-    }
-    for (const div of data) {
+    for (const div of matches) {
       let weekNo = 0;
       for (const week of div) {
         const matchDate1 = moment(this.startDate).add(weekNo * 7, "days");

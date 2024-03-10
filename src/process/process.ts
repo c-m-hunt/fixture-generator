@@ -1,16 +1,11 @@
 import { isValid, ConflictResponse } from "../validation";
-import {
-  completedState,
-  elapsedTime,
-  State,
-  writeOutput,
-  writeLog,
-} from "./utils";
+import { completedState, elapsedTime, State } from "./utils";
 import { Config, MatchStructure } from "../config/types";
 import { displayOutput, displayState } from "./display";
 import { logger } from "../logger";
 import { LowStartPointError, NoProgressError } from "./errors";
 import { config as appConfig } from "../appConfig";
+import { OutputWriter } from "../outputWriter";
 
 const EXIT_PCT = appConfig.exitPct;
 const CHECK_INTERVAL = appConfig.checkInterval;
@@ -38,7 +33,10 @@ export const undoConflict = (
   matchStructure[divIdx][weekIdx][matchIdx][teamIdx] = null;
 };
 
-export const runProcess = (config: Config): MatchStructure | null => {
+export const runProcess = (
+  config: Config,
+  writer: OutputWriter
+): MatchStructure | null => {
   const { matches, divTeams, divNames } = config;
   const start = process.hrtime();
   let state = {
@@ -93,6 +91,7 @@ export const runProcess = (config: Config): MatchStructure | null => {
                     ),
                     completedState: completedPct,
                   };
+                  writer.storeBest(matches, state);
                   if (c % CHECK_INTERVAL === 0) {
                     elapsedTime(c.toString(), start);
                     displayState(state);
@@ -108,6 +107,7 @@ export const runProcess = (config: Config): MatchStructure | null => {
                           state.lastTestCompletedState === state.completedState)
                       ) {
                         displayOutput(matches, divNames);
+                        writer.writeBest();
                         throw new NoProgressError("No progress");
                       }
                       state.lastTestCompletedState = state.completedState;
@@ -132,9 +132,15 @@ export const runProcess = (config: Config): MatchStructure | null => {
   };
   c = 0;
   const success = generate();
-  writeOutput(matches, config.seed);
   logger.info("Complete");
   displayOutput(matches, divNames);
   logger.info(`Used seed ${config.seed.toString()}`);
+
+  if (success) {
+    writer.writeOutput(matches);
+  } else {
+    writer.writeBest();
+  }
+
   return success ? matches : null;
 };
