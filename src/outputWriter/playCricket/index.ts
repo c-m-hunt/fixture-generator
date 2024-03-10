@@ -4,6 +4,7 @@ import { readFileSync, appendFileSync } from "fs";
 import { Config, MatchStructure } from "../../config/types";
 import { uploadFileToS3 } from "./utils";
 import path from "path";
+import { OutputWriter } from "..";
 
 type Mapping = {
   team: string;
@@ -12,28 +13,21 @@ type Mapping = {
   ground: Number;
 };
 
-interface OutputFormatter {
-  mappings: Mapping[];
-  writeConfig: (config: Config) => void;
-  writeFixtures: (data: MatchStructure, seed: number) => void;
-}
-
 // Class which formats the output for PlayCricket.
 // This class is responsible for taking the generated fixtures and formatting them
 // in a way that can be used by the PlayCricket API.
-export class PlayCricketForamtter implements OutputFormatter {
+export class PlayCricketWriter implements OutputWriter {
   config: Config;
-  matches: MatchStructure;
+  matches?: MatchStructure;
   mappings: Mapping[];
   outputPath?: string;
   outputFileName?: string = `${new Date().toISOString()}.csv`;
   startDate?: Date;
   _fullOutputPath?: string;
-  constructor(config: Config, matches: MatchStructure) {
+  constructor(config: Config) {
     this.mappings = this.#loadMappings();
     this.outputPath = "";
     this.config = config;
-    this.matches = matches;
   }
 
   #loadMappings = (): Mapping[] => {
@@ -66,12 +60,11 @@ export class PlayCricketForamtter implements OutputFormatter {
     );
   };
 
-  writeOutput = () => {
-    const { matches: data } = this;
+  writeOutput = (matches: MatchStructure) => {
     if (!this.outputPath) {
       throw new Error("No output path set");
     }
-    if (!data) {
+    if (!matches) {
       throw new Error("No data to output");
     }
     if (!this.startDate) {
@@ -79,7 +72,7 @@ export class PlayCricketForamtter implements OutputFormatter {
     }
 
     this.writeConfig();
-    this.writeFixtures();
+    this.writeFixtures(matches);
     if (this.config.appConfig.s3Path) {
       this.writeToS3();
     }
@@ -114,9 +107,8 @@ export class PlayCricketForamtter implements OutputFormatter {
     this.#writeOutputLineDivider();
   };
 
-  writeFixtures = () => {
-    const { matches: data } = this;
-    for (const div of data) {
+  writeFixtures = (matches: MatchStructure) => {
+    for (const div of matches) {
       let weekNo = 0;
       for (const week of div) {
         const matchDate1 = moment(this.startDate).add(weekNo * 7, "days");

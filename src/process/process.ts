@@ -11,6 +11,7 @@ import { displayOutput, displayState } from "./display";
 import { logger } from "../logger";
 import { LowStartPointError, NoProgressError } from "./errors";
 import { config as appConfig } from "../appConfig";
+import { OutputWriter } from "../outputWriter";
 
 const EXIT_PCT = appConfig.exitPct;
 const CHECK_INTERVAL = appConfig.checkInterval;
@@ -38,7 +39,10 @@ export const undoConflict = (
   matchStructure[divIdx][weekIdx][matchIdx][teamIdx] = null;
 };
 
-export const runProcess = (config: Config): MatchStructure | null => {
+export const runProcess = (
+  config: Config,
+  writer: OutputWriter
+): MatchStructure | null => {
   const { matches, divTeams, divNames } = config;
   const start = process.hrtime();
   let state = {
@@ -136,5 +140,10 @@ export const runProcess = (config: Config): MatchStructure | null => {
   logger.info("Complete");
   displayOutput(matches, divNames);
   logger.info(`Used seed ${config.seed.toString()}`);
+
+  if (success) {
+    writer.writeOutput(matches);
+  }
+
   return success ? matches : null;
 };
