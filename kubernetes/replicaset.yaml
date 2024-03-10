@@ -1,0 +1,46 @@
+# Ref https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/#add-configmap-data-to-a-specific-path-in-the-volume
+# Ref https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: fixgen
+spec:
+  replicas: 15
+  selector:
+    matchLabels:
+      app: fixgen
+  template:
+    metadata:
+      labels:
+        app: fixgen
+    spec:
+      nodeSelector:
+        compute_type: cpu
+        group: workflow
+        name: large-cpu
+      containers:
+        - name: fixgen
+          image: 690616407375.dkr.ecr.us-east-1.amazonaws.com/test/ch-test-delete:0.2
+          command: ["/bin/bash", "-c", "--"]
+          args: ["./start_loop.sh 20"]
+          resources:
+            limits:
+              cpu: "1"
+            requests:
+              cpu: "0.8"
+          env:
+            - name: AWS_REGION
+              value: "us-east-1"
+            - name: MAX_CONSEC_WEEKS
+              value: "3"
+            - name: S3_BUCKET
+              value: "x-ch-outputs"
+            - name: S3_KEY
+              value: "fixgen/no-req"
+          volumeMounts:
+            - name: fix-req
+              mountPath: /usr/src/app/src/config/data
+      volumes:
+        - name: fix-req
+          configMap:
+            name: fixgen-data

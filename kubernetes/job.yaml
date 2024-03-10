@@ -1,0 +1,30 @@
+# Ref https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/#add-configmap-data-to-a-specific-path-in-the-volume
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: fixgen
+spec:
+  template:
+    spec:
+      containers:
+        - name: fixgen
+          image: 690616407375.dkr.ecr.us-east-1.amazonaws.com/test/ch-test-delete:0.2
+          command: ["/bin/bash", "-c", "--"]
+          args: ["./start_loop.sh 20"]
+          env:
+            - name: AWS_REGION
+              value: "us-east-1"
+            - name: MAX_CONSEC_WEEKS
+              value: "3"
+            - name: S3_BUCKET
+              value: "x-ch-outputs"
+            - name: S3_KEY
+              value: "fixgen/no-req"
+          volumeMounts:
+            - name: fix-req
+              mountPath: /usr/src/app/src/config/data
+      restartPolicy: Never
+      volumes:
+        - name: fix-req
+          configMap:
+            name: fixgen-data
