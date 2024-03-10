@@ -38,12 +38,12 @@ describe("Play", () => {
 
   it("should throw error if no output path given", () => {
     const formatter = new PlayCricketWriter(config);
-    expect(() => formatter.writeOutput()).toThrow("No output path set");
+    expect(() => formatter.writeOutput([])).toThrow("No output path set");
   });
 
   it("should throw error if no data given", () => {
     const formatter = new PlayCricketWriter(config);
     formatter.outputPath = "test";
-    expect(() => formatter.writeOutput()).toThrow("No data to output");
+    expect(() => formatter.writeOutput([])).toThrow("No data to output");
   });
 });

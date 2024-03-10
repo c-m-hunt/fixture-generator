@@ -1,11 +1,5 @@
 import { isValid, ConflictResponse } from "../validation";
-import {
-  completedState,
-  elapsedTime,
-  State,
-  writeOutput,
-  writeLog,
-} from "./utils";
+import { completedState, elapsedTime, State } from "./utils";
 import { Config, MatchStructure } from "../config/types";
 import { displayOutput, displayState } from "./display";
 import { logger } from "../logger";
@@ -97,6 +91,7 @@ export const runProcess = (
                     ),
                     completedState: completedPct,
                   };
+                  writer.storeBest(matches, state);
                   if (c % CHECK_INTERVAL === 0) {
                     elapsedTime(c.toString(), start);
                     displayState(state);
@@ -112,6 +107,7 @@ export const runProcess = (
                           state.lastTestCompletedState === state.completedState)
                       ) {
                         displayOutput(matches, divNames);
+                        writer.writeBest();
                         throw new NoProgressError("No progress");
                       }
                       state.lastTestCompletedState = state.completedState;
@@ -136,13 +132,14 @@ export const runProcess = (
   };
   c = 0;
   const success = generate();
-  writeOutput(matches, config.seed);
   logger.info("Complete");
   displayOutput(matches, divNames);
   logger.info(`Used seed ${config.seed.toString()}`);
 
   if (success) {
     writer.writeOutput(matches);
+  } else {
+    writer.writeBest();
   }
 
   return success ? matches : null;

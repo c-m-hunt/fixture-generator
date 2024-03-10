@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import { MatchStructure } from "../config/types";
-import { State } from "./process";
+import { State } from "./utils";
 import { logger } from "../logger";
 
 /**
@@ -24,15 +24,32 @@ export const displayOutput = (
   matchStructure: MatchStructure,
   divNames: Array<string>
 ): void => {
+  const output = createOutput(matchStructure, divNames);
+  console.log(output.join("\n"));
+};
+
+/**
+ * Creates the output of the match structure.
+ *
+ * @param matchStructure - The match structure to display.
+ * @param divNames - An array of division names.
+ * @returns The output as an array of strings.
+ */
+export const createOutput = (
+  matchStructure: MatchStructure,
+  divNames: Array<string>
+): string[] => {
+  let outputStr: string[] = [];
   for (let d = 0; d < matchStructure.length; d++) {
     const div = matchStructure[d];
-    console.log(chalk.bold.underline(`${divNames[d]}`));
+    outputStr.push(chalk.bold.underline(`${divNames[d]}`));
     for (let m = 0; m < div[0].length; m++) {
-      console.log(div.map((w) => `${w[m][0]} v ${w[m][1]}`).join("    "));
+      outputStr.push(div.map((w) => `${w[m][0]} v ${w[m][1]}`).join("    "));
     }
-    console.log("-------------------------------------------------");
+    outputStr.push("-------------------------------------------------");
   }
-  console.log("-------------------------------------------------");
+  outputStr.push("-------------------------------------------------");
+  return outputStr;
 };
 
 /**
