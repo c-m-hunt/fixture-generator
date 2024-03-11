@@ -111,16 +111,24 @@ export class PlayCricketWriter
   };
 
   writeToS3 = async () => {
+    console.log("Uploading to S3");
     if (this.config.appConfig.s3Path && this.fullOutputPath) {
       const key = path.join(
         this.config.appConfig.s3Path.key,
         this.fullOutputPath
       );
-      await uploadFileToS3(
-        this.fullOutputPath,
-        this.config.appConfig.s3Path.bucket,
-        key
+      console.log(
+        `Uploading to S3. Bucket: ${this.config.appConfig.s3Path.bucket}, Key:${key}`
       );
+      try {
+        await uploadFileToS3(
+          this.fullOutputPath,
+          this.config.appConfig.s3Path.bucket,
+          key
+        );
+      } catch (e) {
+        console.error(e);
+      }
     }
   };
 

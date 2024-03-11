@@ -13,6 +13,13 @@ import {
 
 export type ConflictResponse = [string, number, number, number, number] | null;
 
+/**
+ * Finds the conflicting team and division for a given team based on venue conflicts.
+ * @param {string} team - The team for which to find the conflicting team and division.
+ * @param {string[][]} divTeams - The array of division teams.
+ * @param {ConflictsObject} venConflicts - The object containing venue conflicts.
+ * @returns {[string, number] | null} - An array containing the conflicting team and division, or null if no conflicts exist.
+ */
 export const findVenueConflictAndDiv = (
   team: string,
   divTeams: string[][],
@@ -37,10 +44,10 @@ export type ValidationFunction = (
 
 const generateValidationFunctions = (): ValidationFunction[] => {
   return [
-    matchesVenueRequirements,
-    notVenueClash,
     validateOppoTeam,
     notPlayingThatWeek,
+    matchesVenueRequirements,
+    notVenueClash,
     fixtureDoesNotExists,
     notSameVenueXWeeks,
     // notUnevenVenues,
@@ -81,7 +88,7 @@ export const isValid = (
 
 type DelendentsValid = [boolean, ConflictResponse | null] | null;
 
-const checkDependentsValid = (
+export const checkDependentsValid = (
   config: Config,
   divIdx: number,
   weekIdx: number,
@@ -93,75 +100,34 @@ const checkDependentsValid = (
   const teamDiv = findVenueConflictAndDiv(team, divTeams, venConflicts);
 
   if (teamDiv) {
+    // Grab the conflicting team and division
     const [conflictTeam, conflictTeamDivIdx] = teamDiv;
+
+    // If there's no conflict, return true
     if (conflictTeamDivIdx === -1) {
       return [true, null];
     }
     const conflictTeamIdx = teamIdx === 1 ? 0 : 1;
-    // Fill in home teams
-    if (teamIdx === 0) {
-      return findTeamGap(
-        config,
-        conflictTeamDivIdx,
-        weekIdx,
-        conflictTeamIdx,
-        conflictTeam
-      );
-    }
-    // Away team - only match up of full reverse fixture
-    if (teamIdx === 1) {
-      const oppoConflict = findVenueConflictAndDiv(
-        matchStructure[divIdx][weekIdx][matchIdx][0] as string,
-        divTeams,
-        venConflicts
-      );
-      // Only interested if there's a match up
-      if (!oppoConflict || oppoConflict[1] != conflictTeamDivIdx) {
-        // return [true, null];
-        return findTeamGap(
+    for (let mIdx = 0; mIdx < matchStructure[divIdx][weekIdx].length; mIdx++) {
+      if (
+        matchStructure[conflictTeamDivIdx][weekIdx][mIdx][conflictTeamIdx] ===
+          null &&
+        isValid(
           config,
           conflictTeamDivIdx,
           weekIdx,
+          mIdx,
           conflictTeamIdx,
-          conflictTeam
-        );
-      }
-
-      for (
-        let mIdx = 0;
-        mIdx < matchStructure[divIdx][weekIdx].length;
-        mIdx++
+          conflictTeam,
+          false
+        )[0]
       ) {
-        if (
-          oppoConflict[1] == conflictTeamDivIdx &&
-          matchStructure[conflictTeamDivIdx][weekIdx][mIdx][teamIdx] ===
-            oppoConflict[0] &&
-          matchStructure[conflictTeamDivIdx][weekIdx][mIdx][conflictTeamIdx] ===
-            null
-        ) {
-          return [
-            true,
-            [conflictTeam, conflictTeamDivIdx, weekIdx, mIdx, conflictTeamIdx],
-          ];
-        }
+        return [
+          true,
+          [conflictTeam, conflictTeamDivIdx, weekIdx, mIdx, conflictTeamIdx],
+        ];
       }
     }
   }
   return null;
-};
-
-const findTeamGap = (
-  config: Config,
-  divIdx: number,
-  weekIdx: number,
-  teamIdx: number,
-  team: string
-): DelendentsValid => {
-  const { matches: matchStructure } = config;
-  for (let mIdx = 0; mIdx < matchStructure[divIdx][weekIdx].length; mIdx++) {
-    if (matchStructure[divIdx][weekIdx][mIdx][teamIdx] === null) {
-      return [true, [team, divIdx, weekIdx, mIdx, teamIdx]];
-    }
-  }
-  return [false, null];
 };
