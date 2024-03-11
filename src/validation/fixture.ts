@@ -26,7 +26,7 @@ export const fixtureDoesNotExists: ValidationFunction = (
     .flat()
     .filter((m) => m[0] !== null && m[1] !== null);
 
-  if (fixtureExists(divMatches, match)) {
+  if (fixtureExists(divMatches, match, true)) {
     return false;
   }
   return true;
@@ -171,6 +171,5 @@ const fixtureExists = (
       return true;
     }
   }
-  //logger.debug("Fails fixtureExists");
   return false;
 };

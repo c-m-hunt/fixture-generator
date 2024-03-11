@@ -30,7 +30,7 @@ export const config: AppConfig = {
   // The number of consecutive weeks a team can play in the same venue
   consecutiveVenueWeeks: process.env.MAX_CONSEC_WEEKS
     ? parseInt(process.env.MAX_CONSEC_WEEKS)
-    : 3,
+    : 5,
 
   // -------------------
   // Process

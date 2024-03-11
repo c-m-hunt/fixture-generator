@@ -28,7 +28,6 @@ export class PlayCricketWriter
   outputFileName?: string = `${new Date().toISOString()}.txt`;
   fullOutputPath?: string;
   startDate?: Date;
-  _fullOutputPath?: string;
   constructor(config: Config) {
     super();
     this.mappings = this.#loadMappings();
