@@ -1,13 +1,22 @@
 import { applyConflict } from "../process/process";
-import { setSeed, shuffle, teamConflictsToObject } from "../process/utils";
+import {
+  matchUsed,
+  setSeed,
+  shuffle,
+  teamConflictsToObject,
+} from "../process/utils";
 import { isValid } from "../validation";
 import {
   loadDivConfig,
   loadFixtureReqConfig,
   loadVenReqConfig,
 } from "./configLoader";
-import { Config, Fixture, MatchStructure } from "./types";
-import { generateVenueConflicts } from "./utils";
+import { Config, Fixture, FixtureCheck, MatchStructure } from "./types";
+import {
+  generateAllMatches,
+  generateDivMatches,
+  generateVenueConflicts,
+} from "./utils";
 import { config as appConfig } from "../appConfig";
 
 /**
@@ -25,6 +34,7 @@ export const setupConfig = async (): Promise<Config> => {
   const divNames = divConfig.map((d) => d.name);
   const venConflicts = generateVenueConflicts(divConfig);
   const venConflictsLookup = teamConflictsToObject(venConflicts, false);
+  let allMatches = generateAllMatches(divTeams);
 
   if (divTeams.length !== divWeeks.length) {
     throw new Error("Teams and weeks must be the same length");
@@ -51,6 +61,7 @@ export const setupConfig = async (): Promise<Config> => {
   const config = {
     seed,
     matches,
+    allMatches,
     divTeams,
     divWeeks,
     divNames,
@@ -62,15 +73,19 @@ export const setupConfig = async (): Promise<Config> => {
 
   // matches = populateVenueRequirements(config);
 
-  matches = populateFixtureRequirements(config);
+  [matches, allMatches] = populateFixtureRequirements(config, allMatches);
 
   return { ...config, matches };
 };
 
-const populateFixtureRequirements = (config: Config): MatchStructure => {
+const populateFixtureRequirements = (
+  config: Config,
+  allMatches: FixtureCheck[][]
+): [MatchStructure, FixtureCheck[][]] => {
   const { matches, divTeams, venRequirements, fixtureRequirements } = config;
   for (const fix of fixtureRequirements) {
     const { week, team1, team2 } = fix;
+    const match: Fixture = [team1, team2];
     const divIdx = divTeams.findIndex(
       (d) => d.includes(team1) && d.includes(team2)
     );
@@ -84,65 +99,56 @@ const populateFixtureRequirements = (config: Config): MatchStructure => {
         divIdx,
         weekIdx,
         parseInt(matchIdx),
-        0,
-        team1,
-        true
+        match,
+        false
       );
-      const [valid2, conflict2] = isValid(
-        config,
-        divIdx,
-        weekIdx,
-        parseInt(matchIdx),
-        1,
-        team2,
-        true
-      );
-      if (valid1 && valid2) {
-        matches[divIdx][weekIdx][matchIdx][0] = team1;
-        applyConflict(matches, conflict1);
-        matches[divIdx][weekIdx][matchIdx][1] = team2;
-        applyConflict(matches, conflict2);
+      if (valid1) {
+        matches[divIdx][weekIdx][matchIdx] = match;
+        allMatches = matchUsed(match, divIdx, allMatches);
+        // applyConflict(matches, conflict1);
+        // matches[divIdx][weekIdx][matchIdx][1] = team2;
+        // applyConflict(matches, conflict2);
         break;
       }
     }
   }
-  return matches;
+  return [matches, allMatches];
 };
 
-/**
- * Populates the venue requirements for matches in a given division.
- *
- * DEPRECATED: This function is no longer used.
- *
- * @param config - The configuration object.
- * @returns The updated structure of matches with venue requirements populated.
- */
-const populateVenueRequirements = (config: Config): MatchStructure => {
-  const { matches, divTeams, venRequirements, venConflicts } = config;
-  for (const req of venRequirements) {
-    const { team, venue, week } = req;
-    const divIdx = divTeams.findIndex((d) => d.includes(team));
-    if (divIdx === -1) {
-      continue;
-    }
-    const weekIdx = week - 1;
-    const venIdx = venue === "h" ? 0 : 1;
-    for (const matchIdx in matches[divIdx][weekIdx]) {
-      const [valid, conflict] = isValid(
-        config,
-        divIdx,
-        weekIdx,
-        parseInt(matchIdx),
-        venIdx,
-        team,
-        true
-      );
-      if (valid) {
-        matches[divIdx][weekIdx][matchIdx][venIdx] = team;
-        applyConflict(matches, conflict);
-        break;
-      }
-    }
-  }
-  return matches;
-};
+// /**
+//  * Populates the venue requirements for matches in a given division.
+//  *
+//  * DEPRECATED: This function is no longer used.
+//  *
+//  * @param config - The configuration object.
+//  * @returns The updated structure of matches with venue requirements populated.
+//  */
+// const populateVenueRequirements = (config: Config): MatchStructure => {
+//   const { matches, divTeams, venRequirements, venConflicts } = config;
+//   for (const req of venRequirements) {
+//     const { team, venue, week } = req;
+//     const divIdx = divTeams.findIndex((d) => d.includes(team));
+//     if (divIdx === -1) {
+//       continue;
+//     }
+//     const weekIdx = week - 1;
+//     const venIdx = venue === "h" ? 0 : 1;
+//     for (const matchIdx in matches[divIdx][weekIdx]) {
+//       const [valid, conflict] = isValid(
+//         config,
+//         divIdx,
+//         weekIdx,
+//         parseInt(matchIdx),
+//         venIdx,
+//         team,
+//         true
+//       );
+//       if (valid) {
+//         matches[divIdx][weekIdx][matchIdx][venIdx] = team;
+//         applyConflict(matches, conflict);
+//         break;
+//       }
+//     }
+//   }
+//   return matches;
+// };

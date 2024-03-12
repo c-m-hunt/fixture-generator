@@ -1,5 +1,5 @@
-import { MatchStructure } from "../../config/types";
-import { completedState, teamConflictsToObject } from "./../utils";
+import { Fixture, FixtureCheck, MatchStructure } from "../../config/types";
+import { completedState, matchUsed, teamConflictsToObject } from "./../utils";
 
 describe("Utils", () => {
   it("should convert conflict array to objects", () => {

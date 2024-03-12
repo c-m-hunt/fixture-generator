@@ -18,6 +18,10 @@ export type FixtureRequirement = {
 };
 
 export type Fixture = [string | null, string | null];
+export type FixtureCheck = {
+  match: Fixture;
+  used: boolean;
+};
 
 export type MatchStructure = Array<Array<Array<Fixture>>>;
 
@@ -27,6 +31,7 @@ export type MatchStructure = Array<Array<Array<Fixture>>>;
 export type Config = {
   seed: number;
   matches: MatchStructure;
+  allMatches: FixtureCheck[][];
   divTeams: string[][];
   divWeeks: number[];
   divNames: string[];

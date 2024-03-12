@@ -1,4 +1,10 @@
-import { DivisionConfig, VenConflicts, ClubTeams } from "./types";
+import {
+  DivisionConfig,
+  VenConflicts,
+  ClubTeams,
+  Fixture,
+  FixtureCheck,
+} from "./types";
 /**
  * Generates an array of venue conflicts based on the provided division configuration.
  * @param divConfig - The division configuration.
@@ -11,7 +17,6 @@ export const generateVenueConflicts = (
   const conflicts: VenConflicts = [];
   for (const club of Object.keys(clubTeams)) {
     const teams = clubTeams[club];
-
     if (teams.length === 1) {
       continue;
     }
@@ -21,6 +26,12 @@ export const generateVenueConflicts = (
       }
     }
   }
+
+  // Add reverse conflicts
+  for (const conflict of [...conflicts]) {
+    conflicts.push([conflict[1], conflict[0]]);
+  }
+  console.log(conflicts);
   return conflicts;
 };
 
@@ -40,4 +51,32 @@ export const getClubList = (divConfig: DivisionConfig[]): ClubTeams => {
     clubs[club].push(parseInt(team.substring(3)));
   }
   return clubs;
+};
+
+/**
+ * Generate all fixtures for multiple division configurations.
+ *
+ * @param divConfig
+ * @returns An array of arrays of fixtures.
+ */
+export const generateAllMatches = (divConfig: string[][]): FixtureCheck[][] => {
+  return divConfig.map((teams) => generateDivMatches(teams));
+};
+
+/**
+ * Generate all fixtures for a given division configuration.
+ *
+ * @param divConfig
+ * @returns An array of fixtures.
+ */
+export const generateDivMatches = (teamList: string[]): FixtureCheck[] => {
+  const matches: FixtureCheck[] = [];
+  for (let i = 0; i < teamList.length; i++) {
+    for (let j = i; j < teamList.length; j++) {
+      if (i !== j) {
+        matches.push({ match: [teamList[i], teamList[j]], used: false });
+      }
+    }
+  }
+  return matches;
 };

@@ -1,4 +1,8 @@
-import { generateVenueConflicts, getClubList } from "../utils";
+import {
+  generateDivMatches,
+  generateVenueConflicts,
+  getClubList,
+} from "../utils";
 
 describe("Club list", () => {
   it("should generate a club list", () => {
@@ -47,6 +51,18 @@ describe("Venue conflicts", () => {
       ["BRE1", "BRE2"],
       ["WAN3", "WAN4"],
       ["LOS3", "LOS4"],
+    ]);
+  });
+});
+
+describe("Generate div fixtures", () => {
+  it("should generate div fixtures", () => {
+    const teamList = ["BRE1", "WAN1", "CHE1"];
+    const matches = generateDivMatches(teamList);
+    expect(matches).toEqual([
+      { match: ["BRE1", "WAN1"], used: false },
+      { match: ["BRE1", "CHE1"], used: false },
+      { match: ["WAN1", "CHE1"], used: false },
     ]);
   });
 });

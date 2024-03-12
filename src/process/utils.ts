@@ -1,4 +1,10 @@
-import { MatchStructure, VenConflicts, ConflictsObject } from "../config/types";
+import {
+  MatchStructure,
+  VenConflicts,
+  ConflictsObject,
+  FixtureCheck,
+  Fixture,
+} from "../config/types";
 import seedrandom from "seedrandom";
 import { logger } from "../logger";
 import fs from "fs";
@@ -130,4 +136,54 @@ export const writeLog = (seed: number, iterations: number, state: State) => {
     `${appConfig.outputPath}log.txt`,
     `{"seed":${seed}, "iterations": ${iterations}, "maxCompletedPct": ${state.maxCompletedState}}\n`
   );
+};
+
+/**
+ * Marks a match as used in the match list.
+ *
+ * @param match
+ * @param divIdx
+ * @param matches
+ * @returns
+ */
+export const matchUsed = (
+  match: Fixture,
+  divIdx: number,
+  matches: FixtureCheck[][]
+): FixtureCheck[][] => {
+  return updateMatchStatus(match, divIdx, matches, true);
+};
+
+/**
+ * Marks a match as unused in the match list.
+ *
+ * @param match
+ * @param divIdx
+ * @param matches
+ * @returns
+ */
+export const matchUnused = (
+  match: Fixture,
+  divIdx: number,
+  matches: FixtureCheck[][]
+): FixtureCheck[][] => {
+  return updateMatchStatus(match, divIdx, matches, false);
+};
+
+const updateMatchStatus = (
+  match: Fixture,
+  divIdx: number,
+  matches: FixtureCheck[][],
+  used: boolean
+): FixtureCheck[][] => {
+  const matchIdx = matches[divIdx].findIndex(
+    (m) =>
+      (m.match[0] === match[0] && m.match[1] === match[1]) ||
+      (m.match[0] === match[1] && m.match[1] === match[0])
+  );
+  if (matchIdx === -1) {
+    throw new Error("Match not found");
+  }
+  matches[divIdx][matchIdx].used = used;
+  return matches;
 };

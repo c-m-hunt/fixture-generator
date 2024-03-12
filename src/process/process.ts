@@ -1,5 +1,11 @@
 import { isValid, ConflictResponse } from "../validation";
-import { completedState, elapsedTime, State } from "./utils";
+import {
+  completedState,
+  elapsedTime,
+  matchUnused,
+  matchUsed,
+  State,
+} from "./utils";
 import { Config, MatchStructure } from "../config/types";
 import { displayOutput, displayState } from "./display";
 import { logger } from "../logger";
@@ -18,8 +24,8 @@ export const applyConflict = (
   if (!conflict) {
     return;
   }
-  const [team, divIdx, weekIdx, matchIdx, teamIdx] = conflict;
-  matchStructure[divIdx][weekIdx][matchIdx][teamIdx] = team;
+  const { match, divIdx, weekIdx, matchIdx } = conflict;
+  matchStructure[divIdx][weekIdx][matchIdx] = match;
 };
 
 export const undoConflict = (
@@ -29,15 +35,15 @@ export const undoConflict = (
   if (!conflict) {
     return;
   }
-  const [team, divIdx, weekIdx, matchIdx, teamIdx] = conflict;
-  matchStructure[divIdx][weekIdx][matchIdx][teamIdx] = null;
+  const { match, divIdx, weekIdx, matchIdx } = conflict;
+  matchStructure[divIdx][weekIdx][matchIdx] = [null, null];
 };
 
 export const runProcess = (
   config: Config,
   writer: OutputWriter
 ): MatchStructure | null => {
-  const { matches, divTeams, divNames } = config;
+  let { matches, divTeams, divNames, allMatches } = config;
   const start = process.hrtime();
   let state = {
     completed: false,
@@ -59,72 +65,108 @@ export const runProcess = (
           matchIdx < matches[divIdx][weekIdx].length;
           matchIdx++
         ) {
-          // Iterate teams in fixture
-          for (
-            let teamIdx = 0;
-            teamIdx < matches[divIdx][weekIdx][matchIdx].length;
-            teamIdx++
+          if (
+            !matches[divIdx][weekIdx][matchIdx].every((val) => val === null)
           ) {
-            if (matches[divIdx][weekIdx][matchIdx][teamIdx] === null) {
-              for (const team of divTeams[divIdx]) {
-                const [valid, conflict] = isValid(
-                  config,
-                  divIdx,
-                  weekIdx,
-                  matchIdx,
-                  teamIdx,
-                  team,
-                  true
-                );
-                if (valid) {
-                  matches[divIdx][weekIdx][matchIdx][teamIdx] = team;
-                  applyConflict(matches, conflict);
-                  c += 1;
-                  const completedPct = completedState(matches);
-                  state = {
-                    ...state,
-                    completed: false,
-                    currentGen: c,
-                    maxCompletedState: Math.max(
-                      completedPct,
-                      state.maxCompletedState
-                    ),
-                    completedState: completedPct,
-                  };
-                  writer.storeBest(matches, state);
-                  if (c % CHECK_INTERVAL === 0) {
-                    elapsedTime(c.toString(), start);
-                    displayState(state);
-                    if (state.maxCompletedState < EXIT_PCT) {
-                      throw new LowStartPointError("Low start point");
-                    }
-                    if (c % IMPROVEMENT_CHECK_INTERVAL === 0) {
-                      if (
-                        state.maxCompletedState ===
-                          state.lastTestCompletedState ||
-                        (state.maxCompletedState >
-                          state.lastTestCompletedState &&
-                          state.lastTestCompletedState === state.completedState)
-                      ) {
-                        displayOutput(matches, divNames);
-                        writer.writeBest();
-                        throw new NoProgressError("No progress");
-                      }
-                      state.lastTestCompletedState = state.completedState;
-                    }
-                  }
+            continue;
+          }
+          // Iterate matches in fixture check list
+          for (
+            let matchCheckIdx = 0;
+            matchCheckIdx < allMatches[divIdx].length;
+            matchCheckIdx++
+          ) {
+            if (allMatches[divIdx][matchCheckIdx].used === null) {
+              continue;
+            }
+            let { match } = allMatches[divIdx][matchCheckIdx];
+            match =
+              Math.random() >= 0.5
+                ? match
+                : (match.reverse() as [string, string]);
 
-                  const complete = generate();
-                  if (complete) {
-                    return true;
+            let [valid, conflict] = isValid(
+              config,
+              divIdx,
+              weekIdx,
+              matchIdx,
+              match,
+              true
+            );
+
+            if (!valid) {
+              [valid, conflict] = isValid(
+                config,
+                divIdx,
+                weekIdx,
+                matchIdx,
+                match.reverse() as [string, string],
+                false
+              );
+            }
+
+            if (valid) {
+              matches[divIdx][weekIdx][matchIdx] = [...match];
+              allMatches = matchUsed(match, divIdx, allMatches);
+              if (conflict) {
+                applyConflict(matches, conflict);
+                allMatches = matchUsed(
+                  conflict.match,
+                  conflict.divIdx,
+                  allMatches
+                );
+              }
+
+              c += 1;
+              const completedPct = completedState(matches);
+              state = {
+                ...state,
+                completed: false,
+                currentGen: c,
+                maxCompletedState: Math.max(
+                  completedPct,
+                  state.maxCompletedState
+                ),
+                completedState: completedPct,
+              };
+              writer.storeBest(matches, state);
+              if (c % CHECK_INTERVAL === 0) {
+                elapsedTime(c.toString(), start);
+                displayState(state);
+                if (state.maxCompletedState < EXIT_PCT) {
+                  throw new LowStartPointError("Low start point");
+                }
+                if (c % IMPROVEMENT_CHECK_INTERVAL === 0) {
+                  if (
+                    state.maxCompletedState === state.lastTestCompletedState ||
+                    (state.maxCompletedState > state.lastTestCompletedState &&
+                      state.lastTestCompletedState === state.completedState)
+                  ) {
+                    displayOutput(matches, divNames);
+                    writer.writeBest();
+                    throw new NoProgressError("No progress");
                   }
-                  matches[divIdx][weekIdx][matchIdx][teamIdx] = null;
-                  undoConflict(matches, conflict);
+                  state.lastTestCompletedState = state.completedState;
                 }
               }
-              return false;
+
+              const complete = generate();
+              if (complete) {
+                return true;
+              }
+              matches[divIdx][weekIdx][matchIdx] = [null, null];
+              allMatches = matchUnused(match, divIdx, allMatches);
+              if (conflict) {
+                undoConflict(matches, conflict);
+                allMatches = matchUnused(
+                  conflict.match,
+                  conflict.divIdx,
+                  allMatches
+                );
+              }
             }
           }
+          return false;
         }
       }
     }

@@ -7,8 +7,7 @@ import { Fixture, Config } from "../config/types";
  * @param divIdx - The division index.
  * @param weekIdx - The week index.
  * @param matchIdx - The match index.
- * @param teamIdx - The team index.
- * @param team - The team name.
+ * @param match - The fixture to check.
  * @returns Returns true if the fixture does not exist, otherwise false.
  */
 export const fixtureDoesNotExists: ValidationFunction = (
@@ -16,20 +15,18 @@ export const fixtureDoesNotExists: ValidationFunction = (
   divIdx: number,
   weekIdx: number,
   matchIdx: number,
-  teamIdx: number,
-  team: string
+  match: Fixture
 ): boolean => {
   const { matches: matchStructure } = config;
-  const match: Fixture = [...matchStructure[divIdx][weekIdx][matchIdx]];
-  match[teamIdx] = team;
+  const [team1, team2] = match;
   const divMatches = matchStructure[divIdx]
     .flat()
-    .filter((m) => m[0] !== null && m[1] !== null);
+    .find(
+      (m) =>
+        (m[0] === team1 && m[1] === team2) || (m[0] === team2 && m[1] === team1)
+    );
 
-  if (fixtureExists(divMatches, match, true)) {
-    return false;
-  }
-  return true;
+  return !divMatches;
 };
 
 /**
@@ -48,35 +45,42 @@ export const notSameVenueXWeeks: ValidationFunction = (
   divIdx: number,
   weekIdx: number,
   matchIdx: number,
-  teamIdx: number,
-  team: string
+  match: Fixture
 ): boolean => {
   const { matches: matchStructure } = config;
   const { consecutiveVenueWeeks, reverseFixtures } = config.appConfig;
-  let consecutiveWeeks = 0;
-  for (let w = weekIdx - 1; w >= weekIdx - consecutiveVenueWeeks; w--) {
-    if (w < 0) {
-      break;
-    }
-    const weekFixs = matchStructure[divIdx][w].find((f) => f[teamIdx] === team);
-    if (!weekFixs) {
-      break;
-    }
-    consecutiveWeeks++;
-  }
-  if (reverseFixtures && weekIdx === matchStructure[divIdx].length - 1) {
-    const newTeamIdx = teamIdx === 0 ? 1 : 0;
-    for (let w = 0; w < consecutiveVenueWeeks; w++) {
-      const reverseWeekFixs = matchStructure[divIdx][w].find(
-        (f) => f[newTeamIdx] === team
+
+  for (let [teamIdx, team] of match.entries()) {
+    let consecutiveWeeks = 0;
+    for (let w = weekIdx - 1; w >= weekIdx - consecutiveVenueWeeks; w--) {
+      if (w < 0) {
+        break;
+      }
+      const weekFixs = matchStructure[divIdx][w].find(
+        (f) => f[teamIdx] === team
       );
-      if (!reverseWeekFixs) {
+      if (!weekFixs) {
         break;
       }
       consecutiveWeeks++;
     }
+    if (reverseFixtures && weekIdx === matchStructure[divIdx].length - 1) {
+      const newTeamIdx = teamIdx === 0 ? 1 : 0;
+      for (let w = 0; w < consecutiveVenueWeeks; w++) {
+        const reverseWeekFixs = matchStructure[divIdx][w].find(
+          (f) => f[newTeamIdx] === team
+        );
+        if (!reverseWeekFixs) {
+          break;
+        }
+        consecutiveWeeks++;
+      }
+    }
+    if (consecutiveWeeks >= consecutiveVenueWeeks) {
+      return false;
+    }
   }
-  return !(consecutiveWeeks >= consecutiveVenueWeeks);
+  return true;
 };
 
 /**
@@ -124,8 +128,7 @@ export const notUnevenVenues: ValidationFunction = (
  * @param divIdx - The division index.
  * @param weekIdx - The week index.
  * @param matchIdx - The match index.
- * @param teamIdx - The team index.
- * @param team - The team name.
+ * @param match - The fixture to check.
  * @returns A boolean indicating whether there is a venue clash or not.
  */
 export const notVenueClash: ValidationFunction = (
@@ -133,11 +136,11 @@ export const notVenueClash: ValidationFunction = (
   divIdx: number,
   weekIdx: number,
   matchIdx: number,
-  teamIdx: number,
-  team: string
+  match: Fixture
 ): boolean => {
   const { matches: matchStructure, venConflicts } = config;
-  if (teamIdx === 1) {
+  const [team1, team2] = match;
+  if (!team1) {
     return true;
   }
 
@@ -147,7 +150,7 @@ export const notVenueClash: ValidationFunction = (
     .filter((w) => w !== undefined)
     .map((f) => f[0]);
 
-  const clashTeam = venConflicts[team];
+  const clashTeam = venConflicts[team1];
   return !homeTeams.includes(clashTeam);
 };
 
