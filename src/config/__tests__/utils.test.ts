@@ -45,7 +45,7 @@ describe("Venue conflicts", () => {
       },
     ];
 
-    const venueConflicts = generateVenueConflicts(divConfig);
+    const venueConflicts = generateVenueConflicts(divConfig, false);
 
     expect(venueConflicts).toEqual([
       ["BRE1", "BRE2"],

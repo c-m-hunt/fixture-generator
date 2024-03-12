@@ -32,7 +32,7 @@ export const setupConfig = async (): Promise<Config> => {
   const divTeams = divConfig.map((d) => shuffle(d.teams));
   const divWeeks = divConfig.map((d) => d.teams.length - 1);
   const divNames = divConfig.map((d) => d.name);
-  const venConflicts = generateVenueConflicts(divConfig);
+  const venConflicts = generateVenueConflicts(divConfig, true);
   const venConflictsLookup = teamConflictsToObject(venConflicts, false);
   let allMatches = generateAllMatches(divTeams);
 

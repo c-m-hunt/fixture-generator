@@ -11,7 +11,8 @@ import {
  * @returns An array of venue conflicts.
  */
 export const generateVenueConflicts = (
-  divConfig: DivisionConfig[]
+  divConfig: DivisionConfig[],
+  includeReverse = true
 ): VenConflicts => {
   const clubTeams = getClubList(divConfig);
   const conflicts: VenConflicts = [];
@@ -28,10 +29,11 @@ export const generateVenueConflicts = (
   }
 
   // Add reverse conflicts
-  for (const conflict of [...conflicts]) {
-    conflicts.push([conflict[1], conflict[0]]);
+  if (includeReverse) {
+    for (const conflict of [...conflicts]) {
+      conflicts.push([conflict[1], conflict[0]]);
+    }
   }
-  console.log(conflicts);
   return conflicts;
 };
 
