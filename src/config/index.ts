@@ -90,11 +90,13 @@ const populateFixtureRequirements = (
       (d) => d.includes(team1) && d.includes(team2)
     );
     if (divIdx === -1) {
-      throw new Error("Teams not found in the same division");
+      throw new Error(
+        `Teams not found in the same division ${team1}, ${team2}`
+      );
     }
     const weekIdx = week - 1;
     for (const matchIdx in matches[divIdx][weekIdx]) {
-      const [valid1, conflict1] = isValid(
+      const [valid, conflict] = isValid(
         config,
         divIdx,
         weekIdx,
@@ -102,12 +104,13 @@ const populateFixtureRequirements = (
         match,
         false
       );
-      if (valid1) {
+      if (valid) {
         matches[divIdx][weekIdx][matchIdx] = match;
         allMatches = matchUsed(match, divIdx, allMatches);
-        // applyConflict(matches, conflict1);
-        // matches[divIdx][weekIdx][matchIdx][1] = team2;
-        // applyConflict(matches, conflict2);
+        if (conflict) {
+          applyConflict(matches, conflict);
+          allMatches = matchUsed(conflict.match, conflict.divIdx, allMatches);
+        }
         break;
       }
     }
