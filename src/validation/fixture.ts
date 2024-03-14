@@ -51,6 +51,9 @@ export const notSameVenueXWeeks: ValidationFunction = (
   const { consecutiveVenueWeeks, reverseFixtures } = config.appConfig;
 
   for (let [teamIdx, team] of match.entries()) {
+    if (!team || team === null) {
+      continue;
+    }
     let consecutiveWeeks = 0;
     for (let w = weekIdx - 1; w >= weekIdx - consecutiveVenueWeeks; w--) {
       if (w < 0) {

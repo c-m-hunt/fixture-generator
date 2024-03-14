@@ -78,8 +78,9 @@ const generateValidationFunctions = (): ValidationFunction[] => {
   return [
     teamsNotPlayingThatWeek,
     fixtureDoesNotExists,
-    notVenueClash,
     notSameVenueXWeeks,
+    notVenueClash,
+
     // notUnevenVenues,
   ];
 };

@@ -9,6 +9,7 @@ describe("Team validation", () => {
         [
           ["WAN", "CHI"],
           ["ABC", "SOS"],
+          ["LOS", null],
         ],
       ],
     ];
@@ -22,6 +23,12 @@ describe("Team validation", () => {
     let valid = teamsNotPlayingThatWeek(config, 0, 0, 3, ["WAN", "BLA"]);
     expect(valid).toBe(false);
     valid = teamsNotPlayingThatWeek(config, 0, 0, 3, ["WHA", "BLA"]);
+    expect(valid).toBe(true);
+    valid = teamsNotPlayingThatWeek(config, 0, 0, 3, ["WAN", null]);
+    expect(valid).toBe(false);
+    valid = teamsNotPlayingThatWeek(config, 0, 0, 3, [null, "WAN"]);
+    expect(valid).toBe(false);
+    valid = teamsNotPlayingThatWeek(config, 0, 0, 3, [null, "WES"]);
     expect(valid).toBe(true);
   });
 
