@@ -182,8 +182,16 @@ const updateMatchStatus = (
       (m.match[0] === match[1] && m.match[1] === match[0])
   );
   if (matchIdx === -1) {
-    throw new Error("Match not found");
+    return matches;
   }
   matches[divIdx][matchIdx].used = used;
   return matches;
+};
+
+export const matchFilled = (match: Fixture): boolean => {
+  return match.every((t) => t !== null);
+};
+
+export const matchPartiallyFilled = (match: Fixture): boolean => {
+  return match.some((t) => t !== null) && !matchFilled(match);
 };

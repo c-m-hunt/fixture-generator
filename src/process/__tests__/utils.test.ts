@@ -1,5 +1,11 @@
 import { Fixture, FixtureCheck, MatchStructure } from "../../config/types";
-import { completedState, matchUsed, teamConflictsToObject } from "./../utils";
+import {
+  completedState,
+  matchUsed,
+  teamConflictsToObject,
+  matchFilled,
+  matchPartiallyFilled,
+} from "./../utils";
 
 describe("Utils", () => {
   it("should convert conflict array to objects", () => {
@@ -63,4 +69,40 @@ describe("Utils", () => {
     ] as MatchStructure;
     expect(completedState(matches)).toBe(0.5);
   });
+});
+
+describe("matchPartiallyFilled", () => {
+  test("should return true for a partially filled match", () => {
+    // Arrange
+    const partiallyFilledMatch: Fixture = [null, "TeamA"];
+
+    // Act
+    const result = matchPartiallyFilled(partiallyFilledMatch);
+
+    // Assert
+    expect(result).toBe(true);
+  });
+
+  test("should return false for a fully filled match", () => {
+    // Arrange
+    const fullyFilledMatch: Fixture = ["TeamA", "TeamB"];
+
+    // Act
+    const result = matchPartiallyFilled(fullyFilledMatch);
+
+    // Assert
+    expect(result).toBe(false);
+  });
+
+  test("should return false for an empty match", () => {
+    // Arrange
+    const emptyMatch: Fixture = [null, null];
+
+    // Act
+    const result = matchPartiallyFilled(emptyMatch);
+
+    // Assert
+    expect(result).toBe(false);
+  });
+  // Add more tests if there are more branches or edge cases to cover
 });

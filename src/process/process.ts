@@ -2,11 +2,12 @@ import { isValid, ConflictResponse } from "../validation";
 import {
   completedState,
   elapsedTime,
+  matchFilled,
   matchUnused,
   matchUsed,
   State,
 } from "./utils";
-import { Config, MatchStructure } from "../config/types";
+import { Config, FixtureCheck, MatchStructure } from "../config/types";
 import { displayOutput, displayState } from "./display";
 import { logger } from "../logger";
 import { LowStartPointError, NoProgressError } from "./errors";
@@ -19,24 +20,40 @@ const IMPROVEMENT_CHECK_INTERVAL = appConfig.improvementCheckInterval;
 
 export const applyConflict = (
   matchStructure: MatchStructure,
-  conflict: ConflictResponse
-) => {
-  if (!conflict) {
-    return;
+  conflicts: ConflictResponse[] | null,
+  allMatches: FixtureCheck[][]
+): FixtureCheck[][] => {
+  if (!conflicts || conflicts?.length == 0) {
+    return allMatches;
   }
-  const { match, divIdx, weekIdx, matchIdx } = conflict;
-  matchStructure[divIdx][weekIdx][matchIdx] = match;
+  for (const conflict of conflicts) {
+    if (!conflict) {
+      continue;
+    }
+    const { match, divIdx, weekIdx, matchIdx } = conflict;
+    matchStructure[divIdx][weekIdx][matchIdx] = match;
+
+    allMatches = matchUsed(match, divIdx, allMatches);
+  }
+  return allMatches;
 };
 
 export const undoConflict = (
   matchStructure: MatchStructure,
-  conflict: ConflictResponse
+  conflicts: ConflictResponse[] | null,
+  allMatches: FixtureCheck[][]
 ) => {
-  if (!conflict) {
-    return;
+  if (!conflicts || conflicts?.length == 0) {
+    return allMatches;
   }
-  const { match, divIdx, weekIdx, matchIdx } = conflict;
-  matchStructure[divIdx][weekIdx][matchIdx] = [null, null];
+  for (const conflict of conflicts) {
+    if (!conflict) {
+      continue;
+    }
+    const { match, divIdx, weekIdx, matchIdx } = conflict;
+    matchStructure[divIdx][weekIdx][matchIdx] = [null, null];
+  }
+  return allMatches;
 };
 
 export const runProcess = (
@@ -85,7 +102,7 @@ export const runProcess = (
                 ? match
                 : (match.reverse() as [string, string]);
 
-            let [valid, conflict] = isValid(
+            let [valid, conflicts] = isValid(
               config,
               divIdx,
               weekIdx,
@@ -95,7 +112,7 @@ export const runProcess = (
             );
 
             if (!valid) {
-              [valid, conflict] = isValid(
+              [valid, conflicts] = isValid(
                 config,
                 divIdx,
                 weekIdx,
@@ -108,14 +125,7 @@ export const runProcess = (
             if (valid) {
               matches[divIdx][weekIdx][matchIdx] = [...match];
               allMatches = matchUsed(match, divIdx, allMatches);
-              if (conflict) {
-                applyConflict(matches, conflict);
-                allMatches = matchUsed(
-                  conflict.match,
-                  conflict.divIdx,
-                  allMatches
-                );
-              }
+              allMatches = applyConflict(matches, conflicts, allMatches);
 
               c += 1;
               const completedPct = completedState(matches);
@@ -156,14 +166,7 @@ export const runProcess = (
               }
               matches[divIdx][weekIdx][matchIdx] = [null, null];
               allMatches = matchUnused(match, divIdx, allMatches);
-              if (conflict) {
-                undoConflict(matches, conflict);
-                allMatches = matchUnused(
-                  conflict.match,
-                  conflict.divIdx,
-                  allMatches
-                );
-              }
+              allMatches = undoConflict(matches, conflicts, allMatches);
             }
           }
           return false;

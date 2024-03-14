@@ -74,7 +74,7 @@ export const isValid = (
   match: Fixture,
   checkDependents = false,
   validationFunctions: ValidationFunction[] = generateValidationFunctions()
-): [boolean, ConflictResponse | null] => {
+): [boolean, ConflictResponse[] | null] => {
   for (const v of validationFunctions) {
     if (!v(config, divIdx, weekIdx, matchIdx, match)) {
       return [false, null];
@@ -96,7 +96,7 @@ export const isValid = (
   return [true, null];
 };
 
-type DelendentsValid = [boolean, ConflictResponse | null] | null;
+type DelendentsValid = [boolean, ConflictResponse[] | null] | null;
 
 /***
  * Checks to see if a team has any dependents that are valid.
@@ -138,7 +138,14 @@ export const checkDependentsValid = (
     if (valid) {
       return [
         true,
-        { match: conflictMatch, divIdx: conflictTeamDivIdx, weekIdx, matchIdx },
+        [
+          {
+            match: conflictMatch,
+            divIdx: conflictTeamDivIdx,
+            weekIdx,
+            matchIdx,
+          },
+        ],
       ];
     }
   }
