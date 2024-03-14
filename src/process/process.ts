@@ -174,29 +174,21 @@ export const runProcess = (
                   ) {
                     displayState(state);
                     displayOutput(matches, divNames);
-                    logger.info("No progress. Trying a random blast");
-                    matches = randomFill(config, matches, allMatches);
-                    const completedPct = completedState(matches);
-                    state = {
-                      ...state,
-                      maxCompletedState: Math.max(
-                        completedPct,
-                        state.maxCompletedState
-                      ),
-                      completedState: completedPct,
-                      remainingFixtures: remainingFixtures(allMatches),
-                    };
-                    displayState(state);
-                    displayOutput(matches, divNames);
-                    writer.writeBest();
+                    // logger.info("No progress. Trying a random blast");
+                    // matches = randomFill(config, matches, allMatches);
+                    // const completedPct = completedState(matches);
+                    // state = {
+                    //   ...state,
+                    //   maxCompletedState: Math.max(
+                    //     completedPct,
+                    //     state.maxCompletedState
+                    //   ),
+                    //   completedState: completedPct,
+                    //   remainingFixtures: remainingFixtures(allMatches),
+                    // };
+                    // displayState(state);
+                    // displayOutput(matches, divNames);
                     throw new NoProgressError("No progress");
-                    if (reverse) {
-                      writer.writeBest();
-                      throw new NoProgressError("No progress");
-                    }
-                    // Reverse direction
-                    logger.info("Reversing direction");
-                    reverse = true;
                   }
                   state.lastTestCompletedState = state.completedState;
                 }
@@ -220,7 +212,19 @@ export const runProcess = (
     return true;
   };
   c = 0;
-  const success = generate();
+  let success = false;
+  try {
+    success = generate();
+  } catch (e) {
+    reverse = true;
+    try {
+      logger.info("Reversing direction");
+      success = generate();
+    } catch (e) {
+      writer.writeBest();
+    }
+  }
+
   logger.info("Complete");
   displayOutput(matches, divNames);
   logger.info(`Used seed ${config.seed.toString()}`);

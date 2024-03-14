@@ -196,3 +196,11 @@ export const matchFilled = (match: Fixture): boolean => {
 export const matchPartiallyFilled = (match: Fixture): boolean => {
   return match.some((t) => t !== null) && !matchFilled(match);
 };
+
+export const remainingFixtures = (
+  allMatches: FixtureCheck[][]
+): Fixture[][] => {
+  return allMatches.map((m) =>
+    m.filter((f) => f.used === false).map((m) => m.match)
+  );
+};
