@@ -7,7 +7,7 @@ import {
 import {
   fixtureDoesNotExists,
   notSameVenueXWeeks,
-  notUnevenVenues,
+  notPartialConflict,
   notVenueClash,
 } from "./fixture";
 import { teamsNotPlayingThatWeek } from "./team";
@@ -43,24 +43,35 @@ export const findVenueConflictAndDiv = (
 ): MatchConflicts | null => {
   const [team1, team2] = match;
   const matchConflicts: DivAndMatch[] = [];
-  if (
-    team1 === null ||
-    team2 === null ||
-    !Object.keys(venConflicts).includes(team1) ||
-    !Object.keys(venConflicts).includes(team2)
-  ) {
-    return null;
-  }
-  const conflictTeam1 = venConflicts[team1];
-  const conflictTeam2 = venConflicts[team2];
-  const conflictTeamDiv1 = divTeams.findIndex((t) => t.includes(conflictTeam1));
-  const conflictTeamDiv2 = divTeams.findIndex((t) => t.includes(conflictTeam2));
-  if (conflictTeamDiv1 === conflictTeamDiv2) {
+
+  const conflictTeam1 = team1 ? venConflicts[team1] : null;
+  const conflictTeam2 = team2 ? venConflicts[team2] : null;
+  const conflictTeamDiv1 = conflictTeam1
+    ? divTeams.findIndex((t) => t.includes(conflictTeam1))
+    : null;
+  const conflictTeamDiv2 = conflictTeam2
+    ? divTeams.findIndex((t) => t.includes(conflictTeam2))
+    : null;
+  if (conflictTeamDiv1 === conflictTeamDiv2 && conflictTeamDiv1 !== null) {
     matchConflicts.push({
       match: [conflictTeam2, conflictTeam1] as Fixture,
       divIdx: conflictTeamDiv1,
     });
+  } else {
+    if (conflictTeamDiv1 !== null) {
+      matchConflicts.push({
+        match: [null, conflictTeam1] as Fixture,
+        divIdx: conflictTeamDiv1,
+      });
+    }
+    if (conflictTeamDiv2 !== null) {
+      matchConflicts.push({
+        match: [conflictTeam2, null] as Fixture,
+        divIdx: conflictTeamDiv2,
+      });
+    }
   }
+
   return matchConflicts.length > 0
     ? { matchIn: match, conflicts: matchConflicts }
     : null;
@@ -79,6 +90,7 @@ const generateValidationFunctions = (): ValidationFunction[] => {
     teamsNotPlayingThatWeek,
     fixtureDoesNotExists,
     notSameVenueXWeeks,
+    notPartialConflict,
     notVenueClash,
 
     // notUnevenVenues,

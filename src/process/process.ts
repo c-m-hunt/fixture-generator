@@ -7,12 +7,13 @@ import {
   matchUsed,
   State,
 } from "./utils";
-import { Config, FixtureCheck, MatchStructure } from "../config/types";
+import { Config, Fixture, FixtureCheck, MatchStructure } from "../config/types";
 import { displayOutput, displayState } from "./display";
 import { logger } from "../logger";
 import { LowStartPointError, NoProgressError } from "./errors";
 import { config as appConfig } from "../appConfig";
 import { OutputWriter } from "../outputWriter";
+import { log } from "console";
 
 const EXIT_PCT = appConfig.exitPct;
 const CHECK_INTERVAL = appConfig.checkInterval;
@@ -70,17 +71,35 @@ export const runProcess = (
     lastTestCompletedState: 0,
   } as State;
 
+  let reverse = false;
+
+  const fixtureRestorer = generateFixtureRestorer(matches);
+
   let c = 0;
   const generate = (): boolean => {
     // Iterate divs
-    for (let divIdx = 0; divIdx < matches.length; divIdx++) {
+    const startDiv = reverse ? matches.length - 1 : 0;
+    const endDiv = reverse ? -1 : matches.length;
+    for (
+      let divIdx = startDiv;
+      reverse ? divIdx > endDiv : divIdx < endDiv;
+      reverse ? divIdx-- : divIdx++
+    ) {
       // Iterate weeks in division
-      for (let weekIdx = 0; weekIdx < matches[divIdx].length; weekIdx++) {
+      const startWeek = reverse ? matches[divIdx].length - 1 : 0;
+      const endWeek = reverse ? -1 : matches[divIdx].length;
+      for (
+        let weekIdx = startWeek;
+        reverse ? weekIdx > endWeek : weekIdx < endWeek;
+        reverse ? weekIdx-- : weekIdx++
+      ) {
         // Iterate matches in division week
+        const startMatch = reverse ? matches[divIdx][weekIdx].length - 1 : 0;
+        const endMatch = reverse ? -1 : matches[divIdx][weekIdx].length;
         for (
-          let matchIdx = 0;
-          matchIdx < matches[divIdx][weekIdx].length;
-          matchIdx++
+          let matchIdx = startMatch;
+          reverse ? matchIdx > endMatch : matchIdx < endMatch;
+          reverse ? matchIdx-- : matchIdx++
         ) {
           if (matchFilled(matches[divIdx][weekIdx][matchIdx])) {
             continue;
@@ -121,7 +140,8 @@ export const runProcess = (
             }
 
             if (valid) {
-              matches[divIdx][weekIdx][matchIdx] = [...match];
+              // fixtureRestorer[divIdx][weekIdx][matchIdx] = match;
+              matches[divIdx][weekIdx][matchIdx] = match;
               allMatches = matchUsed(match, divIdx, allMatches);
               allMatches = applyConflict(matches, conflicts, allMatches);
 
@@ -151,8 +171,14 @@ export const runProcess = (
                       state.lastTestCompletedState === state.completedState)
                   ) {
                     displayOutput(matches, divNames);
-                    writer.writeBest();
-                    throw new NoProgressError("No progress");
+
+                    if (reverse) {
+                      writer.writeBest();
+                      throw new NoProgressError("No progress");
+                    }
+                    // Reverse direction
+                    logger.info("Reversing direction");
+                    reverse = true;
                   }
                   state.lastTestCompletedState = state.completedState;
                 }
@@ -162,7 +188,9 @@ export const runProcess = (
               if (complete) {
                 return true;
               }
-              matches[divIdx][weekIdx][matchIdx] = [null, null];
+              matches[divIdx][weekIdx][matchIdx] =
+                fixtureRestorer[divIdx][weekIdx][matchIdx];
+              fixtureRestorer[divIdx][weekIdx][matchIdx] = [null, null];
               allMatches = matchUnused(match, divIdx, allMatches);
               allMatches = undoConflict(matches, conflicts, allMatches);
             }
@@ -186,4 +214,22 @@ export const runProcess = (
   }
 
   return success ? matches : null;
+};
+
+const generateFixtureRestorer = (matches: MatchStructure): MatchStructure => {
+  const fixtureRestorer: MatchStructure = [];
+  for (let divIdx = 0; divIdx < matches.length; divIdx++) {
+    fixtureRestorer[divIdx] = [];
+    for (let weekIdx = 0; weekIdx < matches[divIdx].length; weekIdx++) {
+      fixtureRestorer[divIdx][weekIdx] = [];
+      for (
+        let matchIdx = 0;
+        matchIdx < matches[divIdx][weekIdx].length;
+        matchIdx++
+      ) {
+        fixtureRestorer[divIdx][weekIdx][matchIdx] = [null, null];
+      }
+    }
+  }
+  return fixtureRestorer;
 };

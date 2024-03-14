@@ -86,44 +86,67 @@ export const notSameVenueXWeeks: ValidationFunction = (
   return true;
 };
 
-/**
- * Checks if the number of venues for a team in a given configuration is uneven.
- * @param config - The configuration object.
- * @param divIdx - The division index.
- * @param weekIdx - The week index.
- * @param matchIdx - The match index.
- * @param teamIdx - The team index.
- * @param team - The team name.
- * @returns A boolean indicating whether the number of venues is uneven.
- */
-export const notUnevenVenues: ValidationFunction = (
+export const notPartialConflict: ValidationFunction = (
   config: Config,
   divIdx: number,
   weekIdx: number,
   matchIdx: number,
-  teamIdx: number,
-  team: string
+  match: Fixture
 ): boolean => {
   const { matches: matchStructure } = config;
-  const latestWeek = Math.max(weekIdx - 1, 0);
-  const earliestWeek = 0;
-  let testFixtures: Fixture[] = [];
-  for (let w = earliestWeek; w <= latestWeek; w++) {
-    const fixtures = matchStructure[divIdx][w];
-    testFixtures = testFixtures.concat([...fixtures]);
+  const existingMatch = matchStructure[divIdx][weekIdx][matchIdx];
+
+  // If all teams in existing match are null, return true
+  if (existingMatch.every((t) => t === null)) {
+    return true;
   }
 
-  const venueCount = [0, 0];
-  for (const f of testFixtures) {
-    const fixTeamIdx = f.indexOf(team);
-    if (fixTeamIdx > -1) {
-      venueCount[fixTeamIdx]++;
+  for (const teamIdx of [0, 1]) {
+    if (existingMatch[0] != null && existingMatch[0] != match[0]) {
+      return false;
     }
   }
-
-  venueCount[teamIdx]++;
-  return !(Math.abs(venueCount[0] - venueCount[1]) > 1);
+  return true;
 };
+
+// /**
+//  * Checks if the number of venues for a team in a given configuration is uneven.
+//  * @param config - The configuration object.
+//  * @param divIdx - The division index.
+//  * @param weekIdx - The week index.
+//  * @param matchIdx - The match index.
+//  * @param teamIdx - The team index.
+//  * @param team - The team name.
+//  * @returns A boolean indicating whether the number of venues is uneven.
+//  */
+// export const notUnevenVenues: ValidationFunction = (
+//   config: Config,
+//   divIdx: number,
+//   weekIdx: number,
+//   matchIdx: number,
+//   teamIdx: number,
+//   team: string
+// ): boolean => {
+//   const { matches: matchStructure } = config;
+//   const latestWeek = Math.max(weekIdx - 1, 0);
+//   const earliestWeek = 0;
+//   let testFixtures: Fixture[] = [];
+//   for (let w = earliestWeek; w <= latestWeek; w++) {
+//     const fixtures = matchStructure[divIdx][w];
+//     testFixtures = testFixtures.concat([...fixtures]);
+//   }
+
+//   const venueCount = [0, 0];
+//   for (const f of testFixtures) {
+//     const fixTeamIdx = f.indexOf(team);
+//     if (fixTeamIdx > -1) {
+//       venueCount[fixTeamIdx]++;
+//     }
+//   }
+
+//   venueCount[teamIdx]++;
+//   return !(Math.abs(venueCount[0] - venueCount[1]) > 1);
+// };
 
 /**
  * Checks if a team has a venue clash with another team in a given fixture configuration.
