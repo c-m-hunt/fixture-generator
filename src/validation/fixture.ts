@@ -140,18 +140,23 @@ export const notVenueClash: ValidationFunction = (
 ): boolean => {
   const { matches: matchStructure, venConflicts } = config;
   const [team1, team2] = match;
-  if (!team1) {
-    return true;
+
+  for (const [teamIdx, team] of match.entries()) {
+    if (!team || team === null) {
+      continue;
+    }
+    const venueTeams = matchStructure
+      .map((d) => d[weekIdx])
+      .flat()
+      .filter((w) => w !== undefined)
+      .map((f) => f[teamIdx]);
+
+    const venueClashTeam = venConflicts[team];
+    if (venueTeams.includes(venueClashTeam)) {
+      return false;
+    }
   }
-
-  const homeTeams = matchStructure
-    .map((d) => d[weekIdx])
-    .flat()
-    .filter((w) => w !== undefined)
-    .map((f) => f[0]);
-
-  const clashTeam = venConflicts[team1];
-  return !homeTeams.includes(clashTeam);
+  return true;
 };
 
 /**
@@ -166,6 +171,9 @@ const fixtureExists = (
   fix: Fixture,
   checkReverse = true
 ): boolean => {
+  if (fix[0] === null || fix[1] === null) {
+    return false;
+  }
   for (const f of fixList) {
     if (f[0] !== null && f[1] !== null && f[0] === fix[0] && f[1] === fix[1]) {
       return true;

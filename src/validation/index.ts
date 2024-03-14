@@ -19,6 +19,16 @@ export type ConflictResponse = {
   matchIdx: number;
 } | null;
 
+export type DivAndMatch = {
+  divIdx: number;
+  match: Fixture;
+};
+
+export type MatchConflicts = {
+  matchIn: Fixture;
+  conflicts: DivAndMatch[];
+};
+
 /**
  * Finds the conflicting team and division for a given team based on venue conflicts.
  * @param {Fixture} match - The match to find
@@ -30,8 +40,9 @@ export const findVenueConflictAndDiv = (
   match: Fixture,
   divTeams: string[][],
   venConflicts: ConflictsObject
-): [Fixture, number] | null => {
+): MatchConflicts | null => {
   const [team1, team2] = match;
+  const matchConflicts: DivAndMatch[] = [];
   if (
     team1 === null ||
     team2 === null ||
@@ -42,10 +53,17 @@ export const findVenueConflictAndDiv = (
   }
   const conflictTeam1 = venConflicts[team1];
   const conflictTeam2 = venConflicts[team2];
-  const div = divTeams.findIndex(
-    (t) => t.includes(conflictTeam1) && t.includes(conflictTeam2)
-  );
-  return [[conflictTeam2, conflictTeam1], div];
+  const conflictTeamDiv1 = divTeams.findIndex((t) => t.includes(conflictTeam1));
+  const conflictTeamDiv2 = divTeams.findIndex((t) => t.includes(conflictTeam2));
+  if (conflictTeamDiv1 === conflictTeamDiv2) {
+    matchConflicts.push({
+      match: [conflictTeam2, conflictTeam1] as Fixture,
+      divIdx: conflictTeamDiv1,
+    });
+  }
+  return matchConflicts.length > 0
+    ? { matchIn: match, conflicts: matchConflicts }
+    : null;
 };
 
 export type ValidationFunction = (
@@ -117,39 +135,37 @@ export const checkDependentsValid = (
 ): DelendentsValid => {
   const { matches: matchStructure, divTeams, venConflicts } = config;
   const [team1, team2] = match;
-  const teamDiv = findVenueConflictAndDiv(match, divTeams, venConflicts);
-  if (teamDiv) {
+  const matchConflicts = findVenueConflictAndDiv(match, divTeams, venConflicts);
+  const conflictsOut = [];
+  let valid = true;
+  if (matchConflicts) {
     // Grab the conflicting team and division
-    const [conflictMatch, conflictTeamDivIdx] = teamDiv;
-
+    for (const conflict of matchConflicts.conflicts) {
+      const { match: conflictMatch, divIdx: conflictDivIdx } = conflict;
+      if (conflictDivIdx === -1) {
+        continue;
+      }
+      const valid = isValid(
+        config,
+        conflictDivIdx,
+        weekIdx,
+        matchIdx,
+        conflictMatch,
+        false
+      )[0];
+      if (!valid) {
+        return [false, null];
+      }
+      conflictsOut.push({
+        match: conflictMatch,
+        divIdx: conflictDivIdx,
+        weekIdx,
+        matchIdx,
+      });
+    }
     // If there's no conflict, return true
-    if (conflictTeamDivIdx === -1) {
-      return [true, null];
-    }
-
-    const valid = isValid(
-      config,
-      conflictTeamDivIdx,
-      weekIdx,
-      matchIdx,
-      conflictMatch,
-      false
-    )[0];
-    if (valid) {
-      return [
-        true,
-        [
-          {
-            match: conflictMatch,
-            divIdx: conflictTeamDivIdx,
-            weekIdx,
-            matchIdx,
-          },
-        ],
-      ];
-    }
   }
-  return null;
+  return [valid, conflictsOut];
 };
 
 type FindMatchResponse = {

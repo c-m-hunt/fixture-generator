@@ -82,9 +82,7 @@ export const runProcess = (
           matchIdx < matches[divIdx][weekIdx].length;
           matchIdx++
         ) {
-          if (
-            !matches[divIdx][weekIdx][matchIdx].every((val) => val === null)
-          ) {
+          if (matchFilled(matches[divIdx][weekIdx][matchIdx])) {
             continue;
           }
           // Iterate matches in fixture check list
