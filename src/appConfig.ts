@@ -5,6 +5,7 @@ export type AppConfig = {
   exitPct: number;
   checkInterval: number;
   improvementCheckInterval: number;
+  randomFillCount: number;
   outputPath: string;
   s3Path: {
     bucket: string;
@@ -42,6 +43,7 @@ export const config: AppConfig = {
     ? parseInt(process.env.CHECK_INTERVAL)
     : 100000,
   improvementCheckInterval: 1000000,
+  randomFillCount: 1000000, // Number of random fixtures to attempt at the end of the run
 
   // -------------------
   // Display

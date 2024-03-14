@@ -1,7 +1,7 @@
 import parse from "csv-simple-parser";
 import moment from "moment";
 import { readFileSync, appendFileSync } from "fs";
-import { Config, MatchStructure } from "../../config/types";
+import { Config, Fixture, MatchStructure } from "../../config/types";
 import { uploadFileToS3 } from "./utils";
 import path from "path";
 import fs from "fs";
@@ -23,6 +23,7 @@ export class PlayCricketWriter
 {
   config: Config;
   matches?: MatchStructure;
+  remainingFixtures?: Fixture[][];
   mappings: Mapping[];
   outputPath?: string;
   outputFileName?: string = `${new Date().toISOString()}.txt`;
@@ -65,7 +66,7 @@ export class PlayCricketWriter
     );
   };
 
-  writeOutput = (matches: MatchStructure) => {
+  writeOutput = (matches: MatchStructure, remainingFixtures: Fixture[][]) => {
     if (!this.outputPath) {
       throw new Error("No output path set");
     }
@@ -79,6 +80,7 @@ export class PlayCricketWriter
       throw new Error("No output file name set");
     }
     this.matches = matches;
+    this.remainingFixtures = remainingFixtures;
     let filePath = this.outputPath;
     if (this.bestState?.completed === false) {
       filePath = path.join(
@@ -92,9 +94,23 @@ export class PlayCricketWriter
     this.writeState();
     this.writeConfig();
     this.writeReadableFixtures();
+    this.writeRemainingFixtures();
     this.writeFixtures();
     if (this.config.appConfig.s3Path) {
       this.writeToS3();
+    }
+  };
+
+  writeRemainingFixtures = () => {
+    if (!this.remainingFixtures) {
+      return;
+    }
+    for (const [divIdx, div] of this.remainingFixtures.entries()) {
+      this.#writeOutputLineDivider();
+      this.#writeOutputLine(this.config.divNames[divIdx]);
+      for (const fix of div) {
+        this.#writeOutputLine(`${fix[0]} v ${fix[1]}`);
+      }
     }
   };
 
@@ -172,7 +188,10 @@ export class PlayCricketWriter
 
   writeBest = () => {
     if (this.bestMatches) {
-      this.writeOutput(this.bestMatches);
+      this.writeOutput(
+        this.bestMatches,
+        this.bestState?.remainingFixtures || []
+      );
     }
   };
 

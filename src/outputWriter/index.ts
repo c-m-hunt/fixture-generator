@@ -1,8 +1,11 @@
-import { MatchStructure } from "../config/types";
+import { Fixture, FixtureCheck, MatchStructure } from "../config/types";
 import { State } from "../process/utils";
 
 export interface OutputWriter {
-  writeOutput: (matches: MatchStructure) => void;
+  writeOutput: (
+    matches: MatchStructure,
+    remainingFixtures: Fixture[][]
+  ) => void;
   writeBest: () => void;
   storeBest: (matches: MatchStructure, state: State) => void;
   createOutput: (
@@ -15,7 +18,10 @@ export abstract class OutputWriterBase {
   bestMatches: MatchStructure | null = null;
   bestState: State | null = null;
 
-  abstract writeOutput: (matches: MatchStructure) => void;
+  abstract writeOutput: (
+    matches: MatchStructure,
+    remainingFixtures: Fixture[][]
+  ) => void;
 
   /**
    * Stores the best matches and state.

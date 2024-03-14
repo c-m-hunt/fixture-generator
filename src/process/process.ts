@@ -5,6 +5,7 @@ import {
   matchFilled,
   matchUnused,
   matchUsed,
+  remainingFixtures,
   State,
 } from "./utils";
 import { Config, Fixture, FixtureCheck, MatchStructure } from "../config/types";
@@ -13,7 +14,6 @@ import { logger } from "../logger";
 import { LowStartPointError, NoProgressError } from "./errors";
 import { config as appConfig } from "../appConfig";
 import { OutputWriter } from "../outputWriter";
-import { log } from "console";
 
 const EXIT_PCT = appConfig.exitPct;
 const CHECK_INTERVAL = appConfig.checkInterval;
@@ -69,6 +69,7 @@ export const runProcess = (
     completedState: 0,
     maxCompletedState: 0,
     lastTestCompletedState: 0,
+    remainingFixtures: remainingFixtures(allMatches),
   } as State;
 
   let reverse = false;
@@ -156,6 +157,7 @@ export const runProcess = (
                   state.maxCompletedState
                 ),
                 completedState: completedPct,
+                remainingFixtures: remainingFixtures(allMatches),
               };
               writer.storeBest(matches, state);
               if (c % CHECK_INTERVAL === 0) {
@@ -170,8 +172,24 @@ export const runProcess = (
                     (state.maxCompletedState > state.lastTestCompletedState &&
                       state.lastTestCompletedState === state.completedState)
                   ) {
+                    displayState(state);
                     displayOutput(matches, divNames);
-
+                    logger.info("No progress. Trying a random blast");
+                    matches = randomFill(config, matches, allMatches);
+                    const completedPct = completedState(matches);
+                    state = {
+                      ...state,
+                      maxCompletedState: Math.max(
+                        completedPct,
+                        state.maxCompletedState
+                      ),
+                      completedState: completedPct,
+                      remainingFixtures: remainingFixtures(allMatches),
+                    };
+                    displayState(state);
+                    displayOutput(matches, divNames);
+                    writer.writeBest();
+                    throw new NoProgressError("No progress");
                     if (reverse) {
                       writer.writeBest();
                       throw new NoProgressError("No progress");
@@ -208,7 +226,7 @@ export const runProcess = (
   logger.info(`Used seed ${config.seed.toString()}`);
 
   if (success) {
-    writer.writeOutput(matches);
+    writer.writeOutput(matches, remainingFixtures(allMatches));
   } else {
     writer.writeBest();
   }
@@ -232,4 +250,44 @@ const generateFixtureRestorer = (matches: MatchStructure): MatchStructure => {
     }
   }
   return fixtureRestorer;
+};
+
+const randomFill = (
+  config: Config,
+  matches: MatchStructure,
+  allMatches: FixtureCheck[][]
+): MatchStructure => {
+  for (let i = 0; i < config.appConfig.randomFillCount; i++) {
+    const divIdx = Math.floor(Math.random() * matches.length);
+    const weekIdx = Math.floor(Math.random() * matches[divIdx].length);
+    const matchIdx = Math.floor(
+      Math.random() * matches[divIdx][weekIdx].length
+    );
+    if (matchFilled(matches[divIdx][weekIdx][matchIdx])) {
+      continue;
+    }
+    for (
+      let matchCheckIdx = 0;
+      matchCheckIdx < allMatches[divIdx].length;
+      matchCheckIdx++
+    ) {
+      const { match } = allMatches[divIdx][matchCheckIdx];
+      const [valid, conflicts] = isValid(
+        config,
+        divIdx,
+        weekIdx,
+        matchIdx,
+        match,
+        true
+      );
+      if (valid) {
+        matches[divIdx][weekIdx][matchIdx] = match;
+        allMatches = matchUsed(match, divIdx, allMatches);
+        allMatches = applyConflict(matches, conflicts, allMatches);
+        break;
+      }
+    }
+  }
+
+  return matches;
 };

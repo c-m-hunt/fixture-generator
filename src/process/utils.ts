@@ -16,6 +16,7 @@ export type State = {
   completedState: number;
   maxCompletedState: number;
   lastTestCompletedState: number;
+  remainingFixtures: Fixture[][];
 };
 
 /**

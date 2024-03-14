@@ -1,9 +1,10 @@
 import {
   fixtureDoesNotExists,
+  notPartialConflict,
   notSameVenueXWeeks,
   notVenueClash,
 } from "../fixture";
-import { Config, MatchStructure } from "../../config/types";
+import { Config, Fixture, MatchStructure } from "../../config/types";
 import { generalConfig } from "./utils";
 
 describe("Fixture validation", () => {
@@ -143,4 +144,96 @@ describe("Fixture validation", () => {
   //   expect(notVenueClash(config, 1, 0, 1, 1, "WAN2")).toBe(true);
   //   expect(notVenueClash(config, 1, 0, 1, 0, "WAN2")).toBe(false);
   // });
+});
+
+describe("notPartialConflict", () => {
+  // Happy path test with all teams in existing match as null
+  test("should return true when all teams in existing match are null", () => {
+    // Arrange
+    const config: Config = {
+      matches: [[[[null, null] as Fixture]]],
+    };
+    const divIdx = 0;
+    const weekIdx = 0;
+    const matchIdx = 0;
+    const match: Fixture = ["test1", "test2"];
+
+    // Act
+    const result = notPartialConflict(config, divIdx, weekIdx, matchIdx, match);
+
+    // Assert
+    expect(result).toBe(true);
+  });
+
+  // Happy path test with matching teams
+  test("should return true when existing match and new match have the same teams", () => {
+    // Arrange
+    const config: Config = {
+      matches: [[[["test1", "test2"] as Fixture]]],
+    };
+    const divIdx = 0;
+    const weekIdx = 0;
+    const matchIdx = 0;
+    const match: Fixture = ["test1", "test2"];
+
+    // Act
+    const result = notPartialConflict(config, divIdx, weekIdx, matchIdx, match);
+
+    // Assert
+    expect(result).toBe(true);
+  });
+
+  // Happy path test with one matching team
+  test("should return true when existing match and new match have the same single", () => {
+    // Arrange
+    const config: Config = {
+      matches: [[[["test1", null] as Fixture]]],
+    };
+    const divIdx = 0;
+    const weekIdx = 0;
+    const matchIdx = 0;
+    const match: Fixture = ["test1", "test2"];
+
+    // Act
+    const result = notPartialConflict(config, divIdx, weekIdx, matchIdx, match);
+
+    // Assert
+    expect(result).toBe(true);
+  });
+
+  // Edge case test with one null team in existing match
+  test("should return false when existing match has one null team and does not match new team", () => {
+    // Arrange
+    const config: Config = {
+      matches: [[[["test1", null] as Fixture]]],
+    };
+    const divIdx = 0;
+    const weekIdx = 0;
+    const matchIdx = 0;
+    const match: Fixture = ["test2", "test3"];
+
+    // Act
+    const result = notPartialConflict(config, divIdx, weekIdx, matchIdx, match);
+
+    // Assert
+    expect(result).toBe(false);
+  });
+
+  // Edge case test with different teams
+  test("should return false when existing match and new match have different teams", () => {
+    // Arrange
+    const config: Config = {
+      matches: [[[["test1", "test2"] as Fixture]]],
+    };
+    const divIdx = 0;
+    const weekIdx = 0;
+    const matchIdx = 0;
+    const match: Fixture = ["test3", "test4"];
+
+    // Act
+    const result = notPartialConflict(config, divIdx, weekIdx, matchIdx, match);
+
+    // Assert
+    expect(result).toBe(false);
+  });
 });
