@@ -74,8 +74,6 @@ export const runProcess = (
 
   let reverse = false;
 
-  const fixtureRestorer = generateFixtureRestorer(matches);
-
   let c = 0;
   const generate = (): boolean => {
     // Iterate divs
@@ -141,7 +139,7 @@ export const runProcess = (
             }
 
             if (valid) {
-              // fixtureRestorer[divIdx][weekIdx][matchIdx] = match;
+              const restoredMatch = matches[divIdx][weekIdx][matchIdx];
               matches[divIdx][weekIdx][matchIdx] = match;
               allMatches = matchUsed(match, divIdx, allMatches);
               allMatches = applyConflict(matches, conflicts, allMatches);
@@ -198,9 +196,7 @@ export const runProcess = (
               if (complete) {
                 return true;
               }
-              matches[divIdx][weekIdx][matchIdx] =
-                fixtureRestorer[divIdx][weekIdx][matchIdx];
-              fixtureRestorer[divIdx][weekIdx][matchIdx] = [null, null];
+              matches[divIdx][weekIdx][matchIdx] = restoredMatch;
               allMatches = matchUnused(match, divIdx, allMatches);
               allMatches = undoConflict(matches, conflicts, allMatches);
             }
@@ -222,6 +218,7 @@ export const runProcess = (
       success = generate();
     } catch (e) {
       writer.writeBest();
+      logger.error("No progress");
     }
   }
 
@@ -236,24 +233,6 @@ export const runProcess = (
   }
 
   return success ? matches : null;
-};
-
-const generateFixtureRestorer = (matches: MatchStructure): MatchStructure => {
-  const fixtureRestorer: MatchStructure = [];
-  for (let divIdx = 0; divIdx < matches.length; divIdx++) {
-    fixtureRestorer[divIdx] = [];
-    for (let weekIdx = 0; weekIdx < matches[divIdx].length; weekIdx++) {
-      fixtureRestorer[divIdx][weekIdx] = [];
-      for (
-        let matchIdx = 0;
-        matchIdx < matches[divIdx][weekIdx].length;
-        matchIdx++
-      ) {
-        fixtureRestorer[divIdx][weekIdx][matchIdx] = [null, null];
-      }
-    }
-  }
-  return fixtureRestorer;
 };
 
 const randomFill = (
