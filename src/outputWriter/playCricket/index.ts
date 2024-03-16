@@ -124,6 +124,7 @@ export class PlayCricketWriter
         this.#writeOutputLine(`${fix[0]} v ${fix[1]}`);
       }
     }
+    this.#writeOutputLineDivider();
   };
 
   writeReadableFixtures = () => {

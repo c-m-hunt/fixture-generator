@@ -76,6 +76,8 @@ export const runProcess = (
   let c = 0;
 
   let { divIdxs, weekIdxs, matchIdxs } = getIndexes(matches, false);
+  const originalDivIdxs = [...divIdxs];
+  let iteration = 0;
 
   const generate = (): boolean => {
     // Iterate divs
@@ -190,6 +192,9 @@ export const runProcess = (
               allMatches = undoConflict(matches, conflicts, allMatches);
             }
           }
+          // if (iteration > 0) {
+          //   console.log("HERE");
+          // }
           return false;
         }
       }
@@ -199,15 +204,15 @@ export const runProcess = (
 
   c = 0;
   let success = false;
-  for (let i = 0; i < 9; i++) {
+  for (iteration = 0; iteration < 500; iteration++) {
     try {
       const idxs = getIndexes(matches, true);
       success = false;
-      // divIdxs = shift(idxs.divIdxs, i);
-      // console.log(divIdxs);
+      divIdxs = shift(originalDivIdxs, iteration);
       weekIdxs = idxs.weekIdxs;
       matchIdxs = idxs.matchIdxs;
-      logger.info(`Running iteration ${i}`);
+      logger.info(`Running iteration ${iteration}`);
+      console.log(divIdxs, weekIdxs, matchIdxs);
       success = generate();
       console.log(`Success: ${success}`);
     } catch (e) {
@@ -292,5 +297,8 @@ const getIndexes = (matches: MatchStructure, random: boolean = false) => {
 };
 
 const shift = (arr: Array<any>, n: number) => {
-  return arr.slice(n).concat(arr.slice(0, n));
+  const effectiveDistance = n % arr.length;
+
+  // Split the array into two parts and swap them
+  return [...arr.slice(effectiveDistance), ...arr.slice(0, effectiveDistance)];
 };

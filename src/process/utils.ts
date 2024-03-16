@@ -95,8 +95,14 @@ export const completedState = (matchStructure: MatchStructure): number => {
   for (const week of matchStructure) {
     for (const div of week) {
       for (const match of div) {
-        totalMatches += 1;
-        if (match.every((t) => t !== null)) {
+        totalMatches += 2;
+        // if (match.every((t) => t !== null)) {
+        //   totalMatchesCompleted += 1;
+        // }
+        if (match[0] !== null) {
+          totalMatchesCompleted += 1;
+        }
+        if (match[1] !== null) {
           totalMatchesCompleted += 1;
         }
       }
