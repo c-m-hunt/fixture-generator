@@ -119,7 +119,7 @@ export const runProcess = (
                 weekIdx,
                 matchIdx,
                 match,
-                true
+                false
               );
             }
 
@@ -201,7 +201,7 @@ export const runProcess = (
   let success = false;
   for (let i = 0; i < 9; i++) {
     try {
-      const idxs = getIndexes(matches, false);
+      const idxs = getIndexes(matches, true);
       success = false;
       // divIdxs = shift(idxs.divIdxs, i);
       // console.log(divIdxs);
@@ -228,11 +228,9 @@ export const runProcess = (
   logger.info(`Used seed ${config.seed.toString()}`);
 
   if (success) {
-    writer.writeOutput(matches, allMatches);
-  } else {
-    writer.writeBest();
+    writer.storeBest(matches, state);
   }
-
+  writer.writeBest();
   return success ? matches : null;
 };
 

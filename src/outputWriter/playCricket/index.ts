@@ -90,8 +90,8 @@ export class PlayCricketWriter
     }
     this.matches = matches;
     this.maxCompletedMatchesState = maxCompletedMatchesState;
-    let filePath = this.outputPath;
-    if (this.bestState?.completed === false) {
+    let filePath = path.join(this.outputPath);
+    if (this.bestState) {
       filePath = path.join(
         this.outputPath,
         this.bestState.completedState.toString()
