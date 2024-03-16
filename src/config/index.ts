@@ -96,20 +96,19 @@ const populateFixtureRequirements = (
     }
     const weekIdx = week - 1;
     for (const matchIdx in matches[divIdx][weekIdx]) {
-      const [valid, conflict] = isValid(
+      const [valid, conflicts] = isValid(
         config,
         divIdx,
         weekIdx,
         parseInt(matchIdx),
         match,
-        false
+        true
       );
       if (valid) {
         matches[divIdx][weekIdx][matchIdx] = match;
         allMatches = matchUsed(match, divIdx, allMatches);
-        if (conflict) {
-          applyConflict(matches, conflict);
-          allMatches = matchUsed(conflict.match, conflict.divIdx, allMatches);
+        if (conflicts) {
+          allMatches = applyConflict(matches, conflicts, allMatches);
         }
         break;
       }

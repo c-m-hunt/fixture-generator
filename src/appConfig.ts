@@ -4,7 +4,7 @@ export type AppConfig = {
   consecutiveVenueWeeks: number;
   exitPct: number;
   checkInterval: number;
-  improvementCheckInterval: number;
+  improvementCheckThreshold: number;
   randomFillCount: number;
   outputPath: string;
   s3Path: {
@@ -38,11 +38,11 @@ export const config: AppConfig = {
   // -------------------
 
   // Will exit if the improvement is less than this percentage by the check interval
-  exitPct: process.env.EXIT_PCT ? parseFloat(process.env.EXIT_PCT) : 0.5,
+  exitPct: process.env.EXIT_PCT ? parseFloat(process.env.EXIT_PCT) : 0.4,
   checkInterval: process.env.CHECK_INTERVAL
     ? parseInt(process.env.CHECK_INTERVAL)
     : 100000,
-  improvementCheckInterval: 1000000,
+  improvementCheckThreshold: 1000000,
   randomFillCount: 1000000, // Number of random fixtures to attempt at the end of the run
 
   // -------------------

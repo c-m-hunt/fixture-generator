@@ -23,7 +23,7 @@ import { logger } from "./logger";
 import { config as appConfig } from "./appConfig";
 
 (async () => {
-  for (let i = 1; i <= 100000; i++) {
+  for (let i = 1; i <= 1; i++) {
     try {
       displayRunHeader(i);
 

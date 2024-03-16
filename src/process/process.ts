@@ -5,7 +5,6 @@ import {
   matchFilled,
   matchUnused,
   matchUsed,
-  remainingFixtures,
   State,
 } from "./utils";
 import { Config, Fixture, FixtureCheck, MatchStructure } from "../config/types";
@@ -17,7 +16,7 @@ import { OutputWriter } from "../outputWriter";
 
 const EXIT_PCT = appConfig.exitPct;
 const CHECK_INTERVAL = appConfig.checkInterval;
-const IMPROVEMENT_CHECK_INTERVAL = appConfig.improvementCheckInterval;
+const IMPROVEMENT_CHECK_THRESHOLD = appConfig.improvementCheckThreshold;
 
 export const applyConflict = (
   matchStructure: MatchStructure,
@@ -69,37 +68,22 @@ export const runProcess = (
     completedState: 0,
     maxCompletedState: 0,
     lastTestCompletedState: 0,
-    remainingFixtures: remainingFixtures(allMatches),
+    lastImprovement: 0,
+    maxCompletedFixtures: matches,
+    maxCompletedMatchesState: allMatches,
   } as State;
 
-  let reverse = false;
-
   let c = 0;
+
+  let { divIdxs, weekIdxs, matchIdxs } = getIndexes(matches, false);
+
   const generate = (): boolean => {
     // Iterate divs
-    const startDiv = reverse ? matches.length - 1 : 0;
-    const endDiv = reverse ? -1 : matches.length;
-    for (
-      let divIdx = startDiv;
-      reverse ? divIdx > endDiv : divIdx < endDiv;
-      reverse ? divIdx-- : divIdx++
-    ) {
+    for (const divIdx of divIdxs) {
       // Iterate weeks in division
-      const startWeek = reverse ? matches[divIdx].length - 1 : 0;
-      const endWeek = reverse ? -1 : matches[divIdx].length;
-      for (
-        let weekIdx = startWeek;
-        reverse ? weekIdx > endWeek : weekIdx < endWeek;
-        reverse ? weekIdx-- : weekIdx++
-      ) {
+      for (const weekIdx of weekIdxs) {
         // Iterate matches in division week
-        const startMatch = reverse ? matches[divIdx][weekIdx].length - 1 : 0;
-        const endMatch = reverse ? -1 : matches[divIdx][weekIdx].length;
-        for (
-          let matchIdx = startMatch;
-          reverse ? matchIdx > endMatch : matchIdx < endMatch;
-          reverse ? matchIdx-- : matchIdx++
-        ) {
+        for (const matchIdx of matchIdxs) {
           if (matchFilled(matches[divIdx][weekIdx][matchIdx])) {
             continue;
           }
@@ -109,7 +93,7 @@ export const runProcess = (
             matchCheckIdx < allMatches[divIdx].length;
             matchCheckIdx++
           ) {
-            if (allMatches[divIdx][matchCheckIdx].used === null) {
+            if (allMatches[divIdx][matchCheckIdx].used === true) {
               continue;
             }
             let { match } = allMatches[divIdx][matchCheckIdx];
@@ -128,13 +112,14 @@ export const runProcess = (
             );
 
             if (!valid) {
+              match = match.reverse() as [string, string];
               [valid, conflicts] = isValid(
                 config,
                 divIdx,
                 weekIdx,
                 matchIdx,
-                match.reverse() as [string, string],
-                false
+                match,
+                true
               );
             }
 
@@ -146,51 +131,25 @@ export const runProcess = (
 
               c += 1;
               const completedPct = completedState(matches);
+              if (completedPct > state.maxCompletedState) {
+                writer.storeBest(matches, state);
+              }
               state = {
                 ...state,
-                completed: false,
+                completed: completedPct < 1,
                 currentGen: c,
                 maxCompletedState: Math.max(
                   completedPct,
                   state.maxCompletedState
                 ),
+                maxCompletedFixtures: matches,
                 completedState: completedPct,
-                remainingFixtures: remainingFixtures(allMatches),
+                maxCompletedMatchesState: allMatches,
+                lastImprovement:
+                  state.maxCompletedState > completedPct
+                    ? (state.lastImprovement += 1)
+                    : 0,
               };
-              writer.storeBest(matches, state);
-              if (c % CHECK_INTERVAL === 0) {
-                elapsedTime(c.toString(), start);
-                displayState(state);
-                if (state.maxCompletedState < EXIT_PCT) {
-                  throw new LowStartPointError("Low start point");
-                }
-                if (c % IMPROVEMENT_CHECK_INTERVAL === 0) {
-                  if (
-                    state.maxCompletedState === state.lastTestCompletedState ||
-                    (state.maxCompletedState > state.lastTestCompletedState &&
-                      state.lastTestCompletedState === state.completedState)
-                  ) {
-                    displayState(state);
-                    displayOutput(matches, divNames);
-                    // logger.info("No progress. Trying a random blast");
-                    // matches = randomFill(config, matches, allMatches);
-                    // const completedPct = completedState(matches);
-                    // state = {
-                    //   ...state,
-                    //   maxCompletedState: Math.max(
-                    //     completedPct,
-                    //     state.maxCompletedState
-                    //   ),
-                    //   completedState: completedPct,
-                    //   remainingFixtures: remainingFixtures(allMatches),
-                    // };
-                    // displayState(state);
-                    // displayOutput(matches, divNames);
-                    throw new NoProgressError("No progress");
-                  }
-                  state.lastTestCompletedState = state.completedState;
-                }
-              }
 
               const complete = generate();
               if (complete) {
@@ -200,6 +159,36 @@ export const runProcess = (
               allMatches = matchUnused(match, divIdx, allMatches);
               allMatches = undoConflict(matches, conflicts, allMatches);
             }
+            if (c % CHECK_INTERVAL === 0) {
+              elapsedTime(c.toString(), start);
+              displayState(state);
+              if (state.maxCompletedState < EXIT_PCT) {
+                throw new LowStartPointError("Low start point");
+              }
+              if (state.lastImprovement > IMPROVEMENT_CHECK_THRESHOLD) {
+                displayState(state);
+                displayOutput(matches, divNames);
+                // logger.info("No progress. Trying a random blast");
+                // matches = randomFill(config, matches, allMatches);
+                // const completedPct = completedState(matches);
+                // state = {
+                //   ...state,
+                //   maxCompletedState: Math.max(
+                //     completedPct,
+                //     state.maxCompletedState
+                //   ),
+                //   completedState: completedPct,
+                //   remainingFixtures: remainingFixtures(allMatches),
+                // };
+                // displayState(state);
+                // displayOutput(matches, divNames);
+                matches = state.maxCompletedFixtures;
+                allMatches = state.maxCompletedMatchesState;
+                state.lastImprovement = 0;
+                throw new NoProgressError("No progress");
+              }
+              state.lastTestCompletedState = state.completedState;
+            }
           }
           return false;
         }
@@ -207,27 +196,33 @@ export const runProcess = (
     }
     return true;
   };
+
   c = 0;
   let success = false;
-  try {
-    success = generate();
-  } catch (e) {
-    reverse = true;
+  for (let i = 0; i < 1; i++) {
     try {
-      logger.info("Reversing direction");
+      const idxs = getIndexes(matches, true);
+      console.log(idxs);
+      success = false;
+      divIdxs = idxs.divIdxs;
+      weekIdxs = idxs.weekIdxs;
+      matchIdxs = idxs.matchIdxs;
+      logger.info(`Running iteration ${i}`);
       success = generate();
+      console.log(`Success: ${success}`);
     } catch (e) {
-      writer.writeBest();
-      logger.error("No progress");
+      logger.warn("No progress");
     }
   }
+  writer.writeBest();
 
   logger.info("Complete");
+  displayState(state);
   displayOutput(matches, divNames);
   logger.info(`Used seed ${config.seed.toString()}`);
 
   if (success) {
-    writer.writeOutput(matches, remainingFixtures(allMatches));
+    writer.writeOutput(matches, allMatches);
   } else {
     writer.writeBest();
   }
@@ -273,4 +268,21 @@ const randomFill = (
   }
 
   return matches;
+};
+
+const shuffle = (arr: Array<number>) => {
+  return arr.sort(() => Math.random() - 0.5);
+};
+
+const getIndexes = (matches: MatchStructure, random: boolean = false) => {
+  let divIdxs = Array.from(Array(matches.length).keys());
+  let weekIdxs = Array.from(Array(matches[0].length).keys());
+  let matchIdxs = Array.from(Array(matches[0][0].length).keys());
+
+  if (random) {
+    divIdxs = shuffle(divIdxs);
+    weekIdxs = shuffle(weekIdxs);
+    matchIdxs = shuffle(matchIdxs);
+  }
+  return { divIdxs, weekIdxs, matchIdxs };
 };

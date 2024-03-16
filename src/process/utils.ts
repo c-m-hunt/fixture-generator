@@ -15,8 +15,10 @@ export type State = {
   currentGen: number;
   completedState: number;
   maxCompletedState: number;
+  maxCompletedFixtures: MatchStructure;
+  maxCompletedMatchesState: FixtureCheck[][];
+  lastImprovement: number;
   lastTestCompletedState: number;
-  remainingFixtures: Fixture[][];
 };
 
 /**
