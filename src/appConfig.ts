@@ -38,11 +38,11 @@ export const config: AppConfig = {
   // -------------------
 
   // Will exit if the improvement is less than this percentage by the check interval
-  exitPct: process.env.EXIT_PCT ? parseFloat(process.env.EXIT_PCT) : 0.4,
+  exitPct: process.env.EXIT_PCT ? parseFloat(process.env.EXIT_PCT) : 0.04,
   checkInterval: process.env.CHECK_INTERVAL
     ? parseInt(process.env.CHECK_INTERVAL)
     : 100000,
-  improvementCheckThreshold: 1000000,
+  improvementCheckThreshold: 100000,
   randomFillCount: 1000000, // Number of random fixtures to attempt at the end of the run
 
   // -------------------

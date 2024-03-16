@@ -92,7 +92,6 @@ const generateValidationFunctions = (): ValidationFunction[] => {
     notSameVenueXWeeks,
     notPartialConflict,
     notVenueClash,
-
     // notUnevenVenues,
   ];
 };

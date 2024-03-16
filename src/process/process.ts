@@ -131,9 +131,7 @@ export const runProcess = (
 
               c += 1;
               const completedPct = completedState(matches);
-              if (completedPct > state.maxCompletedState) {
-                writer.storeBest(matches, state);
-              }
+              const prevMax = state.maxCompletedState;
               state = {
                 ...state,
                 completed: completedPct < 1,
@@ -146,10 +144,42 @@ export const runProcess = (
                 completedState: completedPct,
                 maxCompletedMatchesState: allMatches,
                 lastImprovement:
-                  state.maxCompletedState > completedPct
-                    ? (state.lastImprovement += 1)
-                    : 0,
+                  prevMax >= completedPct ? (state.lastImprovement += 1) : 0,
               };
+              if (completedPct > prevMax) {
+                writer.storeBest(matches, state);
+              }
+
+              if (c % CHECK_INTERVAL === 0) {
+                elapsedTime(c.toString(), start);
+                displayState(state);
+                if (state.maxCompletedState < EXIT_PCT) {
+                  throw new LowStartPointError("Low start point");
+                }
+                if (state.lastImprovement > IMPROVEMENT_CHECK_THRESHOLD) {
+                  displayState(state);
+                  displayOutput(matches, divNames);
+                  // logger.info("No progress. Trying a random blast");
+                  // matches = randomFill(config, matches, allMatches);
+                  // const completedPct = completedState(matches);
+                  // state = {
+                  //   ...state,
+                  //   maxCompletedState: Math.max(
+                  //     completedPct,
+                  //     state.maxCompletedState
+                  //   ),
+                  //   completedState: completedPct,
+                  //   remainingFixtures: remainingFixtures(allMatches),
+                  // };
+                  // displayState(state);
+                  // displayOutput(matches, divNames);
+                  matches = state.maxCompletedFixtures;
+                  allMatches = state.maxCompletedMatchesState;
+                  state.lastImprovement = 0;
+                  throw new NoProgressError("No progress");
+                }
+                state.lastTestCompletedState = state.completedState;
+              }
 
               const complete = generate();
               if (complete) {
@@ -158,36 +188,6 @@ export const runProcess = (
               matches[divIdx][weekIdx][matchIdx] = restoredMatch;
               allMatches = matchUnused(match, divIdx, allMatches);
               allMatches = undoConflict(matches, conflicts, allMatches);
-            }
-            if (c % CHECK_INTERVAL === 0) {
-              elapsedTime(c.toString(), start);
-              displayState(state);
-              if (state.maxCompletedState < EXIT_PCT) {
-                throw new LowStartPointError("Low start point");
-              }
-              if (state.lastImprovement > IMPROVEMENT_CHECK_THRESHOLD) {
-                displayState(state);
-                displayOutput(matches, divNames);
-                // logger.info("No progress. Trying a random blast");
-                // matches = randomFill(config, matches, allMatches);
-                // const completedPct = completedState(matches);
-                // state = {
-                //   ...state,
-                //   maxCompletedState: Math.max(
-                //     completedPct,
-                //     state.maxCompletedState
-                //   ),
-                //   completedState: completedPct,
-                //   remainingFixtures: remainingFixtures(allMatches),
-                // };
-                // displayState(state);
-                // displayOutput(matches, divNames);
-                matches = state.maxCompletedFixtures;
-                allMatches = state.maxCompletedMatchesState;
-                state.lastImprovement = 0;
-                throw new NoProgressError("No progress");
-              }
-              state.lastTestCompletedState = state.completedState;
             }
           }
           return false;
@@ -199,19 +199,25 @@ export const runProcess = (
 
   c = 0;
   let success = false;
-  for (let i = 0; i < 1; i++) {
+  for (let i = 0; i < 9; i++) {
     try {
-      const idxs = getIndexes(matches, true);
-      console.log(idxs);
+      const idxs = getIndexes(matches, false);
       success = false;
-      divIdxs = idxs.divIdxs;
+      // divIdxs = shift(idxs.divIdxs, i);
+      // console.log(divIdxs);
       weekIdxs = idxs.weekIdxs;
       matchIdxs = idxs.matchIdxs;
       logger.info(`Running iteration ${i}`);
       success = generate();
       console.log(`Success: ${success}`);
     } catch (e) {
-      logger.warn("No progress");
+      if (e instanceof NoProgressError) {
+        logger.warn("No progress");
+      } else if (e instanceof LowStartPointError) {
+        logger.warn("Low start point. Let's retry");
+      } else {
+        throw e;
+      }
     }
   }
   writer.writeBest();
@@ -285,4 +291,8 @@ const getIndexes = (matches: MatchStructure, random: boolean = false) => {
     matchIdxs = shuffle(matchIdxs);
   }
   return { divIdxs, weekIdxs, matchIdxs };
+};
+
+const shift = (arr: Array<any>, n: number) => {
+  return arr.slice(n).concat(arr.slice(0, n));
 };
