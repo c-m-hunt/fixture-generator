@@ -132,23 +132,9 @@ export const runProcess = (
               allMatches = applyConflict(matches, conflicts, allMatches);
 
               c += 1;
-              const completedPct = completedState(matches);
               const prevMax = state.maxCompletedState;
-              state = {
-                ...state,
-                completed: completedPct < 1,
-                currentGen: c,
-                maxCompletedState: Math.max(
-                  completedPct,
-                  state.maxCompletedState
-                ),
-                maxCompletedFixtures: matches,
-                completedState: completedPct,
-                maxCompletedMatchesState: allMatches,
-                lastImprovement:
-                  prevMax >= completedPct ? (state.lastImprovement += 1) : 0,
-              };
-              if (completedPct > prevMax) {
+              state = updateState(state, matches, allMatches, c);
+              if (state.completedState > prevMax) {
                 writer.storeBest(matches, state);
               }
 
@@ -192,9 +178,6 @@ export const runProcess = (
               allMatches = undoConflict(matches, conflicts, allMatches);
             }
           }
-          // if (iteration > 0) {
-          //   console.log("HERE");
-          // }
           return false;
         }
       }
@@ -212,9 +195,7 @@ export const runProcess = (
       weekIdxs = idxs.weekIdxs;
       matchIdxs = idxs.matchIdxs;
       logger.info(`Running iteration ${iteration}`);
-      console.log(divIdxs, weekIdxs, matchIdxs);
       success = generate();
-      console.log(`Success: ${success}`);
     } catch (e) {
       if (e instanceof NoProgressError) {
         logger.warn("No progress");
@@ -223,8 +204,19 @@ export const runProcess = (
       } else {
         throw e;
       }
+      matches = state.maxCompletedFixtures;
+      allMatches = state.maxCompletedMatchesState;
     }
   }
+
+  [matches, state, writer] = randomFill(
+    config,
+    matches,
+    allMatches,
+    state,
+    writer
+  );
+
   writer.writeBest();
 
   logger.info("Complete");
@@ -242,8 +234,10 @@ export const runProcess = (
 const randomFill = (
   config: Config,
   matches: MatchStructure,
-  allMatches: FixtureCheck[][]
-): MatchStructure => {
+  allMatches: FixtureCheck[][],
+  state: State,
+  writer: OutputWriter
+): [MatchStructure, State, OutputWriter] => {
   for (let i = 0; i < config.appConfig.randomFillCount; i++) {
     const divIdx = Math.floor(Math.random() * matches.length);
     const weekIdx = Math.floor(Math.random() * matches[divIdx].length);
@@ -274,9 +268,14 @@ const randomFill = (
         break;
       }
     }
+    const prevMax = state.maxCompletedState;
+    state = updateState(state, matches, allMatches);
+    if (state.completedState > prevMax) {
+      writer.storeBest(matches, state);
+    }
   }
 
-  return matches;
+  return [matches, state, writer];
 };
 
 const shuffle = (arr: Array<number>) => {
@@ -301,4 +300,25 @@ const shift = (arr: Array<any>, n: number) => {
 
   // Split the array into two parts and swap them
   return [...arr.slice(effectiveDistance), ...arr.slice(0, effectiveDistance)];
+};
+
+const updateState = (
+  state: State,
+  matches: MatchStructure,
+  allMatches: FixtureCheck[][],
+  currentGen?: number
+) => {
+  const completedPct = completedState(matches);
+  const prevMax = state.maxCompletedState;
+  state = {
+    ...state,
+    completed: completedPct < 1,
+    currentGen: currentGen || state.currentGen + 1,
+    maxCompletedState: Math.max(completedPct, state.maxCompletedState),
+    maxCompletedFixtures: matches,
+    completedState: completedPct,
+    maxCompletedMatchesState: allMatches,
+    lastImprovement: prevMax >= completedPct ? (state.lastImprovement += 1) : 0,
+  };
+  return state;
 };

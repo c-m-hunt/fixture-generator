@@ -53,7 +53,7 @@ describe("Utils", () => {
         ],
       ],
     ] as MatchStructure;
-    expect(completedState(matches)).toBe(0.75);
+    expect(completedState(matches)).toBe(0.875);
 
     matches = [
       [
@@ -67,7 +67,7 @@ describe("Utils", () => {
         ],
       ],
     ] as MatchStructure;
-    expect(completedState(matches)).toBe(0.5);
+    expect(completedState(matches)).toBe(0.625);
   });
 });
 

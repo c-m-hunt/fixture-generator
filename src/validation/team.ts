@@ -22,6 +22,8 @@ export const teamsNotPlayingThatWeek: ValidationFunction = (
   const { matches: matchStructure } = config;
 
   const teams = matchStructure[divIdx][weekIdx]
+    // Exclude checks for this match to ensure single teams not included
+    .filter((m, i) => i !== matchIdx)
     .flat(2)
     .filter((t) => t !== null);
 

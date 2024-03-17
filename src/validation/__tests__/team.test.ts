@@ -30,6 +30,9 @@ describe("Team validation", () => {
     expect(valid).toBe(false);
     valid = teamsNotPlayingThatWeek(config, 0, 0, 3, [null, "WES"]);
     expect(valid).toBe(true);
+
+    valid = teamsNotPlayingThatWeek(config, 0, 0, 2, ["SOM", "LOS"]);
+    expect(valid).toBe(true);
   });
 
   // it("should validate if a team has venue requirements", () => {

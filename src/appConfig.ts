@@ -42,8 +42,10 @@ export const config: AppConfig = {
   checkInterval: process.env.CHECK_INTERVAL
     ? parseInt(process.env.CHECK_INTERVAL)
     : 100000,
-  improvementCheckThreshold: 100000,
-  randomFillCount: 1000000, // Number of random fixtures to attempt at the end of the run
+  improvementCheckThreshold: 1000000,
+  randomFillCount: process.env.RANDOM_FILL_ATTEMPTS
+    ? parseInt(process.env.RANDOM_FILL_ATTEMPTS)
+    : 10000000, // Number of random fixtures to attempt at the end of the run
 
   // -------------------
   // Display
