@@ -1,11 +1,17 @@
 import parse from "csv-simple-parser";
 import moment from "moment";
 import { readFileSync, appendFileSync } from "fs";
-import { Config, Fixture, MatchStructure } from "../../config/types";
+import {
+  Config,
+  Fixture,
+  FixtureCheck,
+  MatchStructure,
+} from "../../config/types";
 import { uploadFileToS3 } from "./utils";
 import path from "path";
 import fs from "fs";
 import { OutputWriter, OutputWriterBase } from "..";
+import { remainingFixtures } from "../../process/utils";
 
 type Mapping = {
   team: string;
@@ -23,7 +29,7 @@ export class PlayCricketWriter
 {
   config: Config;
   matches?: MatchStructure;
-  remainingFixtures?: Fixture[][];
+  maxCompletedMatchesState?: FixtureCheck[][];
   mappings: Mapping[];
   outputPath?: string;
   outputFileName?: string = `${new Date().toISOString()}.txt`;
@@ -66,7 +72,10 @@ export class PlayCricketWriter
     );
   };
 
-  writeOutput = (matches: MatchStructure, remainingFixtures: Fixture[][]) => {
+  writeOutput = (
+    matches: MatchStructure,
+    maxCompletedMatchesState: FixtureCheck[][]
+  ) => {
     if (!this.outputPath) {
       throw new Error("No output path set");
     }
@@ -80,9 +89,9 @@ export class PlayCricketWriter
       throw new Error("No output file name set");
     }
     this.matches = matches;
-    this.remainingFixtures = remainingFixtures;
-    let filePath = this.outputPath;
-    if (this.bestState?.completed === false) {
+    this.maxCompletedMatchesState = maxCompletedMatchesState;
+    let filePath = path.join(this.outputPath);
+    if (this.bestState) {
       filePath = path.join(
         this.outputPath,
         this.bestState.completedState.toString()
@@ -102,16 +111,20 @@ export class PlayCricketWriter
   };
 
   writeRemainingFixtures = () => {
-    if (!this.remainingFixtures) {
+    if (!this.maxCompletedMatchesState) {
       return;
     }
-    for (const [divIdx, div] of this.remainingFixtures.entries()) {
+
+    const remainingFixs = remainingFixtures(this.maxCompletedMatchesState);
+
+    for (const [divIdx, div] of remainingFixs.entries()) {
       this.#writeOutputLineDivider();
       this.#writeOutputLine(this.config.divNames[divIdx]);
       for (const fix of div) {
         this.#writeOutputLine(`${fix[0]} v ${fix[1]}`);
       }
     }
+    this.#writeOutputLineDivider();
   };
 
   writeReadableFixtures = () => {
@@ -190,7 +203,7 @@ export class PlayCricketWriter
     if (this.bestMatches) {
       this.writeOutput(
         this.bestMatches,
-        this.bestState?.remainingFixtures || []
+        this.bestState?.maxCompletedMatchesState || []
       );
     }
   };

@@ -19,6 +19,9 @@ export const fixtureDoesNotExists: ValidationFunction = (
 ): boolean => {
   const { matches: matchStructure } = config;
   const [team1, team2] = match;
+  if (team1 === null || team2 === null) {
+    return true;
+  }
   const divMatches = matchStructure[divIdx]
     .flat()
     .find(

@@ -5,7 +5,6 @@ import {
   matchFilled,
   matchUnused,
   matchUsed,
-  remainingFixtures,
   State,
 } from "./utils";
 import { Config, Fixture, FixtureCheck, MatchStructure } from "../config/types";
@@ -17,7 +16,7 @@ import { OutputWriter } from "../outputWriter";
 
 const EXIT_PCT = appConfig.exitPct;
 const CHECK_INTERVAL = appConfig.checkInterval;
-const IMPROVEMENT_CHECK_INTERVAL = appConfig.improvementCheckInterval;
+const IMPROVEMENT_CHECK_THRESHOLD = appConfig.improvementCheckThreshold;
 
 export const applyConflict = (
   matchStructure: MatchStructure,
@@ -69,37 +68,24 @@ export const runProcess = (
     completedState: 0,
     maxCompletedState: 0,
     lastTestCompletedState: 0,
-    remainingFixtures: remainingFixtures(allMatches),
+    lastImprovement: 0,
+    maxCompletedFixtures: matches,
+    maxCompletedMatchesState: allMatches,
   } as State;
 
-  let reverse = false;
-
   let c = 0;
+
+  let { divIdxs, weekIdxs, matchIdxs } = getIndexes(matches, false);
+  const originalDivIdxs = [...divIdxs];
+  let iteration = 0;
+
   const generate = (): boolean => {
     // Iterate divs
-    const startDiv = reverse ? matches.length - 1 : 0;
-    const endDiv = reverse ? -1 : matches.length;
-    for (
-      let divIdx = startDiv;
-      reverse ? divIdx > endDiv : divIdx < endDiv;
-      reverse ? divIdx-- : divIdx++
-    ) {
+    for (const divIdx of divIdxs) {
       // Iterate weeks in division
-      const startWeek = reverse ? matches[divIdx].length - 1 : 0;
-      const endWeek = reverse ? -1 : matches[divIdx].length;
-      for (
-        let weekIdx = startWeek;
-        reverse ? weekIdx > endWeek : weekIdx < endWeek;
-        reverse ? weekIdx-- : weekIdx++
-      ) {
+      for (const weekIdx of weekIdxs) {
         // Iterate matches in division week
-        const startMatch = reverse ? matches[divIdx][weekIdx].length - 1 : 0;
-        const endMatch = reverse ? -1 : matches[divIdx][weekIdx].length;
-        for (
-          let matchIdx = startMatch;
-          reverse ? matchIdx > endMatch : matchIdx < endMatch;
-          reverse ? matchIdx-- : matchIdx++
-        ) {
+        for (const matchIdx of matchIdxs) {
           if (matchFilled(matches[divIdx][weekIdx][matchIdx])) {
             continue;
           }
@@ -109,7 +95,7 @@ export const runProcess = (
             matchCheckIdx < allMatches[divIdx].length;
             matchCheckIdx++
           ) {
-            if (allMatches[divIdx][matchCheckIdx].used === null) {
+            if (allMatches[divIdx][matchCheckIdx].used === true) {
               continue;
             }
             let { match } = allMatches[divIdx][matchCheckIdx];
@@ -128,12 +114,13 @@ export const runProcess = (
             );
 
             if (!valid) {
+              match = match.reverse() as [string, string];
               [valid, conflicts] = isValid(
                 config,
                 divIdx,
                 weekIdx,
                 matchIdx,
-                match.reverse() as [string, string],
+                match,
                 false
               );
             }
@@ -145,51 +132,41 @@ export const runProcess = (
               allMatches = applyConflict(matches, conflicts, allMatches);
 
               c += 1;
-              const completedPct = completedState(matches);
-              state = {
-                ...state,
-                completed: false,
-                currentGen: c,
-                maxCompletedState: Math.max(
-                  completedPct,
-                  state.maxCompletedState
-                ),
-                completedState: completedPct,
-                remainingFixtures: remainingFixtures(allMatches),
-              };
-              writer.storeBest(matches, state);
+              const prevMax = state.maxCompletedState;
+              state = updateState(state, matches, allMatches, c);
+              if (state.completedState > prevMax) {
+                writer.storeBest(matches, state);
+              }
+
               if (c % CHECK_INTERVAL === 0) {
                 elapsedTime(c.toString(), start);
                 displayState(state);
                 if (state.maxCompletedState < EXIT_PCT) {
                   throw new LowStartPointError("Low start point");
                 }
-                if (c % IMPROVEMENT_CHECK_INTERVAL === 0) {
-                  if (
-                    state.maxCompletedState === state.lastTestCompletedState ||
-                    (state.maxCompletedState > state.lastTestCompletedState &&
-                      state.lastTestCompletedState === state.completedState)
-                  ) {
-                    displayState(state);
-                    displayOutput(matches, divNames);
-                    // logger.info("No progress. Trying a random blast");
-                    // matches = randomFill(config, matches, allMatches);
-                    // const completedPct = completedState(matches);
-                    // state = {
-                    //   ...state,
-                    //   maxCompletedState: Math.max(
-                    //     completedPct,
-                    //     state.maxCompletedState
-                    //   ),
-                    //   completedState: completedPct,
-                    //   remainingFixtures: remainingFixtures(allMatches),
-                    // };
-                    // displayState(state);
-                    // displayOutput(matches, divNames);
-                    throw new NoProgressError("No progress");
-                  }
-                  state.lastTestCompletedState = state.completedState;
+                if (state.lastImprovement > IMPROVEMENT_CHECK_THRESHOLD) {
+                  displayState(state);
+                  displayOutput(matches, divNames);
+                  // logger.info("No progress. Trying a random blast");
+                  // matches = randomFill(config, matches, allMatches);
+                  // const completedPct = completedState(matches);
+                  // state = {
+                  //   ...state,
+                  //   maxCompletedState: Math.max(
+                  //     completedPct,
+                  //     state.maxCompletedState
+                  //   ),
+                  //   completedState: completedPct,
+                  //   remainingFixtures: remainingFixtures(allMatches),
+                  // };
+                  // displayState(state);
+                  // displayOutput(matches, divNames);
+                  matches = state.maxCompletedFixtures;
+                  allMatches = state.maxCompletedMatchesState;
+                  state.lastImprovement = 0;
+                  throw new NoProgressError("No progress");
                 }
+                state.lastTestCompletedState = state.completedState;
               }
 
               const complete = generate();
@@ -207,39 +184,60 @@ export const runProcess = (
     }
     return true;
   };
+
   c = 0;
   let success = false;
-  try {
-    success = generate();
-  } catch (e) {
-    reverse = true;
+  for (iteration = 0; iteration < 500; iteration++) {
     try {
-      logger.info("Reversing direction");
+      const idxs = getIndexes(matches, true);
+      success = false;
+      divIdxs = shift(originalDivIdxs, iteration);
+      weekIdxs = idxs.weekIdxs;
+      matchIdxs = idxs.matchIdxs;
+      logger.info(`Running iteration ${iteration}`);
       success = generate();
     } catch (e) {
-      writer.writeBest();
-      logger.error("No progress");
+      if (e instanceof NoProgressError) {
+        logger.warn("No progress");
+      } else if (e instanceof LowStartPointError) {
+        logger.warn("Low start point. Let's retry");
+      } else {
+        throw e;
+      }
+      matches = state.maxCompletedFixtures;
+      allMatches = state.maxCompletedMatchesState;
     }
   }
 
+  [matches, state, writer] = randomFill(
+    config,
+    matches,
+    allMatches,
+    state,
+    writer
+  );
+
+  writer.writeBest();
+
   logger.info("Complete");
+  displayState(state);
   displayOutput(matches, divNames);
   logger.info(`Used seed ${config.seed.toString()}`);
 
   if (success) {
-    writer.writeOutput(matches, remainingFixtures(allMatches));
-  } else {
-    writer.writeBest();
+    writer.storeBest(matches, state);
   }
-
+  writer.writeBest();
   return success ? matches : null;
 };
 
 const randomFill = (
   config: Config,
   matches: MatchStructure,
-  allMatches: FixtureCheck[][]
-): MatchStructure => {
+  allMatches: FixtureCheck[][],
+  state: State,
+  writer: OutputWriter
+): [MatchStructure, State, OutputWriter] => {
   for (let i = 0; i < config.appConfig.randomFillCount; i++) {
     const divIdx = Math.floor(Math.random() * matches.length);
     const weekIdx = Math.floor(Math.random() * matches[divIdx].length);
@@ -270,7 +268,57 @@ const randomFill = (
         break;
       }
     }
+    const prevMax = state.maxCompletedState;
+    state = updateState(state, matches, allMatches);
+    if (state.completedState > prevMax) {
+      writer.storeBest(matches, state);
+    }
   }
 
-  return matches;
+  return [matches, state, writer];
+};
+
+const shuffle = (arr: Array<number>) => {
+  return arr.sort(() => Math.random() - 0.5);
+};
+
+const getIndexes = (matches: MatchStructure, random: boolean = false) => {
+  let divIdxs = Array.from(Array(matches.length).keys());
+  let weekIdxs = Array.from(Array(matches[0].length).keys());
+  let matchIdxs = Array.from(Array(matches[0][0].length).keys());
+
+  if (random) {
+    divIdxs = shuffle(divIdxs);
+    weekIdxs = shuffle(weekIdxs);
+    matchIdxs = shuffle(matchIdxs);
+  }
+  return { divIdxs, weekIdxs, matchIdxs };
+};
+
+const shift = (arr: Array<any>, n: number) => {
+  const effectiveDistance = n % arr.length;
+
+  // Split the array into two parts and swap them
+  return [...arr.slice(effectiveDistance), ...arr.slice(0, effectiveDistance)];
+};
+
+const updateState = (
+  state: State,
+  matches: MatchStructure,
+  allMatches: FixtureCheck[][],
+  currentGen?: number
+) => {
+  const completedPct = completedState(matches);
+  const prevMax = state.maxCompletedState;
+  state = {
+    ...state,
+    completed: completedPct < 1,
+    currentGen: currentGen || state.currentGen + 1,
+    maxCompletedState: Math.max(completedPct, state.maxCompletedState),
+    maxCompletedFixtures: matches,
+    completedState: completedPct,
+    maxCompletedMatchesState: allMatches,
+    lastImprovement: prevMax >= completedPct ? (state.lastImprovement += 1) : 0,
+  };
+  return state;
 };

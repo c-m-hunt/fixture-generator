@@ -92,7 +92,6 @@ const generateValidationFunctions = (): ValidationFunction[] => {
     notSameVenueXWeeks,
     notPartialConflict,
     notVenueClash,
-
     // notUnevenVenues,
   ];
 };
@@ -107,7 +106,7 @@ export const isValid = (
   validationFunctions: ValidationFunction[] = generateValidationFunctions()
 ): [boolean, ConflictResponse[] | null] => {
   for (const v of validationFunctions) {
-    if (!v(config, divIdx, weekIdx, matchIdx, match)) {
+    if (!v(config, divIdx, weekIdx, matchIdx, [...match])) {
       return [false, null];
     }
   }

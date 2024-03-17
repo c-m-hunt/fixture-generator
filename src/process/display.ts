@@ -59,5 +59,6 @@ export const createOutput = (
 export const displayState = (state: State): void => {
   logger.info(`Completed: ${state.completedState}`);
   logger.info(`Max completed: ${state.maxCompletedState}`);
+  logger.info(`Last improvement: ${state.lastImprovement}`);
   console.log("-------------------------------------------------");
 };

@@ -4,7 +4,7 @@ import { State } from "../process/utils";
 export interface OutputWriter {
   writeOutput: (
     matches: MatchStructure,
-    remainingFixtures: Fixture[][]
+    maxCompletedMatchesState: FixtureCheck[][]
   ) => void;
   writeBest: () => void;
   storeBest: (matches: MatchStructure, state: State) => void;
@@ -20,7 +20,7 @@ export abstract class OutputWriterBase {
 
   abstract writeOutput: (
     matches: MatchStructure,
-    remainingFixtures: Fixture[][]
+    maxCompletedMatchesState: FixtureCheck[][]
   ) => void;
 
   /**
