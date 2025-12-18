@@ -1,0 +1,415 @@
+Generated with seed: 99
+
+
+====================================================================================================
+ 1st XI Premier
+====================================================================================================
+
+  First Half (Weeks 1-9)
+         Wk1        Wk2        Wk3        Wk4        Wk5        Wk6        Wk7        Wk8        Wk9    
+     ---------------------------------------------------------------------------------------------------
+  1   CHE1-WAN1  BRE1-CHE1  BUC1-CHI1  BRE1-LOU1  COL1-BUC1  BRE1-CHI1  BRE1-COL1  CHE1-HUT1  BRE1-BUC1 
+  2   COL1-CHI1  BUC1-HAD1  CHE1-COL1  CHE1-BUC1  HAD1-BRE1  BUC1-HUT1  BUC1-HOR1  COL1-HAD1  COL1-HOR1 
+  3   HAD1-HOR1  CHI1-WAN1  HOR1-HUT1  CHI1-HOR1  HOR1-CHE1  CHE1-HAD1  CHI1-CHE1  HOR1-BRE1  HAD1-CHI1 
+  4   HUT1-BRE1  HOR1-LOU1  LOU1-HAD1  COL1-WAN1  HUT1-CHI1  LOU1-COL1  HAD1-WAN1  LOU1-CHI1  HUT1-WAN1 
+  5   LOU1-BUC1  HUT1-COL1  WAN1-BRE1  HAD1-HUT1  WAN1-LOU1  WAN1-HOR1  HUT1-LOU1  WAN1-BUC1  LOU1-CHE1 
+
+  Second Half (Weeks 10-18)
+        Wk10       Wk11       Wk12       Wk13       Wk14       Wk15       Wk16       Wk17       Wk18    
+     ---------------------------------------------------------------------------------------------------
+  1   BRE1-HUT1  CHE1-BRE1  BRE1-WAN1  BUC1-CHE1  BRE1-HAD1  CHI1-BRE1  CHE1-CHI1  BRE1-HOR1  BUC1-BRE1 
+  2   BUC1-LOU1  COL1-HUT1  CHI1-BUC1  HOR1-CHI1  BUC1-COL1  COL1-LOU1  COL1-BRE1  BUC1-WAN1  CHE1-LOU1 
+  3   CHI1-COL1  HAD1-BUC1  COL1-CHE1  HUT1-HAD1  CHE1-HOR1  HAD1-CHE1  HOR1-BUC1  CHI1-LOU1  CHI1-HAD1 
+  4   HOR1-HAD1  LOU1-HOR1  HAD1-LOU1  LOU1-BRE1  CHI1-HUT1  HOR1-WAN1  LOU1-HUT1  HAD1-COL1  HOR1-COL1 
+  5   WAN1-CHE1  WAN1-CHI1  HUT1-HOR1  WAN1-COL1  LOU1-WAN1  HUT1-BUC1  WAN1-HAD1  HUT1-CHE1  WAN1-HUT1 
+
+
+====================================================================================================
+ 1st XI Div 1
+====================================================================================================
+
+  First Half (Weeks 1-9)
+         Wk1        Wk2        Wk3        Wk4        Wk5        Wk6        Wk7        Wk8        Wk9    
+     ---------------------------------------------------------------------------------------------------
+  1   BIL1-ORS1  BEL1-EPP1  BIL1-ILF1  BEL1-ORS1  BIL1-FIV1  BEL1-BIL1  BEL1-ILF1  BIL1-HAW1  EPP1-BIL1 
+  2   EPP1-HAW1  GPR1-ORS1  FIV1-GPR1  EPP1-ILF1  EPP1-UPM1  HAW1-ILF1  BIL1-SPR1  FIV1-EPP1  HAW1-FIV1 
+  3   FIV1-BEL1  HAW1-SPR1  HAW1-BEL1  FIV1-SPR1  GPR1-HAW1  ORS1-FIV1  EPP1-GPR1  GPR1-BEL1  ILF1-GPR1 
+  4   ILF1-UPM1  ILF1-FIV1  ORS1-EPP1  GPR1-BIL1  ILF1-ORS1  SPR1-EPP1  FIV1-UPM1  ILF1-SPR1  SPR1-ORS1 
+  5   SPR1-GPR1  UPM1-BIL1  SPR1-UPM1  UPM1-HAW1  SPR1-BEL1  UPM1-GPR1  HAW1-ORS1  ORS1-UPM1  UPM1-BEL1 
+
+  Second Half (Weeks 10-18)
+        Wk10       Wk11       Wk12       Wk13       Wk14       Wk15       Wk16       Wk17       Wk18    
+     ---------------------------------------------------------------------------------------------------
+  1   BEL1-FIV1  BIL1-UPM1  BEL1-HAW1  BIL1-GPR1  BEL1-SPR1  BIL1-BEL1  GPR1-EPP1  BEL1-GPR1  BEL1-UPM1 
+  2   GPR1-SPR1  EPP1-BEL1  EPP1-ORS1  HAW1-UPM1  FIV1-BIL1  EPP1-SPR1  ILF1-BEL1  EPP1-FIV1  BIL1-EPP1 
+  3   HAW1-EPP1  FIV1-ILF1  GPR1-FIV1  ILF1-EPP1  HAW1-GPR1  FIV1-ORS1  ORS1-HAW1  HAW1-BIL1  FIV1-HAW1 
+  4   ORS1-BIL1  ORS1-GPR1  ILF1-BIL1  ORS1-BEL1  ORS1-ILF1  GPR1-UPM1  SPR1-BIL1  SPR1-ILF1  GPR1-ILF1 
+  5   UPM1-ILF1  SPR1-HAW1  UPM1-SPR1  SPR1-FIV1  UPM1-EPP1  ILF1-HAW1  UPM1-FIV1  UPM1-ORS1  ORS1-SPR1 
+
+
+====================================================================================================
+ 1st XI Div 2
+====================================================================================================
+
+  First Half (Weeks 1-9)
+         Wk1        Wk2        Wk3        Wk4        Wk5        Wk6        Wk7        Wk8        Wk9    
+     ---------------------------------------------------------------------------------------------------
+  1   OPA1-HOH1  AZT1-WWE1  GOR1-AZT1  AZT1-WOS1  AZT1-HOH1  OSS1-GOR1  AZT1-OPA1  AZT1-OBR1  OBR1-GOR1 
+  2   OSS1-AZT1  HOH1-GOR1  OBR1-WGR1  GOR1-WWE1  OBR1-SHE1  SHE1-AZT1  GOR1-WGR1  HOH1-OSS1  OPA1-WOS1 
+  3   SHE1-GOR1  OBR1-OPA1  OSS1-OPA1  HOH1-OBR1  OPA1-GOR1  WGR1-HOH1  HOH1-WOS1  OPA1-SHE1  OSS1-WWE1 
+  4   WGR1-WOS1  WGR1-SHE1  WOS1-SHE1  OPA1-WGR1  WGR1-OSS1  WOS1-OBR1  OBR1-OSS1  WOS1-GOR1  SHE1-HOH1 
+  5   WWE1-OBR1  WOS1-OSS1  WWE1-HOH1  SHE1-OSS1  WWE1-WOS1  WWE1-OPA1  SHE1-WWE1  WWE1-WGR1  WGR1-AZT1 
+
+  Second Half (Weeks 10-18)
+        Wk10       Wk11       Wk12       Wk13       Wk14       Wk15       Wk16       Wk17       Wk18    
+     ---------------------------------------------------------------------------------------------------
+  1   AZT1-OSS1  GOR1-HOH1  AZT1-GOR1  OBR1-HOH1  GOR1-OPA1  AZT1-SHE1  OPA1-AZT1  GOR1-WOS1  AZT1-WGR1 
+  2   GOR1-SHE1  OPA1-OBR1  HOH1-WWE1  OSS1-SHE1  HOH1-AZT1  GOR1-OSS1  OSS1-OBR1  OBR1-AZT1  GOR1-OBR1 
+  3   HOH1-OPA1  OSS1-WOS1  OPA1-OSS1  WGR1-OPA1  OSS1-WGR1  HOH1-WGR1  WGR1-GOR1  OSS1-HOH1  HOH1-SHE1 
+  4   OBR1-WWE1  SHE1-WGR1  SHE1-WOS1  WOS1-AZT1  SHE1-OBR1  OBR1-WOS1  WOS1-HOH1  SHE1-OPA1  WOS1-OPA1 
+  5   WOS1-WGR1  WWE1-AZT1  WGR1-OBR1  WWE1-GOR1  WOS1-WWE1  OPA1-WWE1  WWE1-SHE1  WGR1-WWE1  WWE1-OSS1 
+
+
+====================================================================================================
+ 1st XI Div 3
+====================================================================================================
+
+  First Half (Weeks 1-9)
+         Wk1        Wk2        Wk3        Wk4        Wk5        Wk6        Wk7        Wk8        Wk9    
+     ---------------------------------------------------------------------------------------------------
+  1   BNT1-WIC1  BEN1-LOS1  BAR1-BEN1  BEN1-NEW1  BNT1-BEN1  BAR1-LOS1  BAR1-BNT1  BNT1-NEW1  BNT1-SLH1 
+  2   HAR1-BEN1  BNT1-HAT1  HAR1-BNT1  BNT1-LOS1  HAT1-HAR1  BEN1-SLH1  BEN1-HAT1  HAT1-WES1  HAR1-BAR1 
+  3   HAT1-BAR1  NEW1-BAR1  LOS1-HAT1  HAR1-WIC1  LOS1-NEW1  NEW1-HAR1  HAR1-SLH1  LOS1-HAR1  LOS1-WIC1 
+  4   LOS1-SLH1  SLH1-WIC1  NEW1-SLH1  HAT1-SLH1  SLH1-WES1  WES1-BNT1  NEW1-WIC1  SLH1-BAR1  NEW1-HAT1 
+  5   WES1-NEW1  WES1-HAR1  WIC1-WES1  WES1-BAR1  WIC1-BAR1  WIC1-HAT1  WES1-LOS1  WIC1-BEN1  WES1-BEN1 
+
+  Second Half (Weeks 10-18)
+        Wk10       Wk11       Wk12       Wk13       Wk14       Wk15       Wk16       Wk17       Wk18    
+     ---------------------------------------------------------------------------------------------------
+  1   BAR1-HAT1  BAR1-NEW1  BEN1-BAR1  BAR1-WES1  BAR1-WIC1  BNT1-WES1  BNT1-BAR1  BAR1-SLH1  BAR1-HAR1 
+  2   BEN1-HAR1  HAR1-WES1  BNT1-HAR1  LOS1-BNT1  BEN1-BNT1  HAR1-NEW1  HAT1-BEN1  BEN1-WIC1  BEN1-WES1 
+  3   NEW1-WES1  HAT1-BNT1  HAT1-LOS1  NEW1-BEN1  HAR1-HAT1  HAT1-WIC1  LOS1-WES1  HAR1-LOS1  HAT1-NEW1 
+  4   SLH1-LOS1  LOS1-BEN1  SLH1-NEW1  SLH1-HAT1  NEW1-LOS1  LOS1-BAR1  SLH1-HAR1  NEW1-BNT1  SLH1-BNT1 
+  5   WIC1-BNT1  WIC1-SLH1  WES1-WIC1  WIC1-HAR1  WES1-SLH1  SLH1-BEN1  WIC1-NEW1  WES1-HAT1  WIC1-LOS1 
+
+
+====================================================================================================
+ 2nd XI Premier
+====================================================================================================
+
+  First Half (Weeks 1-9)
+         Wk1        Wk2        Wk3        Wk4        Wk5        Wk6        Wk7        Wk8        Wk9    
+     ---------------------------------------------------------------------------------------------------
+  1   CHI2-EPP2  BIL2-HAW2  CHI2-BIL2  BIL2-EPP2  CHE2-BIL2  BIL2-WAN2  CHE2-SHE2  CHI2-ILF2  BIL2-UPM2 
+  2   HAW2-SHE2  CHE2-CHI2  EPP2-HOR2  HAW2-CHI2  CHI2-HOR2  CHI2-UPM2  HOR2-HAW2  EPP2-WAN2  CHE2-EPP2 
+  3   HOR2-BIL2  EPP2-ILF2  ILF2-CHE2  HOR2-SHE2  HAW2-ILF2  EPP2-HAW2  ILF2-BIL2  HAW2-CHE2  CHI2-SHE2 
+  4   UPM2-CHE2  SHE2-UPM2  SHE2-WAN2  ILF2-UPM2  SHE2-EPP2  HOR2-CHE2  UPM2-EPP2  SHE2-BIL2  HOR2-ILF2 
+  5   WAN2-ILF2  WAN2-HOR2  UPM2-HAW2  WAN2-CHE2  UPM2-WAN2  ILF2-SHE2  WAN2-CHI2  UPM2-HOR2  WAN2-HAW2 
+
+  Second Half (Weeks 10-18)
+        Wk10       Wk11       Wk12       Wk13       Wk14       Wk15       Wk16       Wk17       Wk18    
+     ---------------------------------------------------------------------------------------------------
+  1   BIL2-HOR2  CHI2-CHE2  BIL2-CHI2  CHE2-WAN2  BIL2-CHE2  CHE2-HOR2  BIL2-ILF2  BIL2-SHE2  EPP2-CHE2 
+  2   CHE2-UPM2  HAW2-BIL2  CHE2-ILF2  CHI2-HAW2  EPP2-SHE2  HAW2-EPP2  CHI2-WAN2  CHE2-HAW2  HAW2-WAN2 
+  3   EPP2-CHI2  HOR2-WAN2  HAW2-UPM2  EPP2-BIL2  HOR2-CHI2  SHE2-ILF2  EPP2-UPM2  HOR2-UPM2  ILF2-HOR2 
+  4   ILF2-WAN2  ILF2-EPP2  HOR2-EPP2  SHE2-HOR2  ILF2-HAW2  UPM2-CHI2  HAW2-HOR2  ILF2-CHI2  SHE2-CHI2 
+  5   SHE2-HAW2  UPM2-SHE2  WAN2-SHE2  UPM2-ILF2  WAN2-UPM2  WAN2-BIL2  SHE2-CHE2  WAN2-EPP2  UPM2-BIL2 
+
+
+====================================================================================================
+ 2nd XI Div 1
+====================================================================================================
+
+  First Half (Weeks 1-9)
+         Wk1        Wk2        Wk3        Wk4        Wk5        Wk6        Wk7        Wk8        Wk9    
+     ---------------------------------------------------------------------------------------------------
+  1   BRE2-HAR2  HAR2-BUC2  BRE2-BUC2  BUC2-SWD2  BRE2-GPR2  GPR2-BUC2  GPR2-HUT2  BRE2-LOU2  BUC2-HUT2 
+  2   BUC2-WWE2  LOU2-HUT2  GPR2-WWE2  HUT2-OPA2  BUC2-OPA2  HAR2-LOU2  LOU2-BUC2  BUC2-ORS2  GPR2-HAR2 
+  3   GPR2-OPA2  OPA2-BRE2  HUT2-ORS2  LOU2-GPR2  HAR2-HUT2  HUT2-BRE2  OPA2-SWD2  HAR2-OPA2  ORS2-OPA2 
+  4   ORS2-LOU2  ORS2-GPR2  OPA2-LOU2  ORS2-BRE2  LOU2-SWD2  OPA2-WWE2  ORS2-HAR2  HUT2-WWE2  SWD2-BRE2 
+  5   SWD2-HUT2  WWE2-SWD2  SWD2-HAR2  WWE2-HAR2  ORS2-WWE2  SWD2-ORS2  WWE2-BRE2  SWD2-GPR2  WWE2-LOU2 
+
+  Second Half (Weeks 10-18)
+        Wk10       Wk11       Wk12       Wk13       Wk14       Wk15       Wk16       Wk17       Wk18    
+     ---------------------------------------------------------------------------------------------------
+  1   HAR2-BRE2  BRE2-OPA2  BUC2-BRE2  BRE2-ORS2  GPR2-BRE2  BRE2-HUT2  BRE2-WWE2  GPR2-SWD2  BRE2-SWD2 
+  2   HUT2-SWD2  BUC2-HAR2  HAR2-SWD2  GPR2-LOU2  HUT2-HAR2  BUC2-GPR2  BUC2-LOU2  LOU2-BRE2  HAR2-GPR2 
+  3   LOU2-ORS2  GPR2-ORS2  LOU2-OPA2  HAR2-WWE2  OPA2-BUC2  LOU2-HAR2  HAR2-ORS2  OPA2-HAR2  HUT2-BUC2 
+  4   OPA2-GPR2  HUT2-LOU2  ORS2-HUT2  OPA2-HUT2  SWD2-LOU2  ORS2-SWD2  HUT2-GPR2  ORS2-BUC2  LOU2-WWE2 
+  5   WWE2-BUC2  SWD2-WWE2  WWE2-GPR2  SWD2-BUC2  WWE2-ORS2  WWE2-OPA2  SWD2-OPA2  WWE2-HUT2  OPA2-ORS2 
+
+
+====================================================================================================
+ 2nd XI Div 2
+====================================================================================================
+
+  First Half (Weeks 1-9)
+         Wk1        Wk2        Wk3        Wk4        Wk5        Wk6        Wk7        Wk8        Wk9    
+     ---------------------------------------------------------------------------------------------------
+  1   BEN2-OSS2  COL2-BEN2  BEN2-OBR2  OBR2-FIV2  BEN2-HAD2  COL2-WIC2  COL2-WES2  BEN2-SLH2  BEN2-WES2 
+  2   OBR2-COL2  FIV2-WOS2  COL2-WOS2  OSS2-HAD2  FIV2-SLH2  FIV2-BEN2  OSS2-FIV2  HAD2-COL2  FIV2-COL2 
+  3   SLH2-WES2  HAD2-OBR2  HAD2-FIV2  SLH2-COL2  OSS2-COL2  HAD2-WES2  SLH2-HAD2  OBR2-WOS2  SLH2-OBR2 
+  4   WIC2-FIV2  OSS2-SLH2  SLH2-WIC2  WIC2-BEN2  WES2-OBR2  OBR2-OSS2  WIC2-OBR2  OSS2-WIC2  WIC2-HAD2 
+  5   WOS2-HAD2  WIC2-WES2  WES2-OSS2  WOS2-WES2  WOS2-WIC2  SLH2-WOS2  WOS2-BEN2  WES2-FIV2  WOS2-OSS2 
+
+  Second Half (Weeks 10-18)
+        Wk10       Wk11       Wk12       Wk13       Wk14       Wk15       Wk16       Wk17       Wk18    
+     ---------------------------------------------------------------------------------------------------
+  1   COL2-OBR2  BEN2-COL2  FIV2-HAD2  BEN2-WIC2  COL2-OSS2  BEN2-FIV2  BEN2-WOS2  COL2-HAD2  COL2-FIV2 
+  2   FIV2-WIC2  OBR2-HAD2  OBR2-BEN2  COL2-SLH2  HAD2-BEN2  OSS2-OBR2  FIV2-OSS2  FIV2-WES2  HAD2-WIC2 
+  3   HAD2-WOS2  SLH2-OSS2  OSS2-WES2  FIV2-OBR2  OBR2-WES2  WES2-HAD2  HAD2-SLH2  SLH2-BEN2  OBR2-SLH2 
+  4   OSS2-BEN2  WES2-WIC2  WIC2-SLH2  HAD2-OSS2  SLH2-FIV2  WIC2-COL2  OBR2-WIC2  WIC2-OSS2  OSS2-WOS2 
+  5   WES2-SLH2  WOS2-FIV2  WOS2-COL2  WES2-WOS2  WIC2-WOS2  WOS2-SLH2  WES2-COL2  WOS2-OBR2  WES2-BEN2 
+
+
+====================================================================================================
+ 2nd XI Div 3
+====================================================================================================
+
+  First Half (Weeks 1-9)
+         Wk1        Wk2        Wk3        Wk4        Wk5        Wk6        Wk7        Wk8        Wk9    
+     ---------------------------------------------------------------------------------------------------
+  1   BEL2-HAT2  FRE2-NEW2  BEL2-NEW2  FRE2-HOH2  BEL2-FRE2  FRE2-WGR2  HAT2-GOR2  BEL2-HOH2  BEL2-WGR2 
+  2   FRE2-WAL2  GOR2-BEL2  HAT2-FRE2  LOS2-HAT2  GOR2-WGR2  GOR2-WAL2  LOS2-FRE2  GOR2-FRE2  FRE2-SOS2 
+  3   GOR2-SOS2  HAT2-HOH2  HOH2-GOR2  NEW2-GOR2  HOH2-WAL2  HAT2-NEW2  SOS2-BEL2  NEW2-SOS2  GOR2-LOS2 
+  4   HOH2-LOS2  LOS2-SOS2  SOS2-WAL2  WAL2-BEL2  NEW2-LOS2  HOH2-SOS2  WAL2-NEW2  WAL2-LOS2  HAT2-WAL2 
+  5   NEW2-WGR2  WAL2-WGR2  WGR2-LOS2  WGR2-SOS2  SOS2-HAT2  LOS2-BEL2  WGR2-HOH2  WGR2-HAT2  HOH2-NEW2 
+
+  Second Half (Weeks 10-18)
+        Wk10       Wk11       Wk12       Wk13       Wk14       Wk15       Wk16       Wk17       Wk18    
+     ---------------------------------------------------------------------------------------------------
+  1   HAT2-BEL2  BEL2-GOR2  FRE2-HAT2  BEL2-WAL2  FRE2-BEL2  BEL2-LOS2  BEL2-SOS2  FRE2-GOR2  LOS2-GOR2 
+  2   LOS2-HOH2  HOH2-HAT2  GOR2-HOH2  GOR2-NEW2  HAT2-SOS2  NEW2-HAT2  FRE2-LOS2  HAT2-WGR2  NEW2-HOH2 
+  3   SOS2-GOR2  NEW2-FRE2  LOS2-WGR2  HAT2-LOS2  LOS2-NEW2  SOS2-HOH2  GOR2-HAT2  HOH2-BEL2  SOS2-FRE2 
+  4   WAL2-FRE2  SOS2-LOS2  NEW2-BEL2  HOH2-FRE2  WAL2-HOH2  WAL2-GOR2  HOH2-WGR2  LOS2-WAL2  WAL2-HAT2 
+  5   WGR2-NEW2  WGR2-WAL2  WAL2-SOS2  SOS2-WGR2  WGR2-GOR2  WGR2-FRE2  NEW2-WAL2  SOS2-NEW2  WGR2-BEL2 
+
+
+====================================================================================================
+ 3rd XI Premier
+====================================================================================================
+
+  First Half (Weeks 1-9)
+         Wk1        Wk2        Wk3        Wk4        Wk5        Wk6        Wk7        Wk8        Wk9    
+     ---------------------------------------------------------------------------------------------------
+  1   CHE3-WAN3  BRE3-CHE3  HAR3-UPM3  BRE3-WAN3  CHE3-SHE3  BRE3-SHE3  HAR3-CHE3  BRE3-HAR3  HAW3-BRE3 
+  2   SHE3-HAR3  HAW3-WWE3  HAW3-ILF3  CHE3-ILF3  HAR3-HAW3  HAW3-WAN3  SHE3-HAW3  CHE3-HAW3  ILF3-WAN3 
+  3   UPM3-BRE3  ILF3-WES3  WAN3-SHE3  SHE3-WES3  ILF3-BRE3  ILF3-HAR3  UPM3-ILF3  SHE3-ILF3  UPM3-CHE3 
+  4   WES3-HAW3  UPM3-SHE3  WES3-BRE3  UPM3-HAW3  WAN3-WWE3  UPM3-WWE3  WAN3-WES3  WAN3-UPM3  WES3-HAR3 
+  5   WWE3-ILF3  WAN3-HAR3  WWE3-CHE3  WWE3-HAR3  WES3-UPM3  WES3-CHE3  WWE3-BRE3  WES3-WWE3  WWE3-SHE3 
+
+  Second Half (Weeks 10-18)
+        Wk10       Wk11       Wk12       Wk13       Wk14       Wk15       Wk16       Wk17       Wk18    
+     ---------------------------------------------------------------------------------------------------
+  1   BRE3-UPM3  CHE3-BRE3  BRE3-WES3  HAR3-WWE3  BRE3-ILF3  CHE3-WES3  BRE3-WWE3  HAR3-BRE3  BRE3-HAW3 
+  2   HAR3-SHE3  HAR3-WAN3  CHE3-WWE3  HAW3-UPM3  HAW3-HAR3  HAR3-ILF3  CHE3-HAR3  HAW3-CHE3  CHE3-UPM3 
+  3   HAW3-WES3  SHE3-UPM3  ILF3-HAW3  ILF3-CHE3  SHE3-CHE3  SHE3-BRE3  HAW3-SHE3  ILF3-SHE3  HAR3-WES3 
+  4   ILF3-WWE3  WES3-ILF3  SHE3-WAN3  WAN3-BRE3  UPM3-WES3  WAN3-HAW3  ILF3-UPM3  UPM3-WAN3  SHE3-WWE3 
+  5   WAN3-CHE3  WWE3-HAW3  UPM3-HAR3  WES3-SHE3  WWE3-WAN3  WWE3-UPM3  WES3-WAN3  WWE3-WES3  WAN3-ILF3 
+
+
+====================================================================================================
+ 3rd XI Div 1
+====================================================================================================
+
+  First Half (Weeks 1-9)
+         Wk1        Wk2        Wk3        Wk4        Wk5        Wk6        Wk7        Wk8        Wk9    
+     ---------------------------------------------------------------------------------------------------
+  1   CHI3-SWF3  CHI3-UPM4  GPR3-CHI3  FRE3-UPM4  CHI3-HUT3  HAT3-GPR3  FRE3-SWF3  CHI3-ORS3  CHI3-FRE3 
+  2   GPR3-UPM4  FRE3-OPA3  OPA3-HOR3  HAT3-CHI3  GPR3-ORS3  HOR3-CHI3  GPR3-HOR3  FRE3-GPR3  GPR3-HUT3 
+  3   HAT3-FRE3  HOR3-HAT3  ORS3-FRE3  HUT3-HOR3  HOR3-FRE3  HUT3-FRE3  HUT3-UPM4  HAT3-HUT3  HOR3-SWF3 
+  4   OPA3-HUT3  HUT3-ORS3  SWF3-HUT3  OPA3-GPR3  SWF3-HAT3  ORS3-OPA3  OPA3-CHI3  SWF3-OPA3  OPA3-HAT3 
+  5   ORS3-HOR3  SWF3-GPR3  UPM4-HAT3  ORS3-SWF3  UPM4-OPA3  SWF3-UPM4  ORS3-HAT3  UPM4-HOR3  ORS3-UPM4 
+
+  Second Half (Weeks 10-18)
+        Wk10       Wk11       Wk12       Wk13       Wk14       Wk15       Wk16       Wk17       Wk18    
+     ---------------------------------------------------------------------------------------------------
+  1   FRE3-HAT3  GPR3-SWF3  CHI3-GPR3  CHI3-HAT3  FRE3-HOR3  CHI3-HOR3  CHI3-OPA3  GPR3-FRE3  FRE3-CHI3 
+  2   HOR3-ORS3  HAT3-HOR3  FRE3-ORS3  GPR3-OPA3  HAT3-SWF3  FRE3-HUT3  HAT3-ORS3  HOR3-UPM4  HAT3-OPA3 
+  3   HUT3-OPA3  OPA3-FRE3  HAT3-UPM4  HOR3-HUT3  HUT3-CHI3  GPR3-HAT3  HOR3-GPR3  HUT3-HAT3  HUT3-GPR3 
+  4   SWF3-CHI3  ORS3-HUT3  HOR3-OPA3  SWF3-ORS3  OPA3-UPM4  OPA3-ORS3  SWF3-FRE3  OPA3-SWF3  SWF3-HOR3 
+  5   UPM4-GPR3  UPM4-CHI3  HUT3-SWF3  UPM4-FRE3  ORS3-GPR3  UPM4-SWF3  UPM4-HUT3  ORS3-CHI3  UPM4-ORS3 
+
+
+====================================================================================================
+ 3rd XI Div 2
+====================================================================================================
+
+  First Half (Weeks 1-9)
+         Wk1        Wk2        Wk3        Wk4        Wk5        Wk6        Wk7        Wk8        Wk9    
+     ---------------------------------------------------------------------------------------------------
+  1   BRE4-BUC3  BIL3-BRE4  BEN3-FIV3  FIV3-BUC3  BIL3-CHE4  BEN3-BUC3  BRE4-BEN3  BEN3-CHE4  BIL3-BEN3 
+  2   FIV3-CHE4  BUC3-HAW4  BIL3-HAR4  HAR4-BRE4  BRE4-WIC3  BIL3-FIV3  CHE4-HAR4  BUC3-BIL3  BRE4-LOU3 
+  3   HAR4-BEN3  CHE4-LOU3  BRE4-HAW4  HAW4-CHE4  BUC3-HAR4  CHE4-BRE4  HAW4-FIV3  FIV3-BRE4  CHE4-BUC3 
+  4   HAW4-BIL3  HAR4-FIV3  CHE4-WIC3  LOU3-BEN3  FIV3-LOU3  HAR4-WIC3  LOU3-BIL3  HAR4-LOU3  HAR4-HAW4 
+  5   WIC3-LOU3  WIC3-BEN3  LOU3-BUC3  WIC3-BIL3  HAW4-BEN3  LOU3-HAW4  WIC3-BUC3  HAW4-WIC3  WIC3-FIV3 
+
+  Second Half (Weeks 10-18)
+        Wk10       Wk11       Wk12       Wk13       Wk14       Wk15       Wk16       Wk17       Wk18    
+     ---------------------------------------------------------------------------------------------------
+  1   BEN3-HAR4  BEN3-WIC3  BUC3-LOU3  BEN3-LOU3  BEN3-HAW4  BRE4-CHE4  BEN3-BRE4  BIL3-BUC3  BEN3-BIL3 
+  2   BIL3-HAW4  BRE4-BIL3  FIV3-BEN3  BIL3-WIC3  CHE4-BIL3  BUC3-BEN3  BIL3-LOU3  BRE4-FIV3  BUC3-CHE4 
+  3   BUC3-BRE4  FIV3-HAR4  HAR4-BIL3  BRE4-HAR4  HAR4-BUC3  FIV3-BIL3  BUC3-WIC3  CHE4-BEN3  FIV3-WIC3 
+  4   CHE4-FIV3  HAW4-BUC3  HAW4-BRE4  BUC3-FIV3  LOU3-FIV3  HAW4-LOU3  FIV3-HAW4  LOU3-HAR4  HAW4-HAR4 
+  5   LOU3-WIC3  LOU3-CHE4  WIC3-CHE4  CHE4-HAW4  WIC3-BRE4  WIC3-HAR4  HAR4-CHE4  WIC3-HAW4  LOU3-BRE4 
+
+
+====================================================================================================
+ 3rd XI Div 3
+====================================================================================================
+
+  First Half (Weeks 1-9)
+         Wk1        Wk2        Wk3        Wk4        Wk5        Wk6        Wk7        Wk8        Wk9    
+     ---------------------------------------------------------------------------------------------------
+  1   BEL3-WAL3  HOH3-BUC4  BEL3-WOS3  BUC4-EPP3  BEL3-OBR3  BUC4-BEL3  BEL3-EPP3  BEL3-WAN4  BUC4-SLH3 
+  2   BUC4-WOS3  OBR3-WAN4  BUC4-WAN4  HOH3-OSS3  EPP3-WAN4  EPP3-WOS3  BUC4-WAL3  EPP3-OSS3  EPP3-OBR3 
+  3   EPP3-SLH3  OSS3-BEL3  EPP3-HOH3  OBR3-WAL3  HOH3-SLH3  OSS3-OBR3  HOH3-WAN4  OBR3-BUC4  HOH3-BEL3 
+  4   HOH3-OBR3  WAL3-EPP3  SLH3-OBR3  SLH3-BEL3  OSS3-BUC4  WAL3-HOH3  OBR3-WOS3  WAL3-SLH3  OSS3-WOS3 
+  5   WAN4-OSS3  WOS3-SLH3  WAL3-OSS3  WAN4-WOS3  WOS3-WAL3  WAN4-SLH3  SLH3-OSS3  WOS3-HOH3  WAN4-WAL3 
+
+  Second Half (Weeks 10-18)
+        Wk10       Wk11       Wk12       Wk13       Wk14       Wk15       Wk16       Wk17       Wk18    
+     ---------------------------------------------------------------------------------------------------
+  1   OBR3-HOH3  BEL3-OSS3  HOH3-EPP3  BEL3-SLH3  BUC4-OSS3  BEL3-BUC4  EPP3-BEL3  BUC4-OBR3  BEL3-HOH3 
+  2   OSS3-WAN4  BUC4-HOH3  OBR3-SLH3  EPP3-BUC4  OBR3-BEL3  HOH3-WAL3  OSS3-SLH3  HOH3-WOS3  OBR3-EPP3 
+  3   SLH3-EPP3  EPP3-WAL3  OSS3-WAL3  OSS3-HOH3  SLH3-HOH3  OBR3-OSS3  WAL3-BUC4  OSS3-EPP3  SLH3-BUC4 
+  4   WAL3-BEL3  SLH3-WOS3  WAN4-BUC4  WAL3-OBR3  WAL3-WOS3  SLH3-WAN4  WAN4-HOH3  SLH3-WAL3  WAL3-WAN4 
+  5   WOS3-BUC4  WAN4-OBR3  WOS3-BEL3  WOS3-WAN4  WAN4-EPP3  WOS3-EPP3  WOS3-OBR3  WAN4-BEL3  WOS3-OSS3 
+
+
+====================================================================================================
+ 4th XI Prem East
+====================================================================================================
+
+  First Half (Weeks 1-9)
+         Wk1        Wk2        Wk3        Wk4        Wk5        Wk6        Wk7        Wk8        Wk9    
+     ---------------------------------------------------------------------------------------------------
+  1   BEN4-LOS3  BEN4-BIL4  HOH4-ORS4  BEN4-ORS4  BEN4-WOS4  HOH4-BEN4  BEN4-LOS4  BIL4-WOS4  BEN4-SOS3 
+  2   BIL4-SOS3  LOS4-HOH4  HUT4-LOS4  BIL4-HUT4  HUT4-LOS3  LOS3-LOS4  BIL4-HOH4  HOH4-SOS3  HUT4-HOH4 
+  3   HUT4-SHE4  ORS4-HUT4  LOS3-BIL4  LOS3-HOH4  LOS4-SOS3  SHE4-BIL4  LOS3-SHE4  HUT4-BEN4  LOS4-BIL4 
+  4   LOS4-ORS4  SHE4-WOS4  SHE4-BEN4  SOS3-SHE4  ORS4-BIL4  SOS3-ORS4  SOS3-HUT4  LOS4-SHE4  SHE4-ORS4 
+  5   WOS4-HOH4  SOS3-LOS3  WOS4-SOS3  WOS4-LOS4  SHE4-HOH4  WOS4-HUT4  WOS4-ORS4  ORS4-LOS3  WOS4-LOS3 
+
+  Second Half (Weeks 10-18)
+        Wk10       Wk11       Wk12       Wk13       Wk14       Wk15       Wk16       Wk17       Wk18    
+     ---------------------------------------------------------------------------------------------------
+  1   HOH4-WOS4  BIL4-BEN4  BEN4-SHE4  HOH4-LOS3  BIL4-ORS4  BEN4-HOH4  HOH4-BIL4  BEN4-HUT4  BIL4-LOS4 
+  2   LOS3-BEN4  HOH4-LOS4  BIL4-LOS3  HUT4-BIL4  HOH4-SHE4  BIL4-SHE4  HUT4-SOS3  LOS3-ORS4  HOH4-HUT4 
+  3   ORS4-LOS4  HUT4-ORS4  LOS4-HUT4  LOS4-WOS4  LOS3-HUT4  HUT4-WOS4  LOS4-BEN4  SHE4-LOS4  LOS3-WOS4 
+  4   SHE4-HUT4  LOS3-SOS3  ORS4-HOH4  ORS4-BEN4  SOS3-LOS4  LOS4-LOS3  ORS4-WOS4  SOS3-HOH4  ORS4-SHE4 
+  5   SOS3-BIL4  WOS4-SHE4  SOS3-WOS4  SHE4-SOS3  WOS4-BEN4  ORS4-SOS3  SHE4-LOS3  WOS4-BIL4  SOS3-BEN4 
+
+
+====================================================================================================
+ 4th XI Prem West
+====================================================================================================
+
+  First Half (Weeks 1-9)
+         Wk1        Wk2        Wk3        Wk4        Wk5        Wk6        Wk7        Wk8        Wk9    
+     ---------------------------------------------------------------------------------------------------
+  1   FRE4-WES4  FIV4-FRE4  CHI4-OPA4  CHI4-FIV4  FRE4-CHI4  CHI4-WAL4  CHI4-UPM5  ILF4-WAL4  FIV4-ILF4 
+  2   ILF4-CHI4  LOU4-ILF4  FIV4-WAL4  ILF4-UPM5  LOU4-FIV4  FIV4-WES4  FIV4-OPA4  LOU4-CHI4  FRE4-UPM5 
+  3   LOU4-UPM5  OPA4-WGR4  FRE4-LOU4  WAL4-LOU4  OPA4-ILF4  FRE4-ILF4  ILF4-WGR4  OPA4-FRE4  LOU4-OPA4 
+  4   WAL4-OPA4  UPM5-WAL4  ILF4-WES4  WES4-OPA4  UPM5-WES4  OPA4-UPM5  WAL4-FRE4  UPM5-FIV4  WAL4-WES4 
+  5   WGR4-FIV4  WES4-CHI4  WGR4-UPM5  WGR4-FRE4  WAL4-WGR4  WGR4-LOU4  WES4-LOU4  WGR4-WES4  WGR4-CHI4 
+
+  Second Half (Weeks 10-18)
+        Wk10       Wk11       Wk12       Wk13       Wk14       Wk15       Wk16       Wk17       Wk18    
+     ---------------------------------------------------------------------------------------------------
+  1   CHI4-ILF4  CHI4-WES4  LOU4-FRE4  FIV4-CHI4  CHI4-FRE4  ILF4-FRE4  FRE4-WAL4  CHI4-LOU4  CHI4-WGR4 
+  2   FIV4-WGR4  FRE4-FIV4  OPA4-CHI4  FRE4-WGR4  FIV4-LOU4  LOU4-WGR4  LOU4-WES4  FIV4-UPM5  ILF4-FIV4 
+  3   OPA4-WAL4  ILF4-LOU4  UPM5-WGR4  LOU4-WAL4  ILF4-OPA4  UPM5-OPA4  OPA4-FIV4  FRE4-OPA4  OPA4-LOU4 
+  4   UPM5-LOU4  WAL4-UPM5  WAL4-FIV4  OPA4-WES4  WES4-UPM5  WAL4-CHI4  UPM5-CHI4  WAL4-ILF4  UPM5-FRE4 
+  5   WES4-FRE4  WGR4-OPA4  WES4-ILF4  UPM5-ILF4  WGR4-WAL4  WES4-FIV4  WGR4-ILF4  WES4-WGR4  WES4-WAL4 
+
+
+====================================================================================================
+ 4th XI Div 1 East
+====================================================================================================
+
+  First Half (Weeks 1-9)
+         Wk1        Wk2        Wk3        Wk4        Wk5        Wk6        Wk7        Wk8        Wk9    
+     ---------------------------------------------------------------------------------------------------
+  1   CHE5-BIL5  BIL5-HOR4  BIL5-ORS6  CHE5-WIC4  BIL5-HAW5  CHE5-ORS6  BIL5-WOS5  HAW5-WOS5  CHE5-HAW5 
+  2   HAW5-ORS6  HAD4-HAW5  HOR4-HAW5  HAD4-BIL5  HAD4-CHE5  ORS5-BIL5  HAD4-WIC4  HOR4-ORS5  HAD4-HOR4 
+  3   HOR4-WIC4  ORS6-WIC4  ORS5-CHE5  HAW5-SLH4  ORS6-WOS5  SLH4-HAD4  HAW5-ORS5  ORS6-HAD4  ORS5-ORS6 
+  4   ORS5-HAD4  SLH4-ORS5  WIC4-SLH4  HOR4-ORS6  SLH4-HOR4  WIC4-HAW5  HOR4-CHE5  SLH4-CHE5  SLH4-BIL5 
+  5   SLH4-WOS5  WOS5-CHE5  WOS5-HAD4  ORS5-WOS5  WIC4-ORS5  WOS5-HOR4  ORS6-SLH4  WIC4-BIL5  WOS5-WIC4 
+
+  Second Half (Weeks 10-18)
+        Wk10       Wk11       Wk12       Wk13       Wk14       Wk15       Wk16       Wk17       Wk18    
+     ---------------------------------------------------------------------------------------------------
+  1   BIL5-CHE5  CHE5-WOS5  CHE5-ORS5  BIL5-HAD4  CHE5-HAD4  BIL5-ORS5  CHE5-HOR4  BIL5-WIC4  BIL5-SLH4 
+  2   HAD4-ORS5  HAW5-HAD4  HAD4-WOS5  ORS6-HOR4  HAW5-BIL5  HAD4-SLH4  ORS5-HAW5  CHE5-SLH4  HAW5-CHE5 
+  3   ORS6-HAW5  HOR4-BIL5  HAW5-HOR4  SLH4-HAW5  HOR4-SLH4  HAW5-WIC4  SLH4-ORS6  HAD4-ORS6  HOR4-HAD4 
+  4   WIC4-HOR4  ORS5-SLH4  ORS6-BIL5  WIC4-CHE5  ORS5-WIC4  HOR4-WOS5  WIC4-HAD4  ORS5-HOR4  ORS6-ORS5 
+  5   WOS5-SLH4  WIC4-ORS6  SLH4-WIC4  WOS5-ORS5  WOS5-ORS6  ORS6-CHE5  WOS5-BIL5  WOS5-HAW5  WIC4-WOS5 
+
+
+====================================================================================================
+ 4th XI Div 1 West
+====================================================================================================
+
+  First Half (Weeks 1-9)
+         Wk1        Wk2        Wk3        Wk4        Wk5        Wk6        Wk7        Wk8        Wk9    
+     ---------------------------------------------------------------------------------------------------
+  1   FRE5-GOR3  BEL4-WAL5  FRE5-SWF4  BEL4-FRE5  FRE5-GPR4  BEL4-SWF4  FRE5-WAL5  GOR3-NEW3  BEL4-GOR3 
+  2   OPA5-NEW3  GOR3-SWF4  GOR3-GPR4  GPR4-NEW3  GOR3-WAN5  GOR3-OPA5  NEW3-BEL4  GPR4-BEL4  FRE5-OPA5 
+  3   SWF4-GPR4  GPR4-WAN5  NEW3-WAN6  SWF4-OPA5  NEW3-SWF4  GPR4-WAN6  OPA5-GPR4  OPA5-WAN5  SWF4-WAN6 
+  4   WAL5-WAN6  NEW3-FRE5  OPA5-BEL4  WAL5-GOR3  OPA5-WAL5  WAL5-NEW3  SWF4-WAN5  WAL5-SWF4  WAL5-GPR4 
+  5   WAN5-BEL4  WAN6-OPA5  WAN5-WAL5  WAN6-WAN5  WAN6-BEL4  WAN5-FRE5  WAN6-GOR3  WAN6-FRE5  WAN5-NEW3 
+
+  Second Half (Weeks 10-18)
+        Wk10       Wk11       Wk12       Wk13       Wk14       Wk15       Wk16       Wk17       Wk18    
+     ---------------------------------------------------------------------------------------------------
+  1   BEL4-WAN5  FRE5-NEW3  BEL4-OPA5  FRE5-BEL4  BEL4-WAN6  FRE5-WAN5  BEL4-NEW3  BEL4-GPR4  GOR3-BEL4 
+  2   GOR3-FRE5  OPA5-WAN6  GPR4-GOR3  GOR3-WAL5  GPR4-FRE5  NEW3-WAL5  GOR3-WAN6  FRE5-WAN6  GPR4-WAL5 
+  3   GPR4-SWF4  SWF4-GOR3  SWF4-FRE5  NEW3-GPR4  SWF4-NEW3  OPA5-GOR3  GPR4-OPA5  NEW3-GOR3  NEW3-WAN5 
+  4   NEW3-OPA5  WAL5-BEL4  WAL5-WAN5  OPA5-SWF4  WAL5-OPA5  SWF4-BEL4  WAL5-FRE5  SWF4-WAL5  OPA5-FRE5 
+  5   WAN6-WAL5  WAN5-GPR4  WAN6-NEW3  WAN5-WAN6  WAN5-GOR3  WAN6-GPR4  WAN5-SWF4  WAN5-OPA5  WAN6-SWF4 
+
+
+====================================================================================================
+ 4th XI Div 2 East
+====================================================================================================
+
+  First Half (Weeks 1-9)
+         Wk1        Wk2        Wk3        Wk4        Wk5        Wk6        Wk7        Wk8        Wk9    
+     ---------------------------------------------------------------------------------------------------
+  1   BRE6-BEN5  BEN5-WIC5  BRE6-HUT5  BEN5-HUT5  BRE6-SHE5  BEN5-HOR5  HOH5-BEN5  BEN5-SHE5  BRE6-OSS4 
+  2   HOH5-SHE5  HOH5-BRE6  OSS4-BEN5  HOH5-HOR5  HOR5-WIC5  BRE6-SOS4  HOR5-BRE6  HUT5-WIC5  HOH5-WIC5 
+  3   OSS4-WIC5  HOR5-OSS4  SHE5-HOR5  OSS4-SHE5  HUT5-HOH5  HOH5-OSS5  OSS4-OSS5  OSS4-HOH5  HOR5-HUT5 
+  4   OSS5-HOR5  HUT5-OSS5  SOS4-HOH5  OSS5-SOS4  OSS5-BEN5  HUT5-OSS4  SHE5-HUT5  OSS5-BRE6  SHE5-OSS5 
+  5   SOS4-HUT5  SHE5-SOS4  WIC5-OSS5  WIC5-BRE6  SOS4-OSS4  SHE5-WIC5  WIC5-SOS4  SOS4-HOR5  SOS4-BEN5 
+
+  Second Half (Weeks 10-18)
+        Wk10       Wk11       Wk12       Wk13       Wk14       Wk15       Wk16       Wk17       Wk18    
+     ---------------------------------------------------------------------------------------------------
+  1   BEN5-BRE6  BRE6-HOH5  BEN5-OSS4  BRE6-WIC5  BEN5-OSS5  HOR5-BEN5  BEN5-HOH5  BRE6-OSS5  BEN5-SOS4 
+  2   HOR5-OSS5  OSS4-HOR5  HOH5-SOS4  HOR5-HOH5  HOH5-HUT5  OSS4-HUT5  BRE6-HOR5  HOH5-OSS4  HUT5-HOR5 
+  3   HUT5-SOS4  OSS5-HUT5  HOR5-SHE5  HUT5-BEN5  OSS4-SOS4  OSS5-HOH5  HUT5-SHE5  HOR5-SOS4  OSS4-BRE6 
+  4   SHE5-HOH5  SOS4-SHE5  HUT5-BRE6  SHE5-OSS4  SHE5-BRE6  SOS4-BRE6  OSS5-OSS4  SHE5-BEN5  OSS5-SHE5 
+  5   WIC5-OSS4  WIC5-BEN5  OSS5-WIC5  SOS4-OSS5  WIC5-HOR5  WIC5-SHE5  SOS4-WIC5  WIC5-HUT5  WIC5-HOH5 
+
+
+====================================================================================================
+ 4th XI Div 2 West
+====================================================================================================
+
+  First Half (Weeks 1-9)
+         Wk1        Wk2        Wk3        Wk4        Wk5        Wk6        Wk7        Wk8        Wk9    
+     ---------------------------------------------------------------------------------------------------
+  1   BEL5-HAW6  BEL5-NEW4  BAR3-BEL5  BEL5-RED4  BAR3-BRE5  HAW6-ORS7  BAR3-HAW6  BEL5-UPM6  BEL5-ORS7 
+  2   ILF5-BAR3  BRE5-ILF5  HAW6-BRE5  BRE5-ORS7  BEL5-ILF5  ILF5-RED4  BRE5-BEL5  BRE5-RED3  HAW6-ILF5 
+  3   NEW4-RED3  HAW6-RED4  ILF5-RED3  NEW4-ILF5  HAW6-RED3  NEW4-BRE5  ORS7-RED3  ILF5-ORS7  NEW4-BAR3 
+  4   RED4-BRE5  ORS7-BAR3  RED4-ORS7  RED3-BAR3  ORS7-NEW4  RED3-BEL5  RED4-NEW4  NEW4-HAW6  RED3-RED4 
+  5   UPM6-ORS7  RED3-UPM6  UPM6-NEW4  UPM6-HAW6  RED4-UPM6  UPM6-BAR3  UPM6-ILF5  RED4-BAR3  UPM6-BRE5 
+
+  Second Half (Weeks 10-18)
+        Wk10       Wk11       Wk12       Wk13       Wk14       Wk15       Wk16       Wk17       Wk18    
+     ---------------------------------------------------------------------------------------------------
+  1   BAR3-ILF5  BAR3-ORS7  BEL5-BAR3  BAR3-RED3  BRE5-BAR3  BAR3-UPM6  BEL5-BRE5  BAR3-RED4  BAR3-NEW4 
+  2   BRE5-RED4  ILF5-BRE5  BRE5-HAW6  HAW6-UPM6  ILF5-BEL5  BEL5-RED3  HAW6-BAR3  HAW6-NEW4  BRE5-UPM6 
+  3   HAW6-BEL5  NEW4-BEL5  NEW4-UPM6  ILF5-NEW4  NEW4-ORS7  BRE5-NEW4  ILF5-UPM6  ORS7-ILF5  ILF5-HAW6 
+  4   ORS7-UPM6  RED4-HAW6  ORS7-RED4  ORS7-BRE5  RED3-HAW6  ORS7-HAW6  NEW4-RED4  RED3-BRE5  ORS7-BEL5 
+  5   RED3-NEW4  UPM6-RED3  RED3-ILF5  RED4-BEL5  UPM6-RED4  RED4-ILF5  RED3-ORS7  UPM6-BEL5  RED4-RED3 
