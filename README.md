@@ -1,70 +1,137 @@
-# Fixture generator
+# Cricket League Fixture Generator
 
-## WORK IN PROGRESS
-If you're interested in helping, please contact me.
+A constraint programming-based fixture generator for cricket leagues with multiple divisions. Uses Google OR-Tools CP-SAT solver to generate valid fixtures while satisfying complex scheduling constraints.
 
-## Overview
-Will handle the generation of fixtures with complex rules. Examples:
-* Venue clashes
-* Max consecutive home/away games
+## Features
 
-## Installing
-To install the app, run the following command:
-```
-bun install
-```
+- Generates fixtures for multiple divisions simultaneously
+- Handles ground sharing between teams from the same club
+- Supports fixed match requirements (specific teams must play on specific weeks)
+- Supports venue requirements (team must play home/away on specific weeks)
+- Mirrored schedule (weeks 1-9 solved, weeks 10-18 are the reverse fixtures)
+- Prevents 4+ consecutive home or away games (hard constraint)
+- Minimizes 3 consecutive home or away games (soft constraint)
+- Reproducible output with optional seed parameter
+- Multiple output formats: CSV, HTML, and text grids
 
-## Config
-In the `src/config/data` directory, add the following files:
+## Installation
 
-### `divisions.csv`
-Sample:
-```
-1st XI Premier,BRE1,BUC1,CHE1,CHI1,COL1,HAD1,HOR1,HUT1,LOU1,WAN1
-1st XI Div 1,BEL1,BIL1,EPP1,FIV1,GPR1,HAW1,ILF1,ORS1,SPR1,UPM1
-1st XI Div 2,AZT1,GOR1,HOH1,OBR1,OPA1,OSS1,SHE1,WGR1,WOS1,WWE1
-1st XI Div 3,BAR1,BEN1,BNT1,HAR1,HAT1,LOS1,NEW1,SLH1,WES1,WIC1
-2nd XI Premier,BIL2,CHE2,CHI2,EPP2,HAW2,HOR2,ILF2,SHE2,UPM2,WAN2
-2nd XI Div 1,BRE2,BUC2,GPR2,HAR2,HUT2,LOU2,OPA2,ORS2,SWD2,WWE2
-2nd XI Div 2,BEN2,COL2,FIV2,HAD2,OBR2,OSS2,SLH2,WES2,WIC2,WOS2
-2nd XI Div 3,BEL2,FRE2,GOR2,HAT2,HOH2,LOS2,NEW2,SOS2,WAL2,WGR2
+Requires Python 3.12+
+
+```bash
+# Using uv (recommended)
+uv sync
+
+# Or using pip
+pip install ortools>=9.8
 ```
 
-### `venReq.csv`
-This file contains the venue requirements for each team. The file should be in the following format:
-* Team
-* Venue (h, a)
-* Week no
+## Usage
 
-Sample:
-```
-WAN1,a,7
-COL1,a,3
-HAR1,a,2
-HAR4,a,2
-HAR2,a,3
-```
-NOTE: There is no logic applied when filling in venue requirements. Teams will be placed in the first available slot.
+```bash
+# Generate fixtures (non-deterministic)
+python main.py
 
-## Running
-To run the program, execute the following command:
-```
-bun run ./src/index.ts
+# Generate fixtures with a specific seed (reproducible)
+python main.py --seed 42
 ```
 
-## Output
-There is currently one output formatter. This is for PlayCricket and requires as mapping file in the `src/config/data` directory.
+Output files are written to the `output/` directory:
+- `fixtures.csv` - Machine-readable fixture list
+- `fixtures.html` - Browser-viewable fixture grids
+- `fixtures.txt` - Text-based fixture grids
 
-The format of the mapping file is as follows:
-```
-CHI1,117997,46056,12335
-COL1,117997,58739,12314
-BRE1,117997,27688,16120
-HUT1,117997,21949,8896
-```
-where the first column is the team name and the following columns are the PlayCricket division ID, team ID and venue ID.
+When using a seed, it's recorded in all output files for reproducibility.
 
-## Known issues
-* The app does not handle custom venue conflicts yet.
-* Venue requirements are not done "smarty" and just added in first empty slot.
-* The app does not handle two teams in the same division with a venue conflict.
+## Data Files
+
+All input data is in the `data/` directory:
+
+### divisions.csv
+
+Each row defines a division with its teams:
+
+```
+division_name,team1,team2,team3,team4,team5,team6,team7,team8,team9,team10
+```
+
+Teams use a club code (3 letters) plus a number (e.g., `WOS1` = Westcliff on Sea 1st XI).
+
+### fixReq.csv
+
+Fixed match requirements - specific teams that must play each other on a given week:
+
+```
+game_week,team1,team2
+```
+
+### venReq.csv
+
+Venue requirements - a team must play at home (`h`) or away (`a`) on a specific week:
+
+```
+team,venue,game_week
+```
+
+## Constraints
+
+### Hard Constraints (must be satisfied)
+
+- Each team plays exactly one match per week
+- Each pair of teams plays twice (home and away)
+- No team plays 4+ consecutive home or away games
+- Fixed match requirements are honoured
+- Venue requirements are honoured
+
+### Soft Constraints (minimized via weighted penalties)
+
+- **Ground sharing**: Teams 1&2, 3&4, 5&6 from the same club shouldn't play at home on the same week. Weights vary by division tier:
+  - 1st XI: 1000
+  - 2nd XI: 500
+  - 3rd XI: 100
+  - 4th XI: 10
+
+- **3 consecutive games**: Avoid 3 consecutive home or away games (penalty: 50)
+
+## Project Structure
+
+```
+fix-gen-new/
+├── main.py                 # Entry point
+├── data/                   # Input data files
+│   ├── divisions.csv
+│   ├── fixReq.csv
+│   └── venReq.csv
+├── output/                 # Generated fixtures
+└── fix_gen/                # Core module
+    ├── config.py           # Weights and solver settings
+    ├── models.py           # Data classes
+    ├── data_loading.py     # CSV parsing
+    ├── generator.py        # CP-SAT constraint model
+    ├── validation.py       # Post-generation validation
+    ├── ground_sharing.py   # Cross-division ground checks
+    └── output.py           # CSV/HTML/text output
+```
+
+## Algorithm
+
+The generator uses a mirrored schedule approach:
+
+1. Build a CP-SAT model for weeks 1-9 only
+2. For each match, decide which team is home in the first half
+3. Add all constraints (hard and soft with weighted penalties)
+4. Solve to minimize total penalty
+5. Mirror the solution: week 10 = reverse of week 1, week 11 = reverse of week 2, etc.
+
+This approach reduces the problem size by half while ensuring balanced home/away distribution.
+
+## Configuration
+
+Edit `fix_gen/config.py` to adjust:
+
+- `WEIGHTS` - Penalty weights for soft constraints
+- `SOLVER_TIME_LIMIT` - Maximum solver time in seconds (default: 300)
+
+## License
+
+MIT
