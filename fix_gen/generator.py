@@ -27,10 +27,12 @@ class FixtureGenerator:
         divisions: list[Division],
         fixed_matches: list[FixedMatch],
         venue_requirements: list[VenueRequirement],
+        venue_conflicts: list[set[str]] | None = None,
     ):
         self.divisions = divisions
         self.fixed_matches = fixed_matches
         self.venue_requirements = venue_requirements
+        self.venue_conflicts = venue_conflicts or []
 
         # Build lookup structures
         self.team_to_division: dict[str, Division] = {}
@@ -257,6 +259,29 @@ class FixtureGenerator:
                 model.AddBoolAnd([is_home[(t1, week)].Not(), is_home[(t2, week)].Not()]).OnlyEnforceIf(both_away)
                 model.AddBoolOr([is_home[(t1, week)], is_home[(t2, week)]]).OnlyEnforceIf(both_away.Not())
                 penalties.append(both_away * weight)
+
+        # Venue conflicts - teams from different clubs sharing pitches
+        for conflict_group in self.venue_conflicts:
+            # Filter to teams that actually exist in our divisions
+            valid_teams = [t for t in conflict_group if t in self.all_teams]
+            if len(valid_teams) < 2:
+                continue
+
+            # For each pair of teams in the conflict group
+            for i, t1 in enumerate(valid_teams):
+                for t2 in valid_teams[i + 1:]:
+                    for week in weeks_first_half:
+                        # Penalize both home in first half (means both home in week W)
+                        both_home_vc = model.NewBoolVar(f"vc_both_home_{t1}_{t2}_{week}")
+                        model.AddBoolAnd([is_home[(t1, week)], is_home[(t2, week)]]).OnlyEnforceIf(both_home_vc)
+                        model.AddBoolOr([is_home[(t1, week)].Not(), is_home[(t2, week)].Not()]).OnlyEnforceIf(both_home_vc.Not())
+                        penalties.append(both_home_vc * WEIGHTS["venue_conflicts"])
+
+                        # Penalize both away in first half (means both home in mirrored week W+9)
+                        both_away_vc = model.NewBoolVar(f"vc_both_away_{t1}_{t2}_{week}")
+                        model.AddBoolAnd([is_home[(t1, week)].Not(), is_home[(t2, week)].Not()]).OnlyEnforceIf(both_away_vc)
+                        model.AddBoolOr([is_home[(t1, week)], is_home[(t2, week)]]).OnlyEnforceIf(both_away_vc.Not())
+                        penalties.append(both_away_vc * WEIGHTS["venue_conflicts"])
 
         for team in self.all_teams:
             # Within first half (weeks 1-9)

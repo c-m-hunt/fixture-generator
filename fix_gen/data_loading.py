@@ -67,3 +67,21 @@ def load_venue_requirements(filepath: Path) -> list[VenueRequirement]:
                     week=int(row[2]),
                 ))
     return requirements
+
+
+def load_venue_conflicts(filepath: Path) -> list[set[str]]:
+    """Load venue conflicts from CSV file.
+
+    Each row contains teams that share a venue/pitch (from different clubs).
+    Returns a list of sets, where each set contains teams sharing a venue.
+    """
+    conflicts = []
+    if not filepath.exists():
+        return conflicts
+    with open(filepath, "r") as f:
+        reader = csv.reader(f)
+        for row in reader:
+            teams = {t.strip() for t in row if t.strip()}
+            if len(teams) >= 2:
+                conflicts.append(teams)
+    return conflicts

@@ -12,6 +12,8 @@ WEIGHTS = {
     "ground_sharing_4th_xi": 10,
     # Consecutive home/away penalty (for 3 in a row; 4+ is hard constraint)
     "consecutive_3": 50,
+    # Venue conflicts (different clubs sharing pitches) - lower than ground sharing
+    "venue_conflicts": 5,
 }
 
 # Maximum solver time in seconds

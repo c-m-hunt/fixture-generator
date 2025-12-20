@@ -6,7 +6,7 @@ for a cricket league with multiple divisions and complex constraints.
 """
 
 from .config import SOLVER_TIME_LIMIT, WEIGHTS
-from .data_loading import load_divisions, load_fixed_matches, load_venue_requirements
+from .data_loading import load_divisions, load_fixed_matches, load_venue_conflicts, load_venue_requirements
 from .generator import FixtureGenerator
 from .models import Division, FixedMatch, Fixture, Team, VenueRequirement
 from .output import print_fixture_grids, print_summary, write_fixtures_csv, write_fixtures_html
@@ -25,6 +25,7 @@ __all__ = [
     # Data loading
     "load_divisions",
     "load_fixed_matches",
+    "load_venue_conflicts",
     "load_venue_requirements",
     # Generator
     "FixtureGenerator",
