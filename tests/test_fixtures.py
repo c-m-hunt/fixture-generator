@@ -48,9 +48,11 @@ def load_fixtures(fixtures_path: Path) -> list[Fixture]:
     fixtures = []
     with open(fixtures_path, 'r') as f:
         reader = csv.reader(f)
-        header = next(reader, None)  # Skip header row
         for row in reader:
             if len(row) >= 4:
+                # Skip comment lines and header row
+                if row[0].startswith('#') or row[0] == 'game_week':
+                    continue
                 fixtures.append(Fixture(
                     game_week=int(row[0]),
                     home_team=row[1],
@@ -107,6 +109,24 @@ def load_fixed_match_requirements(fixreq_path: Path) -> list[FixedMatchRequireme
     return requirements
 
 
+def load_venue_conflicts(venconflicts_path: Path) -> list[set[str]]:
+    """Load venue conflicts from CSV file.
+
+    Each row contains teams that share a venue/pitch.
+    Returns a list of sets, where each set contains teams sharing a venue.
+    """
+    conflicts = []
+    if not venconflicts_path.exists():
+        return conflicts
+    with open(venconflicts_path, 'r') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            teams = {t.strip() for t in row if t.strip()}
+            if len(teams) >= 2:
+                conflicts.append(teams)
+    return conflicts
+
+
 class FixtureValidator:
     """Validator for fixture data."""
 
@@ -117,11 +137,13 @@ class FixtureValidator:
         self.divisions_path = data_dir / 'divisions.csv'
         self.venreq_path = data_dir / 'venReq.csv'
         self.fixreq_path = data_dir / 'fixReq.csv'
+        self.venconflicts_path = data_dir / 'venConflicts.csv'
 
         self.fixtures: list[Fixture] = []
         self.divisions: dict[str, list[str]] = {}
         self.venue_requirements: list[VenueRequirement] = []
         self.fixed_match_requirements: list[FixedMatchRequirement] = []
+        self.venue_conflicts: list[set[str]] = []
 
         self._load_data()
 
@@ -133,6 +155,7 @@ class FixtureValidator:
             self.divisions = load_divisions(self.divisions_path)
         self.venue_requirements = load_venue_requirements(self.venreq_path)
         self.fixed_match_requirements = load_fixed_match_requirements(self.fixreq_path)
+        self.venue_conflicts = load_venue_conflicts(self.venconflicts_path)
 
     def get_fixtures_by_division(self) -> dict[str, list[Fixture]]:
         """Group fixtures by division."""
@@ -459,6 +482,33 @@ class TestSoftConstraints:
         # This is a soft constraint - report but don't fail
         if conflicts:
             print(f"\nWARNING: {len(conflicts)} ground sharing conflicts:")
+            for conflict in conflicts[:10]:
+                print(f"  {conflict}")
+            if len(conflicts) > 10:
+                print(f"  ... and {len(conflicts) - 10} more")
+
+    def test_venue_conflicts(self, validator):
+        """Check venue conflicts from venConflicts.csv (teams from different clubs sharing pitches)."""
+        if not validator.venue_conflicts:
+            pytest.skip("No venue conflicts defined")
+
+        conflicts = []
+
+        # Check each game week for venue conflicts
+        for week in range(1, 19):
+            week_fixtures = [f for f in validator.fixtures if f.game_week == week]
+            home_teams = set(f.home_team for f in week_fixtures)
+
+            # Check each venue conflict group
+            for conflict_group in validator.venue_conflicts:
+                # Find which teams in this conflict group are playing at home this week
+                home_in_group = home_teams & conflict_group
+                if len(home_in_group) > 1:
+                    conflicts.append(f"Week {week}: {sorted(home_in_group)} all at home (share venue)")
+
+        # This is a soft constraint - report but don't fail
+        if conflicts:
+            print(f"\nWARNING: {len(conflicts)} venue conflicts (different clubs sharing pitches):")
             for conflict in conflicts[:10]:
                 print(f"  {conflict}")
             if len(conflicts) > 10:

@@ -9,7 +9,23 @@ from .models import Division, Team
 
 
 def get_division_tier(division_name: str) -> int:
-    """Get tier number from division name."""
+    """Get tier number from division name.
+
+    For 2026 format:
+    - Premier, Div 1-4 = tier 1 (1st XI equivalent)
+    - Div 5-7 = tier 2 (2nd XI equivalent)
+    - Div 8-9 = tier 3 (3rd XI equivalent)
+    - Div 10-11 = tier 4 (4th XI equivalent)
+    """
+    if "Premier" in division_name or division_name in ["Div 1", "Div 2", "Div 3", "Div 4"]:
+        return 1
+    elif division_name in ["Div 5", "Div 6", "Div 7"]:
+        return 2
+    elif division_name in ["Div 8", "Div 9"]:
+        return 3
+    elif division_name in ["Div 10", "Div 11"]:
+        return 4
+    # Fallback for old naming convention
     if "1st XI" in division_name:
         return 1
     elif "2nd XI" in division_name:

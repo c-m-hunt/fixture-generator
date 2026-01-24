@@ -15,6 +15,7 @@ from fix_gen import (
     FixtureGenerator,
     load_divisions,
     load_fixed_matches,
+    load_venue_conflicts,
     load_venue_requirements,
     print_fixture_grids,
     print_summary,
@@ -43,13 +44,15 @@ def main():
     divisions = load_divisions(data_dir / "divisions.csv")
     fixed_matches = load_fixed_matches(data_dir / "fixReq.csv")
     venue_requirements = load_venue_requirements(data_dir / "venReq.csv")
+    venue_conflicts = load_venue_conflicts(data_dir / "venConflicts.csv")
 
     print(f"Loaded {len(divisions)} divisions")
     print(f"Loaded {len(fixed_matches)} fixed match requirements")
     print(f"Loaded {len(venue_requirements)} venue requirements")
+    print(f"Loaded {len(venue_conflicts)} venue conflict groups")
 
     # Generate fixtures
-    generator = FixtureGenerator(divisions, fixed_matches, venue_requirements)
+    generator = FixtureGenerator(divisions, fixed_matches, venue_requirements, venue_conflicts)
     fixtures = generator.generate(seed=args.seed)
 
     # Validate

@@ -40,7 +40,16 @@ class Division:
     def from_row(cls, row: list[str]) -> "Division":
         name = row[0]
         # Determine tier from name
-        if "1st XI" in name:
+        if "Premier" in name or name in ["Div 1", "Div 2", "Div 3", "Div 4"]:
+            tier = 1
+        elif name in ["Div 5", "Div 6", "Div 7"]:
+            tier = 2
+        elif name in ["Div 8", "Div 9"]:
+            tier = 3
+        elif name in ["Div 10", "Div 11"]:
+            tier = 4
+        # Fallback for old naming convention
+        elif "1st XI" in name:
             tier = 1
         elif "2nd XI" in name:
             tier = 2
