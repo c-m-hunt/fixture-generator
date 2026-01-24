@@ -9,6 +9,6 @@ wheels/
 # Virtual environments
 .venv
 
-output
+# output
 
 .DS_Store
