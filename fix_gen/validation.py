@@ -97,7 +97,7 @@ class CrossDivisionCoordinator:
             team_home_weeks[f.home_team].add(f.week)
 
         violations = []
-        for t1, t2, max_tier in self.ground_sharing_pairs:
+        for t1, t2 in self.ground_sharing_pairs:
             t1_home = team_home_weeks[t1]
             t2_home = team_home_weeks[t2]
             conflict_weeks = t1_home & t2_home

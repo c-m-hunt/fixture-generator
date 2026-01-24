@@ -291,7 +291,7 @@ class FixtureGenerator:
         # Hard constraint: Ground sharing (teams from same club can't both be home)
         # In mirrored approach, must constrain both weeks 1-9 AND their mirrors (10-18)
         # If both are away in week N, they'll both be home in week N+9 (mirror)
-        for t1, t2, max_tier in self.ground_sharing_pairs:
+        for t1, t2 in self.ground_sharing_pairs:
             for week in weeks_first_half:
                 # Can't both be home in weeks 1-9
                 model.AddBoolOr([is_home[(t1, week)].Not(), is_home[(t2, week)].Not()])
@@ -518,7 +518,7 @@ class FixtureGenerator:
                     model.Add(sum(home_vars) >= 1)
 
         # Hard constraint: Ground sharing (teams from same club can't both be home)
-        for t1, t2, max_tier in self.ground_sharing_pairs:
+        for t1, t2 in self.ground_sharing_pairs:
             for week in all_weeks:
                 # At least one must NOT be home (they can't both be home)
                 model.AddBoolOr([is_home[(t1, week)].Not(), is_home[(t2, week)].Not()])
