@@ -5,7 +5,7 @@ Uses constraint programming (OR-Tools CP-SAT) to generate fixtures
 for a cricket league with multiple divisions and complex constraints.
 """
 
-from .config import SOLVER_TIME_LIMIT, WEIGHTS
+from .config import SOLVER_TIME_LIMIT
 from .data_loading import load_divisions, load_fixed_matches, load_venue_conflicts, load_venue_requirements
 from .generator import FixtureGenerator
 from .models import Division, FixedMatch, Fixture, Team, VenueRequirement
@@ -14,7 +14,6 @@ from .validation import CrossDivisionCoordinator, validate_fixtures
 
 __all__ = [
     # Config
-    "WEIGHTS",
     "SOLVER_TIME_LIMIT",
     # Models
     "Team",

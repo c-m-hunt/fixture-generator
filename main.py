@@ -53,7 +53,7 @@ def main():
 
     # Generate fixtures
     generator = FixtureGenerator(divisions, fixed_matches, venue_requirements, venue_conflicts)
-    fixtures = generator.generate(seed=args.seed)
+    fixtures, used_seed = generator.generate(seed=args.seed)
 
     # Validate
     print("\nValidating fixtures...")
@@ -64,15 +64,15 @@ def main():
     cross_violations = coordinator.check_violations(fixtures)
 
     # Output
-    write_fixtures_csv(fixtures, output_dir / "fixtures.csv", seed=args.seed)
-    write_fixtures_html(fixtures, divisions, output_dir / "fixtures.html", seed=args.seed)
+    write_fixtures_csv(fixtures, output_dir / "fixtures.csv", seed=used_seed)
+    write_fixtures_html(fixtures, divisions, output_dir / "fixtures.html", seed=used_seed)
     print(f"\nFixtures written to {output_dir}")
 
     # Summary
     print_summary(fixtures, violations, cross_violations)
 
     # Print fixture grids and write to file
-    print_fixture_grids(fixtures, divisions, output_dir / "fixtures.txt", seed=args.seed)
+    print_fixture_grids(fixtures, divisions, output_dir / "fixtures.txt", seed=used_seed)
 
 
 if __name__ == "__main__":

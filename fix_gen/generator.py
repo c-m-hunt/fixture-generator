@@ -8,7 +8,14 @@ from itertools import combinations
 
 from ortools.sat.python import cp_model
 
-from .config import WEIGHTS, SOLVER_TIME_LIMIT
+from .config import (
+    CONSECUTIVE_3_PENALTY,
+    FULL_18_WEEK_TIME_MULTIPLIER,
+    MAX_CONSECUTIVE_SAME_VENUE,
+    NUM_SEARCH_WORKERS,
+    RANDOM_SEED_RANGE,
+    SOLVER_TIME_LIMIT,
+)
 from .ground_sharing import build_ground_sharing_pairs
 from .models import Division, FixedMatch, Fixture, VenueRequirement
 
@@ -55,7 +62,7 @@ class FixtureGenerator:
         # All teams
         self.all_teams = [t.code for div in divisions for t in div.teams]
 
-    def generate(self, seed: int | None = None) -> list[Fixture]:
+    def generate(self, seed: int | None = None) -> tuple[list[Fixture], int]:
         """Generate complete fixture list for all divisions.
 
         Tries mirrored approach first (faster, guarantees home/away balance).
@@ -64,31 +71,84 @@ class FixtureGenerator:
         Args:
             seed: Optional random seed for reproducible but varied fixture generation.
                   Different seeds produce different valid fixture sets.
+
+        Returns:
+            Tuple of (fixtures, seed) where seed is the seed that was used (either provided or generated).
         """
-        if seed is not None:
+        if seed is None:
+            seed = random.randint(*RANDOM_SEED_RANGE)
+            print(f"Generated random seed: {seed}")
+        else:
             print(f"Using seed: {seed}")
-            random.seed(seed)
 
-        # Try mirrored approach first
+        random.seed(seed)
+
+        # Check if mirrored approach is viable
         print("Attempting mirrored schedule (weeks 1-9, mirrored to 10-18)...")
-        fixtures = self._generate_mirrored(seed)
+        mirroring_conflicts = self._check_mirroring_conflicts()
 
-        if fixtures:
-            print("  ✓ Mirrored schedule successful!")
-            return fixtures
+        if mirroring_conflicts:
+            print(f"  ✗ Mirrored approach not viable due to {len(mirroring_conflicts)} venue requirement conflicts:")
+            for team, conflicts in mirroring_conflicts.items():
+                print(f"     {team}: {conflicts}")
+            print("  → Skipping mirrored approach, using full 18-week schedule...")
+        else:
+            fixtures = self._generate_mirrored(seed)
+            if fixtures:
+                print("  ✓ Mirrored schedule successful!")
+                return fixtures, seed
+            print("  ✗ Mirrored schedule failed (solver couldn't find solution), trying full 18-week schedule...")
 
-        print("  ✗ Mirrored schedule failed, trying full 18-week schedule...")
         fixtures = self._generate_full_18_weeks(seed)
-
         if fixtures:
             print("  ✓ Full 18-week schedule successful!")
-            return fixtures
+            return fixtures, seed
 
         print("  ✗ No solution found with either approach!")
-        return []
+        return [], seed
+
+    def _check_mirroring_conflicts(self) -> dict[str, str]:
+        """
+        Check if venue requirements conflict with mirrored scheduling.
+
+        In a mirrored schedule, week X (1-9) mirrors to week X+9 (10-18) with home/away swapped.
+        A conflict occurs when a team has the same venue requirement in both mirrored weeks.
+
+        Returns:
+            Dictionary mapping team codes to conflict descriptions.
+        """
+        conflicts = {}
+
+        # Group venue requirements by team
+        team_requirements: dict[str, dict[int, bool]] = defaultdict(dict)
+        for req in self.venue_requirements:
+            team_requirements[req.team][req.week] = (req.venue == "h")
+
+        # Check each team for mirroring conflicts
+        for team, weeks in team_requirements.items():
+            team_conflicts = []
+
+            # Check weeks 1-9 against their mirrors (10-18)
+            for week in range(1, 10):
+                mirror_week = week + 9
+
+                if week in weeks and mirror_week in weeks:
+                    # Both weeks have requirements
+                    if weeks[week] == weeks[mirror_week]:
+                        # Same requirement in both weeks = conflict
+                        venue = "home" if weeks[week] else "away"
+                        team_conflicts.append(f"weeks {week} and {mirror_week} both require {venue}")
+
+            if team_conflicts:
+                conflicts[team] = "; ".join(team_conflicts)
+
+        return conflicts
 
     def _generate_mirrored(self, seed: int | None) -> list[Fixture]:
         """Generate fixtures using mirrored approach (weeks 1-9 mirrored to 10-18)."""
+        if seed is not None:
+            random.seed(seed)
+
         model = cp_model.CpModel()
         weeks_first_half = list(range(1, 10))  # Weeks 1-9
 
@@ -186,24 +246,26 @@ class FixtureGenerator:
                     else:
                         model.Add(is_home[(team, mirror_week)] == 1)
 
-        # No 4 consecutive
+        # Hard constraint: No MAX_CONSECUTIVE_SAME_VENUE consecutive home or away
         for team in self.all_teams:
             for start in range(1, 7):
                 weeks_seq = [start, start + 1, start + 2, start + 3]
                 home_vars = [is_home[(team, w)] for w in weeks_seq]
-                model.Add(sum(home_vars) <= 3)
+                # Can't have all MAX_CONSECUTIVE_SAME_VENUE home (sum must be <= MAX-1)
+                model.Add(sum(home_vars) <= MAX_CONSECUTIVE_SAME_VENUE - 1)
+                # Can't have all MAX_CONSECUTIVE_SAME_VENUE away (sum must be >= 1)
                 model.Add(sum(home_vars) >= 1)
 
-            # Cross-boundary sequences
+            # Cross-boundary sequences (weeks 7-9 to 1-4 wrapping around mirror point)
             model.Add(
                 is_home[(team, 7)] + is_home[(team, 8)] + is_home[(team, 9)]
-                + (1 - is_home[(team, 1)]) <= 3
+                + (1 - is_home[(team, 1)]) <= MAX_CONSECUTIVE_SAME_VENUE - 1
             )
             model.Add(is_home[(team, 1)] <= is_home[(team, 7)] + is_home[(team, 8)] + is_home[(team, 9)])
 
             model.Add(
                 is_home[(team, 8)] + is_home[(team, 9)]
-                + (1 - is_home[(team, 1)]) + (1 - is_home[(team, 2)]) <= 3
+                + (1 - is_home[(team, 1)]) + (1 - is_home[(team, 2)]) <= MAX_CONSECUTIVE_SAME_VENUE - 1
             )
             model.Add(
                 is_home[(team, 1)] + is_home[(team, 2)]
@@ -212,7 +274,7 @@ class FixtureGenerator:
 
             model.Add(
                 is_home[(team, 9)]
-                + (1 - is_home[(team, 1)]) + (1 - is_home[(team, 2)]) + (1 - is_home[(team, 3)]) <= 3
+                + (1 - is_home[(team, 1)]) + (1 - is_home[(team, 2)]) + (1 - is_home[(team, 3)]) <= MAX_CONSECUTIVE_SAME_VENUE - 1
             )
             model.Add(
                 is_home[(team, 1)] + is_home[(team, 2)] + is_home[(team, 3)]
@@ -223,39 +285,33 @@ class FixtureGenerator:
                 is_home[(team, 1)] + is_home[(team, 2)] + is_home[(team, 3)] + is_home[(team, 4)] >= 1
             )
             model.Add(
-                is_home[(team, 1)] + is_home[(team, 2)] + is_home[(team, 3)] + is_home[(team, 4)] <= 3
+                is_home[(team, 1)] + is_home[(team, 2)] + is_home[(team, 3)] + is_home[(team, 4)] <= MAX_CONSECUTIVE_SAME_VENUE - 1
             )
 
-        # Soft constraints
-        penalties = []
-
-        # Ground sharing
+        # Hard constraint: Ground sharing (teams from same club can't both be home)
+        # In mirrored approach, must constrain both weeks 1-9 AND their mirrors (10-18)
+        # If both are away in week N, they'll both be home in week N+9 (mirror)
         for t1, t2, max_tier in self.ground_sharing_pairs:
-            weight = {
-                1: WEIGHTS["ground_sharing_1st_xi"],
-                2: WEIGHTS["ground_sharing_2nd_xi"],
-                3: WEIGHTS["ground_sharing_3rd_xi"],
-                4: WEIGHTS["ground_sharing_4th_xi"],
-            }.get(max_tier, WEIGHTS["ground_sharing_4th_xi"])
-
             for week in weeks_first_half:
-                both_home = model.NewBoolVar(f"gs_{t1}_{t2}_{week}")
-                model.AddBoolAnd([is_home[(t1, week)], is_home[(t2, week)]]).OnlyEnforceIf(both_home)
-                model.AddBoolOr([is_home[(t1, week)].Not(), is_home[(t2, week)].Not()]).OnlyEnforceIf(both_home.Not())
-                penalties.append(both_home * weight)
+                # Can't both be home in weeks 1-9
+                model.AddBoolOr([is_home[(t1, week)].Not(), is_home[(t2, week)].Not()])
+                # Can't both be away in weeks 1-9 (would both be home in weeks 10-18)
+                model.AddBoolOr([is_home[(t1, week)], is_home[(t2, week)]])
 
-        # Venue conflicts
+        # Hard constraint: Venue conflicts (cross-division teams sharing pitches)
         for conflict_set in self.venue_conflicts:
             conflict_teams = [t for t in conflict_set if t in self.all_teams]
             if len(conflict_teams) >= 2:
                 for t1_idx, t1 in enumerate(conflict_teams):
                     for t2 in conflict_teams[t1_idx + 1:]:
-                        weight = WEIGHTS["ground_sharing_1st_xi"]
                         for week in weeks_first_half:
-                            both_home = model.NewBoolVar(f"vc_{t1}_{t2}_{week}")
-                            model.AddBoolAnd([is_home[(t1, week)], is_home[(t2, week)]]).OnlyEnforceIf(both_home)
-                            model.AddBoolOr([is_home[(t1, week)].Not(), is_home[(t2, week)].Not()]).OnlyEnforceIf(both_home.Not())
-                            penalties.append(both_home * weight)
+                            # Can't both be home
+                            model.AddBoolOr([is_home[(t1, week)].Not(), is_home[(t2, week)].Not()])
+                            # Can't both be away (would both be home in mirror)
+                            model.AddBoolOr([is_home[(t1, week)], is_home[(t2, week)]])
+
+        # Soft constraints
+        penalties = []
 
         # Consecutive 3
         for team in self.all_teams:
@@ -264,33 +320,33 @@ class FixtureGenerator:
                     all_home = model.NewBoolVar(f"cons_h_{team}_{start}")
                     model.AddBoolAnd([is_home[(team, start)], is_home[(team, start+1)], is_home[(team, start+2)]]).OnlyEnforceIf(all_home)
                     model.AddBoolOr([is_home[(team, start)].Not(), is_home[(team, start+1)].Not(), is_home[(team, start+2)].Not()]).OnlyEnforceIf(all_home.Not())
-                    penalties.append(all_home * WEIGHTS["consecutive_3"])
+                    penalties.append(all_home * CONSECUTIVE_3_PENALTY)
 
                     all_away = model.NewBoolVar(f"cons_a_{team}_{start}")
                     model.AddBoolAnd([is_home[(team, start)].Not(), is_home[(team, start+1)].Not(), is_home[(team, start+2)].Not()]).OnlyEnforceIf(all_away)
                     model.AddBoolOr([is_home[(team, start)], is_home[(team, start+1)], is_home[(team, start+2)]]).OnlyEnforceIf(all_away.Not())
-                    penalties.append(all_away * WEIGHTS["consecutive_3"])
+                    penalties.append(all_away * CONSECUTIVE_3_PENALTY)
 
             # Cross-boundary
             cross_8_9_10_home = model.NewBoolVar(f"cons_h_{team}_8_9_10")
             model.AddBoolAnd([is_home[(team, 8)], is_home[(team, 9)], is_home[(team, 1)].Not()]).OnlyEnforceIf(cross_8_9_10_home)
             model.AddBoolOr([is_home[(team, 8)].Not(), is_home[(team, 9)].Not(), is_home[(team, 1)]]).OnlyEnforceIf(cross_8_9_10_home.Not())
-            penalties.append(cross_8_9_10_home * WEIGHTS["consecutive_3"])
+            penalties.append(cross_8_9_10_home * CONSECUTIVE_3_PENALTY)
 
             cross_8_9_10_away = model.NewBoolVar(f"cons_a_{team}_8_9_10")
             model.AddBoolAnd([is_home[(team, 8)].Not(), is_home[(team, 9)].Not(), is_home[(team, 1)]]).OnlyEnforceIf(cross_8_9_10_away)
             model.AddBoolOr([is_home[(team, 8)], is_home[(team, 9)], is_home[(team, 1)].Not()]).OnlyEnforceIf(cross_8_9_10_away.Not())
-            penalties.append(cross_8_9_10_away * WEIGHTS["consecutive_3"])
+            penalties.append(cross_8_9_10_away * CONSECUTIVE_3_PENALTY)
 
             cross_9_10_11_home = model.NewBoolVar(f"cons_h_{team}_9_10_11")
             model.AddBoolAnd([is_home[(team, 9)], is_home[(team, 1)].Not(), is_home[(team, 2)].Not()]).OnlyEnforceIf(cross_9_10_11_home)
             model.AddBoolOr([is_home[(team, 9)].Not(), is_home[(team, 1)], is_home[(team, 2)]]).OnlyEnforceIf(cross_9_10_11_home.Not())
-            penalties.append(cross_9_10_11_home * WEIGHTS["consecutive_3"])
+            penalties.append(cross_9_10_11_home * CONSECUTIVE_3_PENALTY)
 
             cross_9_10_11_away = model.NewBoolVar(f"cons_a_{team}_9_10_11")
             model.AddBoolAnd([is_home[(team, 9)].Not(), is_home[(team, 1)], is_home[(team, 2)]]).OnlyEnforceIf(cross_9_10_11_away)
             model.AddBoolOr([is_home[(team, 9)], is_home[(team, 1)].Not(), is_home[(team, 2)].Not()]).OnlyEnforceIf(cross_9_10_11_away.Not())
-            penalties.append(cross_9_10_11_away * WEIGHTS["consecutive_3"])
+            penalties.append(cross_9_10_11_away * CONSECUTIVE_3_PENALTY)
 
         if penalties:
             model.Minimize(sum(penalties))
@@ -298,7 +354,7 @@ class FixtureGenerator:
         # Solve
         solver = cp_model.CpSolver()
         solver.parameters.max_time_in_seconds = SOLVER_TIME_LIMIT
-        solver.parameters.num_search_workers = 8
+        solver.parameters.num_search_workers = NUM_SEARCH_WORKERS
         if seed is not None:
             solver.parameters.random_seed = seed
 
@@ -327,6 +383,9 @@ class FixtureGenerator:
 
     def _generate_full_18_weeks(self, seed: int | None) -> list[Fixture]:
         """Generate fixtures over full 18 weeks without mirroring."""
+        if seed is not None:
+            random.seed(seed)
+
         model = cp_model.CpModel()
         all_weeks = list(range(1, 19))  # Weeks 1-18
 
@@ -405,10 +464,15 @@ class FixtureGenerator:
 
         # Ensure reverse fixtures
         for div in self.divisions:
-            base_matchups = list(combinations([t.code for t in div.teams], 2))
-            for idx, (t1, t2) in enumerate(base_matchups):
-                meeting_1 = (div.name, t1, t2, idx * 2)
-                meeting_2 = (div.name, t1, t2, idx * 2 + 1)
+            matchups = div_matchups[div.name]
+            # Group by team pairs (each pair has 2 meetings)
+            pairs: dict[tuple[str, str], list[int]] = defaultdict(list)
+            for t1, t2, meeting_id in matchups:
+                pairs[(t1, t2)].append(meeting_id)
+
+            for (t1, t2), meeting_ids in pairs.items():
+                meeting_1 = (div.name, t1, t2, meeting_ids[0])
+                meeting_2 = (div.name, t1, t2, meeting_ids[1])
 
                 # Opposite home/away
                 model.Add(home_var[meeting_1] + home_var[meeting_2] == 1)
@@ -442,45 +506,35 @@ class FixtureGenerator:
                 else:
                     model.Add(is_home[(team, week)] == 0)
 
-        # No 4 consecutive
+        # Hard constraint: No MAX_CONSECUTIVE_SAME_VENUE consecutive home or away
         for team in self.all_teams:
             for start in range(1, 16):
                 if start + 3 <= 18:
                     weeks_seq = [start, start + 1, start + 2, start + 3]
                     home_vars = [is_home[(team, w)] for w in weeks_seq]
-                    model.Add(sum(home_vars) <= 3)
+                    # Can't have all MAX_CONSECUTIVE_SAME_VENUE home (sum must be <= MAX-1)
+                    model.Add(sum(home_vars) <= MAX_CONSECUTIVE_SAME_VENUE - 1)
+                    # Can't have all MAX_CONSECUTIVE_SAME_VENUE away (sum must be >= 1)
                     model.Add(sum(home_vars) >= 1)
 
-        # Soft constraints
-        penalties = []
-
-        # Ground sharing
+        # Hard constraint: Ground sharing (teams from same club can't both be home)
         for t1, t2, max_tier in self.ground_sharing_pairs:
-            weight = {
-                1: WEIGHTS["ground_sharing_1st_xi"],
-                2: WEIGHTS["ground_sharing_2nd_xi"],
-                3: WEIGHTS["ground_sharing_3rd_xi"],
-                4: WEIGHTS["ground_sharing_4th_xi"],
-            }.get(max_tier, WEIGHTS["ground_sharing_4th_xi"])
-
             for week in all_weeks:
-                both_home = model.NewBoolVar(f"gs_{t1}_{t2}_{week}")
-                model.AddBoolAnd([is_home[(t1, week)], is_home[(t2, week)]]).OnlyEnforceIf(both_home)
-                model.AddBoolOr([is_home[(t1, week)].Not(), is_home[(t2, week)].Not()]).OnlyEnforceIf(both_home.Not())
-                penalties.append(both_home * weight)
+                # At least one must NOT be home (they can't both be home)
+                model.AddBoolOr([is_home[(t1, week)].Not(), is_home[(t2, week)].Not()])
 
-        # Venue conflicts
+        # Hard constraint: Venue conflicts (cross-division teams sharing pitches)
         for conflict_set in self.venue_conflicts:
             conflict_teams = [t for t in conflict_set if t in self.all_teams]
             if len(conflict_teams) >= 2:
                 for t1_idx, t1 in enumerate(conflict_teams):
                     for t2 in conflict_teams[t1_idx + 1:]:
-                        weight = WEIGHTS["ground_sharing_1st_xi"]
                         for week in all_weeks:
-                            both_home = model.NewBoolVar(f"vc_{t1}_{t2}_{week}")
-                            model.AddBoolAnd([is_home[(t1, week)], is_home[(t2, week)]]).OnlyEnforceIf(both_home)
-                            model.AddBoolOr([is_home[(t1, week)].Not(), is_home[(t2, week)].Not()]).OnlyEnforceIf(both_home.Not())
-                            penalties.append(both_home * weight)
+                            # At least one must NOT be home
+                            model.AddBoolOr([is_home[(t1, week)].Not(), is_home[(t2, week)].Not()])
+
+        # Soft constraints
+        penalties = []
 
         # Consecutive 3
         for team in self.all_teams:
@@ -489,20 +543,20 @@ class FixtureGenerator:
                     all_home = model.NewBoolVar(f"cons_h_{team}_{start}")
                     model.AddBoolAnd([is_home[(team, start)], is_home[(team, start+1)], is_home[(team, start+2)]]).OnlyEnforceIf(all_home)
                     model.AddBoolOr([is_home[(team, start)].Not(), is_home[(team, start+1)].Not(), is_home[(team, start+2)].Not()]).OnlyEnforceIf(all_home.Not())
-                    penalties.append(all_home * WEIGHTS["consecutive_3"])
+                    penalties.append(all_home * CONSECUTIVE_3_PENALTY)
 
                     all_away = model.NewBoolVar(f"cons_a_{team}_{start}")
                     model.AddBoolAnd([is_home[(team, start)].Not(), is_home[(team, start+1)].Not(), is_home[(team, start+2)].Not()]).OnlyEnforceIf(all_away)
                     model.AddBoolOr([is_home[(team, start)], is_home[(team, start+1)], is_home[(team, start+2)]]).OnlyEnforceIf(all_away.Not())
-                    penalties.append(all_away * WEIGHTS["consecutive_3"])
+                    penalties.append(all_away * CONSECUTIVE_3_PENALTY)
 
         if penalties:
             model.Minimize(sum(penalties))
 
         # Solve
         solver = cp_model.CpSolver()
-        solver.parameters.max_time_in_seconds = SOLVER_TIME_LIMIT * 3  # Give more time for 18-week
-        solver.parameters.num_search_workers = 8
+        solver.parameters.max_time_in_seconds = SOLVER_TIME_LIMIT * FULL_18_WEEK_TIME_MULTIPLIER
+        solver.parameters.num_search_workers = NUM_SEARCH_WORKERS
         if seed is not None:
             solver.parameters.random_seed = seed
 
