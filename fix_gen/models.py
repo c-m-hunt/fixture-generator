@@ -36,6 +36,11 @@ class Division:
     teams: list[Team]
     tier: int  # 1 = 1st XI, 2 = 2nd XI, etc.
 
+    @property
+    def has_bye_weeks(self) -> bool:
+        """Returns True if this division has 11 teams (requires bye weeks)."""
+        return len(self.teams) == 11
+
     @classmethod
     def from_row(cls, row: list[str]) -> "Division":
         name = row[0]
@@ -46,7 +51,7 @@ class Division:
             tier = 2
         elif name in ["Div 8", "Div 9"]:
             tier = 3
-        elif name in ["Div 10", "Div 11"]:
+        elif name in ["Div 10", "Div 11", "Div 12"]:
             tier = 4
         # Fallback for old naming convention
         elif "1st XI" in name:

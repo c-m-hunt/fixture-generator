@@ -67,6 +67,7 @@ class FixtureGenerator:
 
         Tries mirrored approach first (faster, guarantees home/away balance).
         Falls back to full 18-week scheduling if mirrored approach fails.
+        For divisions with 11 teams (bye weeks), only uses full 18-week approach.
 
         Args:
             seed: Optional random seed for reproducible but varied fixture generation.
@@ -83,21 +84,28 @@ class FixtureGenerator:
 
         random.seed(seed)
 
-        # Check if mirrored approach is viable
-        print("Attempting mirrored schedule (weeks 1-9, mirrored to 10-18)...")
-        mirroring_conflicts = self._check_mirroring_conflicts()
-
-        if mirroring_conflicts:
-            print(f"  ✗ Mirrored approach not viable due to {len(mirroring_conflicts)} venue requirement conflicts:")
-            for team, conflicts in mirroring_conflicts.items():
-                print(f"     {team}: {conflicts}")
-            print("  → Skipping mirrored approach, using full 18-week schedule...")
+        # Check if any division has 11 teams (requires bye weeks)
+        has_bye_divisions = any(div.has_bye_weeks for div in self.divisions)
+        if has_bye_divisions:
+            bye_divs = [div.name for div in self.divisions if div.has_bye_weeks]
+            print(f"  → Divisions with 11 teams detected: {', '.join(bye_divs)}")
+            print("  → Skipping mirrored approach (not compatible with bye weeks), using full 18-week schedule...")
         else:
-            fixtures = self._generate_mirrored(seed)
-            if fixtures:
-                print("  ✓ Mirrored schedule successful!")
-                return fixtures, seed
-            print("  ✗ Mirrored schedule failed (solver couldn't find solution), trying full 18-week schedule...")
+            # Check if mirrored approach is viable
+            print("Attempting mirrored schedule (weeks 1-9, mirrored to 10-18)...")
+            mirroring_conflicts = self._check_mirroring_conflicts()
+
+            if mirroring_conflicts:
+                print(f"  ✗ Mirrored approach not viable due to {len(mirroring_conflicts)} venue requirement conflicts:")
+                for team, conflicts in mirroring_conflicts.items():
+                    print(f"     {team}: {conflicts}")
+                print("  → Skipping mirrored approach, using full 18-week schedule...")
+            else:
+                fixtures = self._generate_mirrored(seed)
+                if fixtures:
+                    print("  ✓ Mirrored schedule successful!")
+                    return fixtures, seed
+                print("  ✗ Mirrored schedule failed (solver couldn't find solution), trying full 18-week schedule...")
 
         fixtures = self._generate_full_18_weeks(seed)
         if fixtures:
@@ -382,7 +390,10 @@ class FixtureGenerator:
         return fixtures
 
     def _generate_full_18_weeks(self, seed: int | None) -> list[Fixture]:
-        """Generate fixtures over full 18 weeks without mirroring."""
+        """Generate fixtures over full 18 weeks without mirroring.
+
+        Handles both 10-team divisions (standard) and 11-team divisions (with bye weeks).
+        """
         if seed is not None:
             random.seed(seed)
 
@@ -390,8 +401,9 @@ class FixtureGenerator:
         all_weeks = list(range(1, 19))  # Weeks 1-18
 
         # Variables
-        week_var: dict[tuple[str, str, str], cp_model.IntVar] = {}
-        home_var: dict[tuple[str, str, str], cp_model.IntVar] = {}
+        week_var: dict[tuple[str, str, str, int], cp_model.IntVar] = {}
+        home_var: dict[tuple[str, str, str, int], cp_model.IntVar] = {}
+        matchup_used: dict[tuple[str, str, str, int], cp_model.IntVar] = {}  # For 11-team divisions
         is_home: dict[tuple[str, int], cp_model.IntVar] = {}
 
         # Create variables
@@ -405,15 +417,21 @@ class FixtureGenerator:
             if seed is not None:
                 random.shuffle(teams)
 
-            # Create 2 matchups for each team pair (home and away)
             matchups_with_reverse = []
             base_matchups = list(combinations(teams, 2))
             if seed is not None:
                 random.shuffle(base_matchups)
 
-            for idx, (t1, t2) in enumerate(base_matchups):
-                matchups_with_reverse.append((t1, t2, idx * 2))      # First meeting
-                matchups_with_reverse.append((t1, t2, idx * 2 + 1))  # Reverse meeting
+            if div.has_bye_weeks:
+                # 11-team division: each pair can have 1 or 2 meetings
+                for idx, (t1, t2) in enumerate(base_matchups):
+                    matchups_with_reverse.append((t1, t2, idx * 2))      # First meeting
+                    matchups_with_reverse.append((t1, t2, idx * 2 + 1))  # Second meeting (optional)
+            else:
+                # 10-team division: each pair has exactly 2 meetings
+                for idx, (t1, t2) in enumerate(base_matchups):
+                    matchups_with_reverse.append((t1, t2, idx * 2))      # First meeting
+                    matchups_with_reverse.append((t1, t2, idx * 2 + 1))  # Reverse meeting
 
             div_matchups[div.name] = matchups_with_reverse
 
@@ -421,25 +439,52 @@ class FixtureGenerator:
                 week_var[(div.name, t1, t2, meeting_id)] = model.NewIntVar(1, 18, f"week_{div.name}_{t1}_{t2}_{meeting_id}")
                 home_var[(div.name, t1, t2, meeting_id)] = model.NewBoolVar(f"home_{div.name}_{t1}_{t2}_{meeting_id}")
 
+                if div.has_bye_weeks:
+                    # Add variable to track if this matchup is actually used
+                    matchup_used[(div.name, t1, t2, meeting_id)] = model.NewBoolVar(f"used_{div.name}_{t1}_{t2}_{meeting_id}")
+
         # Link variables
         team_home_indicators: dict[tuple[str, int], list] = defaultdict(list)
         for div in self.divisions:
             matchups = div_matchups[div.name]
             for t1, t2, meeting_id in matchups:
                 for week in all_weeks:
-                    is_week = model.NewBoolVar(f"is_week_{div.name}_{t1}_{t2}_{meeting_id}_{week}")
-                    model.Add(week_var[(div.name, t1, t2, meeting_id)] == week).OnlyEnforceIf(is_week)
-                    model.Add(week_var[(div.name, t1, t2, meeting_id)] != week).OnlyEnforceIf(is_week.Not())
+                    key = (div.name, t1, t2, meeting_id)
 
-                    t1_home_this = model.NewBoolVar(f"t1h_{div.name}_{t1}_{t2}_{meeting_id}_{week}")
-                    model.AddBoolAnd([is_week, home_var[(div.name, t1, t2, meeting_id)]]).OnlyEnforceIf(t1_home_this)
-                    model.AddBoolOr([is_week.Not(), home_var[(div.name, t1, t2, meeting_id)].Not()]).OnlyEnforceIf(t1_home_this.Not())
-                    team_home_indicators[(t1, week)].append(t1_home_this)
+                    if div.has_bye_weeks:
+                        # For 11-team divisions, only count if matchup is used
+                        is_week = model.NewBoolVar(f"is_week_{div.name}_{t1}_{t2}_{meeting_id}_{week}")
+                        model.Add(week_var[key] == week).OnlyEnforceIf(is_week)
+                        model.Add(week_var[key] != week).OnlyEnforceIf(is_week.Not())
 
-                    t2_home_this = model.NewBoolVar(f"t2h_{div.name}_{t1}_{t2}_{meeting_id}_{week}")
-                    model.AddBoolAnd([is_week, home_var[(div.name, t1, t2, meeting_id)].Not()]).OnlyEnforceIf(t2_home_this)
-                    model.AddBoolOr([is_week.Not(), home_var[(div.name, t1, t2, meeting_id)]]).OnlyEnforceIf(t2_home_this.Not())
-                    team_home_indicators[(t2, week)].append(t2_home_this)
+                        is_week_and_used = model.NewBoolVar(f"is_week_used_{div.name}_{t1}_{t2}_{meeting_id}_{week}")
+                        model.AddBoolAnd([is_week, matchup_used[key]]).OnlyEnforceIf(is_week_and_used)
+                        model.AddBoolOr([is_week.Not(), matchup_used[key].Not()]).OnlyEnforceIf(is_week_and_used.Not())
+
+                        t1_home_this = model.NewBoolVar(f"t1h_{div.name}_{t1}_{t2}_{meeting_id}_{week}")
+                        model.AddBoolAnd([is_week_and_used, home_var[key]]).OnlyEnforceIf(t1_home_this)
+                        model.AddBoolOr([is_week_and_used.Not(), home_var[key].Not()]).OnlyEnforceIf(t1_home_this.Not())
+                        team_home_indicators[(t1, week)].append(t1_home_this)
+
+                        t2_home_this = model.NewBoolVar(f"t2h_{div.name}_{t1}_{t2}_{meeting_id}_{week}")
+                        model.AddBoolAnd([is_week_and_used, home_var[key].Not()]).OnlyEnforceIf(t2_home_this)
+                        model.AddBoolOr([is_week_and_used.Not(), home_var[key]]).OnlyEnforceIf(t2_home_this.Not())
+                        team_home_indicators[(t2, week)].append(t2_home_this)
+                    else:
+                        # For 10-team divisions, standard logic
+                        is_week = model.NewBoolVar(f"is_week_{div.name}_{t1}_{t2}_{meeting_id}_{week}")
+                        model.Add(week_var[key] == week).OnlyEnforceIf(is_week)
+                        model.Add(week_var[key] != week).OnlyEnforceIf(is_week.Not())
+
+                        t1_home_this = model.NewBoolVar(f"t1h_{div.name}_{t1}_{t2}_{meeting_id}_{week}")
+                        model.AddBoolAnd([is_week, home_var[key]]).OnlyEnforceIf(t1_home_this)
+                        model.AddBoolOr([is_week.Not(), home_var[key].Not()]).OnlyEnforceIf(t1_home_this.Not())
+                        team_home_indicators[(t1, week)].append(t1_home_this)
+
+                        t2_home_this = model.NewBoolVar(f"t2h_{div.name}_{t1}_{t2}_{meeting_id}_{week}")
+                        model.AddBoolAnd([is_week, home_var[key].Not()]).OnlyEnforceIf(t2_home_this)
+                        model.AddBoolOr([is_week.Not(), home_var[key]]).OnlyEnforceIf(t2_home_this.Not())
+                        team_home_indicators[(t2, week)].append(t2_home_this)
 
         for team in self.all_teams:
             for week in all_weeks:
@@ -447,7 +492,7 @@ class FixtureGenerator:
                 if indicators:
                     model.Add(is_home[(team, week)] == sum(indicators))
 
-        # One game per week
+        # One game per week (or bye week for 11-team divisions)
         for div in self.divisions:
             teams = [t.code for t in div.teams]
             matchups = div_matchups[div.name]
@@ -456,16 +501,54 @@ class FixtureGenerator:
                     matchups_this_week = []
                     for t1, t2, meeting_id in matchups:
                         if team in (t1, t2):
-                            is_w = model.NewBoolVar(f"cnt_{div.name}_{team}_{t1}_{t2}_{meeting_id}_{week}")
-                            model.Add(week_var[(div.name, t1, t2, meeting_id)] == week).OnlyEnforceIf(is_w)
-                            model.Add(week_var[(div.name, t1, t2, meeting_id)] != week).OnlyEnforceIf(is_w.Not())
-                            matchups_this_week.append(is_w)
-                    model.Add(sum(matchups_this_week) == 1)
+                            key = (div.name, t1, t2, meeting_id)
+                            if div.has_bye_weeks:
+                                # For 11-team: count only if matchup is used
+                                is_w = model.NewBoolVar(f"is_w_{div.name}_{team}_{t1}_{t2}_{meeting_id}_{week}")
+                                model.Add(week_var[key] == week).OnlyEnforceIf(is_w)
+                                model.Add(week_var[key] != week).OnlyEnforceIf(is_w.Not())
+
+                                is_w_and_used = model.NewBoolVar(f"cnt_{div.name}_{team}_{t1}_{t2}_{meeting_id}_{week}")
+                                model.AddBoolAnd([is_w, matchup_used[key]]).OnlyEnforceIf(is_w_and_used)
+                                model.AddBoolOr([is_w.Not(), matchup_used[key].Not()]).OnlyEnforceIf(is_w_and_used.Not())
+                                matchups_this_week.append(is_w_and_used)
+                            else:
+                                # For 10-team: standard logic
+                                is_w = model.NewBoolVar(f"cnt_{div.name}_{team}_{t1}_{t2}_{meeting_id}_{week}")
+                                model.Add(week_var[key] == week).OnlyEnforceIf(is_w)
+                                model.Add(week_var[key] != week).OnlyEnforceIf(is_w.Not())
+                                matchups_this_week.append(is_w)
+
+                    if div.has_bye_weeks:
+                        # 11-team division: 0 or 1 game per week (allows bye weeks)
+                        model.Add(sum(matchups_this_week) <= 1)
+                    else:
+                        # 10-team division: exactly 1 game per week
+                        model.Add(sum(matchups_this_week) == 1)
+
+        # For 11-team divisions: ensure exactly 5 matches per week (10 teams playing, 1 bye)
+        for div in self.divisions:
+            if div.has_bye_weeks:
+                matchups = div_matchups[div.name]
+                for week in all_weeks:
+                    matches_this_week = []
+                    for t1, t2, meeting_id in matchups:
+                        key = (div.name, t1, t2, meeting_id)
+                        is_w = model.NewBoolVar(f"match_week_{div.name}_{t1}_{t2}_{meeting_id}_{week}")
+                        model.Add(week_var[key] == week).OnlyEnforceIf(is_w)
+                        model.Add(week_var[key] != week).OnlyEnforceIf(is_w.Not())
+
+                        match_played = model.NewBoolVar(f"match_played_{div.name}_{t1}_{t2}_{meeting_id}_{week}")
+                        model.AddBoolAnd([is_w, matchup_used[key]]).OnlyEnforceIf(match_played)
+                        model.AddBoolOr([is_w.Not(), matchup_used[key].Not()]).OnlyEnforceIf(match_played.Not())
+                        matches_this_week.append(match_played)
+                    # Exactly 5 matches per week (10 teams playing, 1 team has bye)
+                    model.Add(sum(matches_this_week) == 5)
 
         # Ensure reverse fixtures
         for div in self.divisions:
             matchups = div_matchups[div.name]
-            # Group by team pairs (each pair has 2 meetings)
+            # Group by team pairs (each pair has 2 potential meetings)
             pairs: dict[tuple[str, str], list[int]] = defaultdict(list)
             for t1, t2, meeting_id in matchups:
                 pairs[(t1, t2)].append(meeting_id)
@@ -474,18 +557,53 @@ class FixtureGenerator:
                 meeting_1 = (div.name, t1, t2, meeting_ids[0])
                 meeting_2 = (div.name, t1, t2, meeting_ids[1])
 
-                # Opposite home/away
-                model.Add(home_var[meeting_1] + home_var[meeting_2] == 1)
+                if div.has_bye_weeks:
+                    # 11-team division: play at least once, at most twice
+                    # At least one meeting must be used
+                    model.AddBoolOr([matchup_used[meeting_1], matchup_used[meeting_2]])
 
-                # No consecutive reverse (different weeks, not adjacent)
-                week_diff = model.NewIntVar(-17, 17, f"wdiff_{div.name}_{t1}_{t2}")
-                model.Add(week_diff == week_var[meeting_1] - week_var[meeting_2])
-                model.Add(week_diff != 1)
-                model.Add(week_diff != -1)
+                    # If both meetings are used, they must have opposite home/away and not be consecutive
+                    both_used = model.NewBoolVar(f"both_used_{div.name}_{t1}_{t2}")
+                    model.AddBoolAnd([matchup_used[meeting_1], matchup_used[meeting_2]]).OnlyEnforceIf(both_used)
+                    model.AddBoolOr([matchup_used[meeting_1].Not(), matchup_used[meeting_2].Not()]).OnlyEnforceIf(both_used.Not())
 
-        # Home/away balance (exactly 9 home, 9 away)
-        for team in self.all_teams:
-            model.Add(sum(is_home[(team, w)] for w in all_weeks) == 9)
+                    # When both used: opposite home/away
+                    model.Add(home_var[meeting_1] + home_var[meeting_2] == 1).OnlyEnforceIf(both_used)
+
+                    # When both used: no consecutive reverse
+                    week_diff = model.NewIntVar(-17, 17, f"wdiff_{div.name}_{t1}_{t2}")
+                    model.Add(week_diff == week_var[meeting_1] - week_var[meeting_2])
+                    model.Add(week_diff != 1).OnlyEnforceIf(both_used)
+                    model.Add(week_diff != -1).OnlyEnforceIf(both_used)
+                else:
+                    # 10-team division: both meetings must be used with opposite home/away
+                    # Opposite home/away
+                    model.Add(home_var[meeting_1] + home_var[meeting_2] == 1)
+
+                    # No consecutive reverse (different weeks, not adjacent)
+                    week_diff = model.NewIntVar(-17, 17, f"wdiff_{div.name}_{t1}_{t2}")
+                    model.Add(week_diff == week_var[meeting_1] - week_var[meeting_2])
+                    model.Add(week_diff != 1)
+                    model.Add(week_diff != -1)
+
+        # Home/away balance and minimum games
+        for div in self.divisions:
+            teams = [t.code for t in div.teams]
+            if div.has_bye_weeks:
+                # 11-team division: ensure each team plays at least 16 games
+                # Count matchups involving each team that are actually used
+                for team in teams:
+                    team_matchups_used = []
+                    for t1, t2, meeting_id in div_matchups[div.name]:
+                        if team in (t1, t2):
+                            key = (div.name, t1, t2, meeting_id)
+                            team_matchups_used.append(matchup_used[key])
+                    # Each team must play at least 16 games (16 matchups used involving this team)
+                    model.Add(sum(team_matchups_used) >= 16)
+            else:
+                # 10-team division: exactly 9 home, 9 away
+                for team in teams:
+                    model.Add(sum(is_home[(team, w)] for w in all_weeks) == 9)
 
         # Fixed matches
         for fm in self.fixed_matches:
@@ -495,7 +613,11 @@ class FixtureGenerator:
                     matchups = div_matchups[div.name]
                     for t1, t2, meeting_id in matchups:
                         if {t1, t2} == {fm.team1, fm.team2}:
-                            model.Add(week_var[(div.name, t1, t2, meeting_id)] == fm.week)
+                            key = (div.name, t1, t2, meeting_id)
+                            model.Add(week_var[key] == fm.week)
+                            if div.has_bye_weeks:
+                                # Ensure this matchup is used
+                                model.Add(matchup_used[key] == 1)
                     break
 
         # Venue requirements
@@ -570,8 +692,15 @@ class FixtureGenerator:
         for div in self.divisions:
             matchups = div_matchups[div.name]
             for t1, t2, meeting_id in matchups:
-                week = solver.Value(week_var[(div.name, t1, t2, meeting_id)])
-                t1_is_home = solver.Value(home_var[(div.name, t1, t2, meeting_id)])
+                key = (div.name, t1, t2, meeting_id)
+
+                # For 11-team divisions, only extract fixtures that are actually used
+                if div.has_bye_weeks:
+                    if not solver.Value(matchup_used[key]):
+                        continue  # Skip unused matchups
+
+                week = solver.Value(week_var[key])
+                t1_is_home = solver.Value(home_var[key])
 
                 if t1_is_home:
                     home, away = t1, t2

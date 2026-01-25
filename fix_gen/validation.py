@@ -22,32 +22,66 @@ def validate_fixtures(fixtures: list[Fixture], divisions: list[Division]) -> lis
         div_fixtures = by_division[div.name]
         teams = [t.code for t in div.teams]
 
-        # Check each team plays 18 games
-        for team in teams:
-            games = [f for f in div_fixtures if f.home_team == team or f.away_team == team]
-            if len(games) != 18:
-                issues.append(f"{team}: plays {len(games)} games, expected 18")
+        if div.has_bye_weeks:
+            # 11-team division validation
+            # Check each team plays 16-17 games (with bye weeks)
+            for team in teams:
+                games = [f for f in div_fixtures if f.home_team == team or f.away_team == team]
+                if not (16 <= len(games) <= 17):
+                    issues.append(f"{team}: plays {len(games)} games, expected 16-17 (with bye weeks)")
 
-        # Check each team plays 9 home and 9 away
-        for team in teams:
-            home_games = [f for f in div_fixtures if f.home_team == team]
-            away_games = [f for f in div_fixtures if f.away_team == team]
-            if len(home_games) != 9:
-                issues.append(f"{team}: {len(home_games)} home games, expected 9")
-            if len(away_games) != 9:
-                issues.append(f"{team}: {len(away_games)} away games, expected 9")
+            # For 11-team divisions, don't check exact home/away balance (bye weeks make it impossible)
+            # Just check that teams play a reasonable mix
+            for team in teams:
+                home_games = [f for f in div_fixtures if f.home_team == team]
+                away_games = [f for f in div_fixtures if f.away_team == team]
+                total_games = len(home_games) + len(away_games)
+                # Allow some imbalance, but not too extreme (at least 6 of each for 16 games)
+                if total_games >= 16:
+                    if len(home_games) < 6 or len(away_games) < 6:
+                        issues.append(f"{team}: unbalanced home/away ({len(home_games)}H/{len(away_games)}A)")
 
-        # Check each pair plays twice (once each way)
-        for t1, t2 in combinations(teams, 2):
-            h2h = [f for f in div_fixtures
-                   if (f.home_team == t1 and f.away_team == t2) or
-                      (f.home_team == t2 and f.away_team == t1)]
-            if len(h2h) != 2:
-                issues.append(f"{t1} vs {t2}: {len(h2h)} matches, expected 2")
-            elif len(h2h) == 2:
-                homes = [f.home_team for f in h2h]
-                if homes[0] == homes[1]:
-                    issues.append(f"{t1} vs {t2}: same home team in both matches")
+            # Check each pair plays at least once, at most twice
+            for t1, t2 in combinations(teams, 2):
+                h2h = [f for f in div_fixtures
+                       if (f.home_team == t1 and f.away_team == t2) or
+                          (f.home_team == t2 and f.away_team == t1)]
+                if len(h2h) < 1:
+                    issues.append(f"{t1} vs {t2}: {len(h2h)} matches, expected at least 1")
+                elif len(h2h) > 2:
+                    issues.append(f"{t1} vs {t2}: {len(h2h)} matches, expected at most 2")
+                elif len(h2h) == 2:
+                    homes = [f.home_team for f in h2h]
+                    if homes[0] == homes[1]:
+                        issues.append(f"{t1} vs {t2}: same home team in both matches")
+        else:
+            # 10-team division validation (standard)
+            # Check each team plays 18 games
+            for team in teams:
+                games = [f for f in div_fixtures if f.home_team == team or f.away_team == team]
+                if len(games) != 18:
+                    issues.append(f"{team}: plays {len(games)} games, expected 18")
+
+            # Check each team plays 9 home and 9 away
+            for team in teams:
+                home_games = [f for f in div_fixtures if f.home_team == team]
+                away_games = [f for f in div_fixtures if f.away_team == team]
+                if len(home_games) != 9:
+                    issues.append(f"{team}: {len(home_games)} home games, expected 9")
+                if len(away_games) != 9:
+                    issues.append(f"{team}: {len(away_games)} away games, expected 9")
+
+            # Check each pair plays twice (once each way)
+            for t1, t2 in combinations(teams, 2):
+                h2h = [f for f in div_fixtures
+                       if (f.home_team == t1 and f.away_team == t2) or
+                          (f.home_team == t2 and f.away_team == t1)]
+                if len(h2h) != 2:
+                    issues.append(f"{t1} vs {t2}: {len(h2h)} matches, expected 2")
+                elif len(h2h) == 2:
+                    homes = [f.home_team for f in h2h]
+                    if homes[0] == homes[1]:
+                        issues.append(f"{t1} vs {t2}: same home team in both matches")
 
         # Check no consecutive reverse fixtures
         for t1, t2 in combinations(teams, 2):
