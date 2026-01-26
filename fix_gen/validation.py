@@ -5,7 +5,6 @@ Validation functions for generated fixtures.
 from collections import defaultdict
 from itertools import combinations
 
-from .ground_sharing import build_ground_sharing_pairs
 from .models import Division, Fixture
 
 
@@ -120,9 +119,14 @@ class CrossDivisionCoordinator:
     Checks and reports cross-division ground sharing violations.
     """
 
-    def __init__(self, divisions: list[Division]):
-        self.divisions = divisions
-        self.ground_sharing_pairs = build_ground_sharing_pairs(divisions)
+    def __init__(self, venue_conflicts: list[tuple[str, str]]):
+        """
+        Initialize with explicit venue conflicts from venConflicts.csv.
+
+        Args:
+            venue_conflicts: List of (team1, team2) tuples that share a venue/pitch
+        """
+        self.ground_sharing_pairs = venue_conflicts
 
     def check_violations(self, fixtures: list[Fixture]) -> list[str]:
         """Check for ground sharing violations across divisions."""

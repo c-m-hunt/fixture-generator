@@ -25,10 +25,6 @@ class Team:
             division=division,
         )
 
-    def ground_sharing_group(self) -> int:
-        """Returns which ground-sharing group this team belongs to (1-2, 3-4, 5-6, 7-8)."""
-        return (self.number - 1) // 2
-
 
 @dataclass
 class Division:

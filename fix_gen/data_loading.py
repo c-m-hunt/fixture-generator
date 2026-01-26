@@ -69,11 +69,14 @@ def load_venue_requirements(filepath: Path) -> list[VenueRequirement]:
     return requirements
 
 
-def load_venue_conflicts(filepath: Path) -> list[set[str]]:
+def load_venue_conflicts(filepath: Path) -> list[tuple[str, str]]:
     """Load venue conflicts from CSV file.
 
-    Each row contains teams that share a venue/pitch (from different clubs).
-    Returns a list of sets, where each set contains teams sharing a venue.
+    Each row contains two teams that share a venue/pitch.
+    This includes both same-club ground sharing (e.g., BAP1 & BAP2)
+    and cross-club venue sharing.
+
+    Returns a list of (team1, team2) tuples.
     """
     conflicts = []
     if not filepath.exists():
@@ -81,7 +84,12 @@ def load_venue_conflicts(filepath: Path) -> list[set[str]]:
     with open(filepath, "r") as f:
         reader = csv.reader(f)
         for row in reader:
-            teams = {t.strip() for t in row if t.strip()}
-            if len(teams) >= 2:
-                conflicts.append(teams)
+            teams = [t.strip() for t in row if t.strip()]
+            if len(teams) == 2:
+                conflicts.append((teams[0], teams[1]))
+            elif len(teams) > 2:
+                # If more than 2 teams in a row, create pairs
+                from itertools import combinations
+                for t1, t2 in combinations(teams, 2):
+                    conflicts.append((t1, t2))
     return conflicts

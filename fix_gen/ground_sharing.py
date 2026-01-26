@@ -1,5 +1,11 @@
 """
 Ground sharing analysis functions.
+
+DEPRECATED: This module is no longer used in the fixture generator.
+Ground sharing/venue conflicts are now explicitly defined in data/venConflicts.csv
+and loaded via data_loading.load_venue_conflicts().
+
+This file is kept for reference only and may be removed in the future.
 """
 
 from collections import defaultdict

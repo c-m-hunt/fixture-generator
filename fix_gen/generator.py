@@ -16,7 +16,6 @@ from .config import (
     RANDOM_SEED_RANGE,
     SOLVER_TIME_LIMIT,
 )
-from .ground_sharing import build_ground_sharing_pairs
 from .models import Division, FixedMatch, Fixture, VenueRequirement
 
 
@@ -34,20 +33,20 @@ class FixtureGenerator:
         divisions: list[Division],
         fixed_matches: list[FixedMatch],
         venue_requirements: list[VenueRequirement],
-        venue_conflicts: list[set[str]] | None = None,
+        venue_conflicts: list[tuple[str, str]] | None = None,
     ):
         self.divisions = divisions
         self.fixed_matches = fixed_matches
         self.venue_requirements = venue_requirements
-        self.venue_conflicts = venue_conflicts or []
+        # venue_conflicts now includes ALL ground sharing pairs (same-club and cross-club)
+        # loaded from venConflicts.csv
+        self.ground_sharing_pairs = venue_conflicts or []
 
         # Build lookup structures
         self.team_to_division: dict[str, Division] = {}
         for div in divisions:
             for team in div.teams:
                 self.team_to_division[team.code] = div
-
-        self.ground_sharing_pairs = build_ground_sharing_pairs(divisions)
 
         # Venue requirements by team and week
         self.venue_req_lookup: dict[tuple[str, int], str] = {}
@@ -300,23 +299,18 @@ class FixtureGenerator:
         # In mirrored approach, must constrain both weeks 1-9 AND their mirrors (10-18)
         # If both are away in week N, they'll both be home in week N+9 (mirror)
         for t1, t2 in self.ground_sharing_pairs:
+            # Skip if either team is not in current divisions (e.g., cross-division conflicts)
+            if t1 not in self.all_teams or t2 not in self.all_teams:
+                continue
             for week in weeks_first_half:
                 # Can't both be home in weeks 1-9
                 model.AddBoolOr([is_home[(t1, week)].Not(), is_home[(t2, week)].Not()])
                 # Can't both be away in weeks 1-9 (would both be home in weeks 10-18)
                 model.AddBoolOr([is_home[(t1, week)], is_home[(t2, week)]])
 
-        # Hard constraint: Venue conflicts (cross-division teams sharing pitches)
-        for conflict_set in self.venue_conflicts:
-            conflict_teams = [t for t in conflict_set if t in self.all_teams]
-            if len(conflict_teams) >= 2:
-                for t1_idx, t1 in enumerate(conflict_teams):
-                    for t2 in conflict_teams[t1_idx + 1:]:
-                        for week in weeks_first_half:
-                            # Can't both be home
-                            model.AddBoolOr([is_home[(t1, week)].Not(), is_home[(t2, week)].Not()])
-                            # Can't both be away (would both be home in mirror)
-                            model.AddBoolOr([is_home[(t1, week)], is_home[(t2, week)]])
+        # Note: ground_sharing_pairs now includes ALL venue conflicts from venConflicts.csv
+        # (both same-club ground sharing and cross-club venue sharing)
+        # No need for separate venue_conflicts constraint
 
         # Soft constraints
         penalties = []
@@ -641,19 +635,16 @@ class FixtureGenerator:
 
         # Hard constraint: Ground sharing (teams from same club can't both be home)
         for t1, t2 in self.ground_sharing_pairs:
+            # Skip if either team is not in current divisions (e.g., cross-division conflicts)
+            if t1 not in self.all_teams or t2 not in self.all_teams:
+                continue
             for week in all_weeks:
                 # At least one must NOT be home (they can't both be home)
                 model.AddBoolOr([is_home[(t1, week)].Not(), is_home[(t2, week)].Not()])
 
-        # Hard constraint: Venue conflicts (cross-division teams sharing pitches)
-        for conflict_set in self.venue_conflicts:
-            conflict_teams = [t for t in conflict_set if t in self.all_teams]
-            if len(conflict_teams) >= 2:
-                for t1_idx, t1 in enumerate(conflict_teams):
-                    for t2 in conflict_teams[t1_idx + 1:]:
-                        for week in all_weeks:
-                            # At least one must NOT be home
-                            model.AddBoolOr([is_home[(t1, week)].Not(), is_home[(t2, week)].Not()])
+        # Note: ground_sharing_pairs now includes ALL venue conflicts from venConflicts.csv
+        # (both same-club ground sharing and cross-club venue sharing)
+        # No need for separate venue_conflicts constraint
 
         # Soft constraints
         penalties = []

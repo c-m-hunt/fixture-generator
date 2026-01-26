@@ -49,7 +49,7 @@ def main():
     print(f"Loaded {len(divisions)} divisions")
     print(f"Loaded {len(fixed_matches)} fixed match requirements")
     print(f"Loaded {len(venue_requirements)} venue requirements")
-    print(f"Loaded {len(venue_conflicts)} venue conflict groups")
+    print(f"Loaded {len(venue_conflicts)} venue conflict pairs")
 
     # Generate fixtures
     generator = FixtureGenerator(divisions, fixed_matches, venue_requirements, venue_conflicts)
@@ -60,7 +60,7 @@ def main():
     violations = validate_fixtures(fixtures, divisions)
 
     # Check cross-division ground sharing
-    coordinator = CrossDivisionCoordinator(divisions)
+    coordinator = CrossDivisionCoordinator(venue_conflicts)
     cross_violations = coordinator.check_violations(fixtures)
 
     # Output
