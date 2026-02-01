@@ -1,0 +1,92 @@
+================================================================================
+FIXTURE SCHEDULE ANALYSIS
+================================================================================
+
+Loading data...
+Loaded 1170 fixtures
+Found 131 teams
+Loaded 212 venue requirements
+Loaded 58 venue conflict pairs
+
+================================================================================
+1. MAXIMUM CONSECUTIVE GAMES AT SAME VENUE
+================================================================================
+
+✓ No teams with 4+ consecutive games at same venue
+
+✓ No teams with exactly 3 consecutive games
+
+Maximum consecutive games at same venue (any team): 2
+
+================================================================================
+2. VENUE REQUIREMENTS VERIFICATION
+================================================================================
+
+❌ VIOLATIONS FOUND: 3 venue requirements not satisfied
+
+  Week 12: BEL1     required 'a', got 'NO GAME' - No game scheduled for this week
+  Week  8: SPM4     required 'a', got 'NO GAME' - No game scheduled for this week
+  Week 11: SPM4     required 'h', got 'NO GAME' - No game scheduled for this week
+
+================================================================================
+3. VENUE CONFLICTS VERIFICATION (Ground Sharing)
+================================================================================
+
+✓ No venue conflicts - all 58 conflict pairs respected
+
+Distribution of maximum consecutive games:
+  1 consecutive: 12 teams
+  2 consecutive: 119 teams
+
+================================================================================
+4. NO CONSECUTIVE REVERSE FIXTURES CHECK
+================================================================================
+
+✓ No consecutive reverse fixtures detected
+
+================================================================================
+5. ROUND ROBIN COMPLETENESS CHECK
+================================================================================
+
+❌ VIOLATIONS FOUND: 1 round robin issues
+
+  Div 12: Division has 11 teams, expected 10
+
+================================================================================
+6. HOME/AWAY BALANCE CHECK
+================================================================================
+
+❌ VIOLATIONS FOUND: 11 teams with unbalanced schedules
+
+  GTO4    : 8 home, 8 away - Has 16 games, expected 18
+  BFL2    : 8 home, 9 away - Has 17 games, expected 18
+  RAF3    : 9 home, 8 away - Has 17 games, expected 18
+  GBA3    : 8 home, 8 away - Has 16 games, expected 18
+  SPM4    : 8 home, 8 away - Has 16 games, expected 18
+  BAP6    : 8 home, 8 away - Has 16 games, expected 18
+  SWB4    : 8 home, 8 away - Has 16 games, expected 18
+  IGF3    : 8 home, 9 away - Has 17 games, expected 18
+  TIL3    : 8 home, 8 away - Has 16 games, expected 18
+  BEL1    : 9 home, 8 away - Has 17 games, expected 18
+  RAY6    : 8 home, 8 away - Has 16 games, expected 18
+
+================================================================================
+SUMMARY
+================================================================================
+
+Issues found:
+
+HARD CONSTRAINT VIOLATIONS:
+  - Round robin completeness: 1
+  - Venue requirements: 3
+  - Consecutive reverse fixtures: 0
+  - Teams with 4+ consecutive at venue: 0
+
+SOFT CONSTRAINT VIOLATIONS:
+  - Teams with 3 consecutive at venue: 0
+  - Venue conflicts (ground sharing): 0
+  - Home/away balance issues: 11
+
+Total critical issues: 15
+Total warnings: 0
+
