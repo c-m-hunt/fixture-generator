@@ -1,0 +1,61 @@
+================================================================================
+CONSTRAINT ANALYSIS - POTENTIAL BLOCKERS
+================================================================================
+
+Teams with complete venue requirements (most constrained):
+  SPM1: hahahahahahahahaha
+  HIE1: ahahahahahahahahah
+  CTI1: hahahahahahahahaha
+  STA1: hahahahahahahahaha
+  BEN1: ahahahahahahahahah
+  HUT1: hahahahhaahahahaah
+  UPM1: ahahahaahhahahahha
+  BFL1: hahahahahahahahaha
+  SLO3: ahhahahahhaahahaha
+  BEL1: ahhahahahhaahahaha
+  SPM4: hahahahahahahahaha
+
+Checking for duplicate patterns in same division:
+  ✓ No duplicate patterns in same division
+
+Checking within-division compatibility for constrained teams:
+
+  Premier has 3 constrained teams: ['RET1', 'SPM1', 'TIL1']
+    ✓ RET1 vs SPM1 - 18 possible weeks
+    ✓ RET1 vs TIL1 - 18 possible weeks
+    ✓ SPM1 vs TIL1 - 18 possible weeks
+
+  Div 3 has 2 constrained teams: ['HIE1', 'RAN1']
+    ✓ HIE1 vs RAN1 - 17 possible weeks
+
+  Div 4 has 2 constrained teams: ['CWR1', 'CTI1']
+    ✓ CWR1 vs CTI1 - 18 possible weeks
+
+  Div 5 has 2 constrained teams: ['RET2', 'STA1']
+    ✓ RET2 vs STA1 - 17 possible weeks
+
+  Div 9 has 3 constrained teams: ['GAL3', 'HUT1', 'UPM1']
+    ✓ GAL3 vs HUT1 - 18 possible weeks
+    ✓ GAL3 vs UPM1 - 17 possible weeks
+    ✓ HUT1 vs UPM1 - 18 possible weeks
+
+  Div 10 has 2 constrained teams: ['BFL1', 'RAN2']
+    ✓ BFL1 vs RAN2 - 17 possible weeks
+
+  Div 12 has 3 constrained teams: ['BEL1', 'GBA3', 'SPM4']
+    ✓ BEL1 vs GBA3 - 18 possible weeks
+    ✓ BEL1 vs SPM4 - 4 possible weeks
+    ✓ GBA3 vs SPM4 - 18 possible weeks
+
+Checking venue conflicts for incompatible requirements:
+  ✓ No conflicts between venue requirements
+
+Checking 3-way conflicts for over-constraint:
+
+================================================================================
+SUMMARY
+================================================================================
+Total teams with requirements: 21
+Teams with complete requirements (18 weeks): 11
+Venue conflict pairs: 58
+3-way conflict chains: 2
