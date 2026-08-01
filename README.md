@@ -135,3 +135,16 @@ Edit `fix_gen/config.py` to adjust:
 ## License
 
 MIT
+
+
+838372
+338120
+
+
+
+Produces possible solution for div 12 but fails
+192925
+
+
+
+4,3

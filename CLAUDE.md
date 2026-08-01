@@ -1,92 +1,97 @@
-# Fixture Generator
+# CLAUDE.md
 
-Generate fixtures for a cricket league across multiple divisions with complex interdependent constraints.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Terminology
+## Keeping the rules documented
 
-- **Club**: A cricket club with a three-letter code (e.g., WOS = Westcliff on Sea)
-- **Team**: A club's code plus a number (e.g., WOS1 = Westcliff 1st XI, WOS2 = 2nd XI)
-- **Division**: A league of 10 teams that play each other
-- **Game Week**: Numbered 1-18 across the season
-- **Fixture**: A match between two teams (home team vs away team)
+`FIXTURE_RULES.md` is the canonical statement of the scheduling rules. **Whenever you change a rule, update `FIXTURE_RULES.md` in the same change** — never leave the two out of sync. A rule change means any of:
 
-## League Structure
+- adding, removing or altering a constraint in `fix_gen/generator.py` (remember both the mirrored and full-18 paths)
+- changing a tunable in `fix_gen/config.py` (`MAX_CONSECUTIVE_SAME_VENUE`, `CONSECUTIVE_3_PENALTY`, …)
+- moving a rule between hard and soft, or changing what the objective minimises
+- changing the post-solve checks in `fix_gen/validation.py` or `tests/test_fixtures.py`
 
-- 18 divisions total
-- Each division has exactly 10 teams
-- Each team plays every other team twice (once home, once away)
-- This results in 18 game weeks (9 opponents × 2 = 18 matches per team)
-- Each team plays exactly 9 home games and 9 away games
+Read `FIXTURE_RULES.md` before touching the constraint model — it records which rules are enforced, which are only tightened as a side effect of the mirrored strategy, and which appear in older docs but are not implemented.
 
-## Constraints (Priority Order - Highest First)
+## What this is
 
-### Hard Constraints (Must be satisfied)
+A CP-SAT (OR-Tools) fixture generator for a cricket league (Essex TRMEL). It reads CSVs from `data/`, solves one constraint model covering **all divisions at once**, and writes fixtures to `output/`. Both the inputs in `data/` and the generated `output/` are committed — this repo is as much a data workspace as a codebase, and most commits are data/output changes rather than code changes.
 
-1. **Complete Round Robin**: Every team must play every other team in their division exactly twice (once home, once away)
+## Commands
 
-2. **Fixed Match Requirements** (fixReq.csv): Specific teams MUST play each other on specified game weeks
+```bash
+uv sync                                  # install (Python >=3.12; .python-version pins 3.13.9)
+uv run python main.py                    # generate with a random seed
+uv run python main.py --seed 42          # reproducible run
 
-3. **Venue Requirements** (venReq.csv): Specific teams MUST play at home (h) or away (a) on specified game weeks
+uv run python scripts/retry_until_solution.py 100   # re-run with fresh seeds until a solution is found
+./scripts/retry_until_solution.sh 100               # same, in bash
 
-4. **No Consecutive Reverse Fixtures**: If Team A plays Team B in week N, the reverse fixture cannot be in week N+1
+uv run --extra test pytest tests/test_fixtures.py -q                 # validate output/fixtures.csv
+uv run --extra test pytest tests/test_fixtures.py -k RoundRobin -v   # single test class
+uv run --extra test python run_tests.py --hard-only                  # wrapper: --soft-only/--hard-only/-k/-x
+```
 
-5. **Maximum Consecutive Same Venue**: A team can NEVER have 4 consecutive home games or 4 consecutive away games
+pytest is an optional dependency, so `uv run pytest` fails with "Failed to spawn: pytest" — the `--extra test` is required (this also applies to `run_tests.py`, which imports pytest).
 
-### Soft Constraints (Break if necessary, in order of preference to maintain)
+Diagnostic scripts (all read `data/` and `output/` directly, no args):
 
-6. **Consecutive Venue Limit**: Prefer no more than 2 consecutive home or away games. 3 is acceptable if unavoidable.
+```bash
+uv run python scripts/analyze_constraints.py       # find venReq combinations that make a division unsolvable
+uv run python scripts/check_venreq_duplicates.py   # teams with identical venue patterns (guaranteed infeasible)
+uv run python scripts/check_3way_conflicts.py      # triangles/chains in venConflicts.csv
+uv run python scripts/analyze_fixtures.py          # stats + violations for the generated schedule
+uv run python scripts/validate_fixtures.py         # cross-check fixtures vs clubs/venReq/venConflicts
+uv run python scripts/generate_venConflicts.py     # rebuild venConflicts.csv from divisions.csv team numbers
+```
 
-7. **Ground Sharing**: Teams from the same club that share a ground should not both play at home on the same game week:
-   - Teams 1 & 2 share a ground
-   - Teams 3 & 4 share a ground
-   - Teams 5 & 6 share a ground
-   - Teams 7 & 8 share a ground (if they exist)
+## Architecture
 
-   This is the LAST rule to break if necessary.
+`main.py` is a thin pipeline: `data_loading` → `FixtureGenerator.generate()` → `validation` → `output`.
 
-### Division Priority
+**One model, all divisions.** `FixtureGenerator` (`fix_gen/generator.py`, the only substantial file) builds a single CP-SAT model spanning every division. This is forced by ground sharing: `BAP1` (Premier) and `BAP2` (Div 3) share a pitch, so divisions cannot be solved independently. Adding a per-division fast path would break that.
 
-When constraints must be broken, prioritize satisfying constraints for higher divisions:
-1. 1st XI divisions (Premier, Div 1, Div 2, Div 3)
-2. 2nd XI divisions
-3. 3rd XI divisions
-4. 4th XI divisions
+**Two solving strategies, chosen automatically in `generate()`:**
 
-## Data Files
+1. `_generate_mirrored` — solves weeks 1–9 only and mirrors to 10–18 with home/away swapped. Half the variables; free 9H/9A balance; reverse fixtures are always 9 weeks apart. Consecutive-venue penalties wrap around the week 9→10 boundary explicitly (`cons_h_*_8_9_10`, `cons_h_*_9_10_11`).
+2. `_generate_full_18_weeks` — all 18 weeks independent, with a `matchup_used` bool per meeting so 11-team divisions can leave meetings unplayed (bye weeks).
 
-### divisions.csv
-Format: `division_name,team1,team2,team3,team4,team5,team6,team7,team8,team9,team10`
+Mirroring is skipped when any division has 11 teams (`Division.has_bye_weeks`) or when `_check_mirroring_conflicts()` finds a team requiring the *same* venue in weeks `N` and `N+9` — mirroring makes that unsatisfiable by construction. It also falls back to full-18 if the mirrored solve returns no solution. Full-18 gets `SOLVER_TIME_LIMIT * FULL_18_WEEK_TIME_MULTIPLIER` seconds.
 
-Contains all 18 divisions with their 10 teams each.
+**Constraints in the model.** Full detail is in `FIXTURE_RULES.md`. In short — hard: round robin, one game per team per week, 9H/9A, no consecutive reverse fixture, never 4 consecutive same venue, `fixReq`, `venReq`, and **ground sharing**. Soft: exactly one penalty term, `CONSECUTIVE_3_PENALTY` per run of 3 consecutive home or away games, summed into `model.Minimize()`. Both solve paths build these separately, so a rule change usually has to be made twice.
 
-### fixReq.csv
-Format: `game_week,team1,team2`
+Two stale claims to ignore: `README.md` describes tier-weighted ground-sharing penalties (1st XI 1000 / 2nd XI 500 / …) and a `WEIGHTS` dict in `config.py`. Neither exists — ground sharing is a hard `AddBoolOr` in both strategies, and `Division.tier` is parsed but never read by the solver. Making ground sharing soft again means re-adding penalty vars, not flipping a config value.
 
-Fixed match requirements - these two teams MUST play each other in this game week.
+**`data/venConflicts.csv` is the single source of ground-sharing truth.** It is an explicit pair list covering same-club sharing *and* cross-club pitch sharing (e.g. `ILC1,SLO1`), so pairs are no longer derived from team numbers at runtime. `fix_gen/ground_sharing.py` is dead code kept for reference; its `build_ground_sharing_pairs()` calls a `Team.ground_sharing_group()` method that no longer exists on the model, so it raises `AttributeError` if called. Use `scripts/generate_venConflicts.py` to regenerate the same-club pairs, then hand-add cross-club ones.
 
-### venReq.csv
-Format: `team,venue,game_week`
+**Validation runs in two places** and they are not equivalent: `fix_gen/validation.py` (called by `main.py`, checks the in-memory fixtures) and `tests/test_fixtures.py` (re-implements its own loaders and checks the *committed* `output/fixtures.csv` against `data/`). The test suite is a data check, not a unit test suite — it passes or fails based on whether the last generated output matches the current inputs, so regenerate before trusting it. As of this writing 7 tests fail because `output/fixtures.csv` still contains `RAF3` in Div 12 while `data/divisions.csv` has since dropped it.
 
-Venue requirements - team must play at specified venue (h=home, a=away) on this game week.
+## Data files
 
-### venConflicts.csv
-Reserved for future use (venue conflicts).
+Live inputs are in `data/`; `data-ecl-2024/`, `data-ecl-2025/`, `data-trmel-2026/` are per-season snapshots (`data-trmel-2026/divisions.csv` is currently identical to `data/`). Paths are hardcoded to `data/` and `output/` in `main.py`, tests, and every script — switching seasons means copying files into `data/`, not passing a flag.
 
-### mappings.csv
-External system mappings (not relevant to fixture generation).
+| File | Format | Loaded by |
+| --- | --- | --- |
+| `divisions.csv` | `division_name,team1,…,team10` (headerless) | solver |
+| `fixReq.csv` | `game_week,team1,team2` — must play each other that week | solver |
+| `venReq.csv` | `team,venue(h/a),game_week` | solver |
+| `venConflicts.csv` | `teamA,teamB` pairs that cannot both be home | solver |
+| `clubs.csv` | `code,name` | `scripts/validate_fixtures.py` only |
+| `weeks.csv` | `week,date` | reference only |
+| `mappings.csv` | external system IDs | not used |
 
-## Output Format
+Currently 13 divisions (Premier, Div 1–12) of 10 teams each; the code also handles 11-team divisions. `load_divisions` raises on duplicate team codes across divisions.
 
-CSV with columns: `game_week,home_team,away_team,division`
+Outputs: `output/fixtures.csv` (`game_week,home_team,away_team,division`, with a `# Generated with seed: N` comment line), `fixtures.html`, `fixtures.txt` (per-division week grids).
 
-## Algorithm Considerations
+## Domain terminology
 
-### Mirrored Schedule Approach
-One approach is to generate weeks 1-9, then mirror for weeks 10-18 (swapping home/away). This automatically guarantees:
-- Perfect home/away balance (9 each)
-- Reverse fixtures are always 9 weeks apart (satisfies "no consecutive reverse" rule)
+- **Club**: three-letter code (`WOS` = Westcliff on Sea). **Team**: club code + XI number (`WOS2` = 2nd XI).
+- **Division**: 10 teams; **game week**: 1–18; each team plays every opponent home and away.
+- Ground sharing pairs XIs 1&2, 3&4, 5&6, 7&8 within a club — plus cross-club pairs listed in `venConflicts.csv`.
 
-Trade-off: Less flexibility - any constraint violations in first half are mirrored in second half.
+## When there is no solution
 
-### Cross-Division Coupling
-Ground sharing creates dependencies between divisions. For example, if WAN1 (1st XI Premier) is home in week 3, then WAN2 (2nd XI Premier) should be away in week 3. This means divisions cannot be scheduled independently.
+The venue requirements in `venReq.csv` (200+ rows) are what usually make a season infeasible, and CP-SAT gives no explanation. The established workflow: retry across seeds first (`retry_until_solution.py` — the seed reorders matchups and the CP-SAT search, so a failure at the time limit is not proof of infeasibility), then run `analyze_constraints.py` / `check_venreq_duplicates.py` to find the over-constrained division, then relax the offending `venReq` rows. `notes.md` records which requests could not be accommodated in past seasons — append to it rather than silently dropping a requirement.
+
+`notes.md` also describes a virtual `BYE1` team and a two-phase (standard divisions, then BYE divisions) scheduler. That design is **not implemented**: the current code detects bye divisions by team count (11) and solves everything in one full-18 pass, with no BYE-team filtering in `output.py`. Treat it as a proposal.
