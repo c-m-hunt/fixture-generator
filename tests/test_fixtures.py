@@ -294,6 +294,32 @@ class TestRoundRobin:
 
         assert len(violations) == 0, f"Home/away balance violations:\n" + "\n".join(violations[:20])
 
+    def test_bye_division_home_away_within_one(self, validator):
+        """Each team in an 11-team division should have home and away within 1.
+
+        Bye weeks make an exact 9/9 split impossible, so 16 games means 8/8
+        and 17 games means 9/8 or 8/9.
+        """
+        violations = []
+
+        for division_name, teams in validator.divisions.items():
+            if len(teams) != 11:
+                continue
+
+            division_fixtures = [f for f in validator.fixtures if f.division == division_name]
+
+            for team in teams:
+                home_count = sum(1 for f in division_fixtures if f.home_team == team)
+                away_count = sum(1 for f in division_fixtures if f.away_team == team)
+
+                if abs(home_count - away_count) > 1:
+                    violations.append(
+                        f"{team} has {home_count} home / {away_count} away "
+                        f"(expected within 1)"
+                    )
+
+        assert len(violations) == 0, "Bye division balance violations:\n" + "\n".join(violations[:20])
+
     def test_each_team_plays_18_games(self, validator):
         """Each team in a 10-team division should play exactly 18 games."""
         violations = []
@@ -351,17 +377,17 @@ class TestHardConstraints:
                 if len(schedule) < 4:
                     continue
 
-                # Check for 4 consecutive same venue
+                # Check for 4 consecutive same venue, counting games rather than
+                # weeks - a bye week is skipped over, so away/away/bye/away/away
+                # is a run of 4 away games.
                 for i in range(len(schedule) - 3):
                     venues = [schedule[j][2] for j in range(i, i + 4)]
                     weeks = [schedule[j][0] for j in range(i, i + 4)]
 
-                    # Check if weeks are actually consecutive
-                    if all(weeks[j+1] == weeks[j] + 1 for j in range(3)):
-                        if all(v == 'h' for v in venues):
-                            violations.append(f"{team} has 4 consecutive home games in weeks {weeks}")
-                        elif all(v == 'a' for v in venues):
-                            violations.append(f"{team} has 4 consecutive away games in weeks {weeks}")
+                    if all(v == 'h' for v in venues):
+                        violations.append(f"{team} has 4 consecutive home games in weeks {weeks}")
+                    elif all(v == 'a' for v in venues):
+                        violations.append(f"{team} has 4 consecutive away games in weeks {weeks}")
 
         assert len(violations) == 0, f"4+ consecutive venue violations:\n" + "\n".join(violations[:20])
 

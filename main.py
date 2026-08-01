@@ -8,6 +8,7 @@ and scheduling rules.
 """
 
 import argparse
+import sys
 from pathlib import Path
 
 from fix_gen import (
@@ -55,6 +56,19 @@ def main():
     generator = FixtureGenerator(divisions, fixed_matches, venue_requirements, venue_conflicts)
     fixtures, used_seed = generator.generate(seed=args.seed)
 
+    # Bail out before writing anything - an empty result would otherwise
+    # overwrite the previous (good) fixtures with an empty file.
+    if not fixtures:
+        print("\n" + "=" * 60)
+        print("NO FIXTURES GENERATED")
+        print("=" * 60)
+        print(f"\nThe solver found no solution with seed {used_seed}.")
+        print(f"Existing files in {output_dir} have been left untouched.")
+        print("\nTry another seed (python main.py --seed N), run")
+        print("scripts/retry_until_solution.py, or check for over-constrained")
+        print("data with scripts/analyze_constraints.py.")
+        return 1
+
     # Validate
     print("\nValidating fixtures...")
     violations = validate_fixtures(fixtures, divisions)
@@ -74,6 +88,8 @@ def main():
     # Print fixture grids and write to file
     print_fixture_grids(fixtures, divisions, output_dir / "fixtures.txt", seed=used_seed)
 
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -487,6 +487,10 @@ class FixtureGenerator:
                     model.Add(is_home[(team, week)] == sum(indicators))
 
         # One game per week (or bye week for 11-team divisions)
+        # team_plays[(team, week)] is 1 when the team has a game that week.
+        # For 11-team divisions it is 0 on a bye week; for 10-team divisions
+        # it is always 1.
+        team_plays: dict[tuple[str, int], cp_model.IntVar | int] = {}
         for div in self.divisions:
             teams = [t.code for t in div.teams]
             matchups = div_matchups[div.name]
@@ -516,9 +520,25 @@ class FixtureGenerator:
                     if div.has_bye_weeks:
                         # 11-team division: 0 or 1 game per week (allows bye weeks)
                         model.Add(sum(matchups_this_week) <= 1)
+                        plays = model.NewBoolVar(f"plays_{team}_{week}")
+                        model.Add(plays == sum(matchups_this_week))
+                        team_plays[(team, week)] = plays
                     else:
                         # 10-team division: exactly 1 game per week
                         model.Add(sum(matchups_this_week) == 1)
+                        team_plays[(team, week)] = 1
+
+        # Away indicator: a team is away only when it actually has a game.
+        # A bye week is neither home nor away, so it breaks up runs of
+        # consecutive games at the same venue rather than counting as an away
+        # game. (is_home stays untouched - a team on a bye is not at home, which
+        # is what keeps the ground sharing constraints correct.)
+        is_away: dict[tuple[str, int], cp_model.IntVar] = {}
+        for team in self.all_teams:
+            for week in all_weeks:
+                away = model.NewBoolVar(f"away_{team}_{week}")
+                model.Add(is_home[(team, week)] + away == team_plays[(team, week)])
+                is_away[(team, week)] = away
 
         # For 11-team divisions: ensure exactly 5 matches per week (10 teams playing, 1 bye)
         for div in self.divisions:
@@ -594,6 +614,14 @@ class FixtureGenerator:
                             team_matchups_used.append(matchup_used[key])
                     # Each team must play at least 16 games (16 matchups used involving this team)
                     model.Add(sum(team_matchups_used) >= 16)
+
+                    # Home and away counts must be within 1 of each other.
+                    # Byes are excluded (is_away is only set on weeks actually
+                    # played), so 16 games means 8/8 and 17 means 9/8 or 8/9.
+                    home_total = sum(is_home[(team, w)] for w in all_weeks)
+                    away_total = sum(is_away[(team, w)] for w in all_weeks)
+                    model.Add(home_total - away_total <= 1)
+                    model.Add(away_total - home_total <= 1)
             else:
                 # 10-team division: exactly 9 home, 9 away
                 for team in teams:
@@ -622,16 +650,29 @@ class FixtureGenerator:
                 else:
                     model.Add(is_home[(team, week)] == 0)
 
-        # Hard constraint: No MAX_CONSECUTIVE_SAME_VENUE consecutive home or away
-        for team in self.all_teams:
-            for start in range(1, 16):
-                if start + 3 <= 18:
-                    weeks_seq = [start, start + 1, start + 2, start + 3]
-                    home_vars = [is_home[(team, w)] for w in weeks_seq]
-                    # Can't have all MAX_CONSECUTIVE_SAME_VENUE home (sum must be <= MAX-1)
-                    model.Add(sum(home_vars) <= MAX_CONSECUTIVE_SAME_VENUE - 1)
-                    # Can't have all MAX_CONSECUTIVE_SAME_VENUE away (sum must be >= 1)
-                    model.Add(sum(home_vars) >= 1)
+        # Hard constraint: never MAX_CONSECUTIVE_SAME_VENUE games in a row at the
+        # same venue, counting games rather than weeks. A bye neither breaks a run
+        # nor counts towards it, so away/away/bye/away/away is a run of 4 away
+        # games and is rejected.
+        #
+        # Each constraint says "at most MAX-1 away games in any stretch of weeks
+        # containing no home game". When the window does contain a home game the
+        # right hand side goes slack and the constraint drops out.
+        for div in self.divisions:
+            # A bye division team plays at least 16 of 18 weeks, so a run of
+            # MAX games spans at most MAX + 2 weeks.
+            max_byes = 2 if div.has_bye_weeks else 0
+            for team in [t.code for t in div.teams]:
+                for length in range(MAX_CONSECUTIVE_SAME_VENUE,
+                                    MAX_CONSECUTIVE_SAME_VENUE + max_byes + 1):
+                    for start in range(1, 20 - length):
+                        window = range(start, start + length)
+                        home_vars = [is_home[(team, w)] for w in window]
+                        away_vars = [is_away[(team, w)] for w in window]
+                        model.Add(sum(away_vars) <= MAX_CONSECUTIVE_SAME_VENUE - 1
+                                  + length * sum(home_vars))
+                        model.Add(sum(home_vars) <= MAX_CONSECUTIVE_SAME_VENUE - 1
+                                  + length * sum(away_vars))
 
         # Hard constraint: Ground sharing (teams from same club can't both be home)
         for t1, t2 in self.ground_sharing_pairs:
@@ -659,8 +700,8 @@ class FixtureGenerator:
                     penalties.append(all_home * CONSECUTIVE_3_PENALTY)
 
                     all_away = model.NewBoolVar(f"cons_a_{team}_{start}")
-                    model.AddBoolAnd([is_home[(team, start)].Not(), is_home[(team, start+1)].Not(), is_home[(team, start+2)].Not()]).OnlyEnforceIf(all_away)
-                    model.AddBoolOr([is_home[(team, start)], is_home[(team, start+1)], is_home[(team, start+2)]]).OnlyEnforceIf(all_away.Not())
+                    model.AddBoolAnd([is_away[(team, start)], is_away[(team, start+1)], is_away[(team, start+2)]]).OnlyEnforceIf(all_away)
+                    model.AddBoolOr([is_away[(team, start)].Not(), is_away[(team, start+1)].Not(), is_away[(team, start+2)].Not()]).OnlyEnforceIf(all_away.Not())
                     penalties.append(all_away * CONSECUTIVE_3_PENALTY)
 
         if penalties:

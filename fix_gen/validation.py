@@ -5,6 +5,7 @@ Validation functions for generated fixtures.
 from collections import defaultdict
 from itertools import combinations
 
+from .config import MAX_CONSECUTIVE_SAME_VENUE
 from .models import Division, Fixture
 
 
@@ -29,16 +30,16 @@ def validate_fixtures(fixtures: list[Fixture], divisions: list[Division]) -> lis
                 if not (16 <= len(games) <= 17):
                     issues.append(f"{team}: plays {len(games)} games, expected 16-17 (with bye weeks)")
 
-            # For 11-team divisions, don't check exact home/away balance (bye weeks make it impossible)
-            # Just check that teams play a reasonable mix
+            # For 11-team divisions, bye weeks make an exact 9/9 split impossible,
+            # but home and away must still be within 1 of each other
             for team in teams:
                 home_games = [f for f in div_fixtures if f.home_team == team]
                 away_games = [f for f in div_fixtures if f.away_team == team]
-                total_games = len(home_games) + len(away_games)
-                # Allow some imbalance, but not too extreme (at least 6 of each for 16 games)
-                if total_games >= 16:
-                    if len(home_games) < 6 or len(away_games) < 6:
-                        issues.append(f"{team}: unbalanced home/away ({len(home_games)}H/{len(away_games)}A)")
+                if abs(len(home_games) - len(away_games)) > 1:
+                    issues.append(
+                        f"{team}: unbalanced home/away ({len(home_games)}H/{len(away_games)}A), "
+                        f"expected within 1"
+                    )
 
             # Check each pair plays at least once, at most twice
             for t1, t2 in combinations(teams, 2):
@@ -92,7 +93,9 @@ def validate_fixtures(fixtures: list[Fixture], divisions: list[Division]) -> lis
                 if weeks[1] - weeks[0] == 1:
                     issues.append(f"{t1} vs {t2}: consecutive reverse fixtures in weeks {weeks}")
 
-        # Check no 4+ consecutive home or away
+        # Check no MAX_CONSECUTIVE_SAME_VENUE+ consecutive home or away games.
+        # Bye weeks are skipped rather than treated as away, so away/away/bye/away
+        # counts as 3 in a row and away/away/bye/away/away counts as 4.
         for team in teams:
             week_venue = {}
             for f in div_fixtures:
@@ -101,14 +104,18 @@ def validate_fixtures(fixtures: list[Fixture], divisions: list[Division]) -> lis
                 elif f.away_team == team:
                     week_venue[f.week] = "A"
 
-            sequence = [week_venue.get(w, "?") for w in range(1, 19)]
-
-            for i in range(15):
-                window = sequence[i:i+4]
-                if window == ["H", "H", "H", "H"]:
-                    issues.append(f"{team}: 4 consecutive home games starting week {i+1}")
-                elif window == ["A", "A", "A", "A"]:
-                    issues.append(f"{team}: 4 consecutive away games starting week {i+1}")
+            run: list[tuple[int, str]] = []
+            for week, venue in sorted(week_venue.items()):
+                if run and venue != run[-1][1]:
+                    run = []
+                run.append((week, venue))
+                if len(run) == MAX_CONSECUTIVE_SAME_VENUE:
+                    venue_name = "home" if venue == "H" else "away"
+                    weeks_in_run = [w for w, _ in run]
+                    issues.append(
+                        f"{team}: {MAX_CONSECUTIVE_SAME_VENUE} consecutive "
+                        f"{venue_name} games in weeks {weeks_in_run}"
+                    )
 
     return issues
 
