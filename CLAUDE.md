@@ -82,7 +82,9 @@ Live inputs are in `data/`; `data-ecl-2024/`, `data-ecl-2025/`, `data-trmel-2026
 
 Currently 13 divisions (Premier, Div 1–12) of 10 teams each; the code also handles 11-team divisions. `load_divisions` raises on duplicate team codes across divisions.
 
-Outputs: `output/fixtures.csv` (`game_week,home_team,away_team,division`, with a `# Generated with seed: N` comment line), `fixtures.html`, `fixtures.txt` (per-division week grids).
+Outputs: `output/fixtures.csv` (`game_week,home_team,away_team,division`), `fixtures.html`, `fixtures.txt` (per-division week grids).
+
+`fixtures.csv` starts with a `# Generated with seed: N` line **above** the header, so anything reading it must strip `#` lines first — handing the raw file to `csv.DictReader` makes the comment the header and every field lookup fails with `KeyError: 'game_week'`.
 
 ## Domain terminology
 
